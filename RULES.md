@@ -15,7 +15,7 @@
 6. Don't repeat yourself. Shared logic lives in one place.
 7. No magic numbers. Name constants instead of hardcoding values.
 8. Minimize dependencies. Don't add a library for something a few lines can do.
-9. Comment why, not what. Except clever code from rule 3, which should explain how it works.
+9. Add comments. Modest commentary is better than none or tons but why is better than what. Except clever code from rule 3, where comments should explain how it works.
 10. Test what matters. Verify every change. Write simple unit and integration tests for critical logic only; skip trivial code.
 11. Fail loudly. Never hide errors.
 12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables.

@@ -29,8 +29,6 @@ def raw_penalty(comment):
 
 def why_confidence(comment):
     """0.0 to 1.0: how likely the comment explains why, as opposed to repeating what the code does."""
-    if comment.explains_clever:
-        return 1.0
     penalty = raw_penalty(comment)
     if penalty < 1.0 and mentions_reason(comment.text):
         penalty *= WHY_DISCOUNT

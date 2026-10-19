@@ -5,7 +5,7 @@ from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from ...source_code import PYTHON, items_in_project
 from ..one_job.find_bodies import find_bodies
-from .extract_comments import python_comments, tree_comments
+from .extract import python_comments, tree_comments
 from .judge_comment import why_confidence
 from .limits import LIKELY_WHAT_BELOW, MIN_COMPLEXITY_NEEDING_COMMENT
 
@@ -18,7 +18,10 @@ def snippet(text):
 
 @rule("RULE-09-COMMENTS-SAY-WHY", "Comments explain why, not what")
 def check_comments_say_why(project):
-    graded = [(label, comment, why_confidence(comment)) for label, comment in items_in_project(project, python_comments, tree_comments)]
+    # Comments on clever code are left out: rule 3 already asks them to explain how the code works.
+    comments = [(label, comment) for label, comment in items_in_project(project, python_comments, tree_comments)
+                if not comment.explains_clever]
+    graded = [(label, comment, why_confidence(comment)) for label, comment in comments]
     if not graded:
         return Result.passed("no comments found")
     worst = sorted((entry for entry in graded if entry[2] < LIKELY_WHAT_BELOW), key=lambda entry: entry[2])

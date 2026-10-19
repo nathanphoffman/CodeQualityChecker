@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from codequality.rules.comment_why.extract_comments import python_comments, tree_comments
+from codequality.rules.comment_why.extract import python_comments, tree_comments
 from codequality.rules.comment_why.judge_comment import why_confidence
 
 CASES = [
@@ -24,9 +24,10 @@ def test_python_comments_are_sorted_into_what_and_why():
         assert (confidence < 0.5) == (expected == "what"), (comment.text, confidence)
 
 
-def test_clever_code_comment_is_always_fine():
+def test_comments_on_clever_code_are_marked_so_they_can_be_left_out():
     source = "import re\n# matches a number, then a unit\nPATTERN = re.compile(r'\\d+px')\nx = re.compile(r'a')  # regex\n"
-    assert all(why_confidence(c) == 1.0 for c in python_comments(source) if c.explains_clever)
+    comments = python_comments(source)
+    assert len(comments) == 2 and all(comment.explains_clever for comment in comments)
 
 
 def test_rust_and_typescript_comments_are_read():
@@ -39,3 +40,10 @@ def test_rust_and_typescript_comments_are_read():
 
 def test_pragma_comments_are_ignored():
     assert python_comments("import os  # noqa: F401\n#!/usr/bin/env python\n") == []
+
+
+def test_comment_above_a_multi_line_statement_covers_clever_code_inside_it():
+    source = "import re\n# the patterns, one per kind\nPATTERNS = {\n    'a': re.compile('x'),\n    'b': 2,\n}\nother = 1\n"
+    (comment,) = python_comments(source)
+    assert comment.explains_clever
+    assert not python_comments("# just a note\nx = 1\n")[0].explains_clever
