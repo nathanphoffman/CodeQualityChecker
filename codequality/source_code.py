@@ -1,4 +1,5 @@
 import re
+import warnings
 
 PYTHON, RUST, TYPESCRIPT = "python", "rust", "typescript"
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
@@ -41,8 +42,12 @@ def non_test_files(project, suffixes):
 
 
 def read_source(path):
-    """The text of a file. Bytes that are not valid text are skipped instead of stopping the run."""
-    return path.read_text(errors="ignore")
+    """The text of a file. A file that is not valid UTF-8 is skipped with a warning, not half-read."""
+    try:
+        return path.read_text()
+    except UnicodeDecodeError as error:
+        warnings.warn(f"skipped {path}: not valid UTF-8 ({error})")
+        return ""
 
 
 def items_in_project(project, for_python, for_tree):

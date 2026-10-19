@@ -17,7 +17,7 @@
 8. Minimize dependencies. Don't add a library for something a few lines can do.
 9. Add comments. Modest commentary is better than none or tons but why is better than what. Except clever code from rule 3, where comments should explain how it works.
 10. Test what matters. Verify every change. Write simple unit and integration tests for critical logic only; skip trivial code.
-11. Fail loudly. Never hide errors.
+11. Fail loudly but directedly. Never hide errors, don't over report or over-throw.
 12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables.
 13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
 

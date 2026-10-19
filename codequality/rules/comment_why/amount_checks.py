@@ -12,20 +12,26 @@ from .limits import EDGE_DISTANCE, EDGE_SCORE, FALLOFF_PER_STEP, LINES_PER_COMME
 STANDS_IN_FOR_CHECKS = 2
 
 
-def amount_score(found, expected):
-    """A peak: 100% when found equals expected, EDGE_SCORE at EDGE_DISTANCE powers of 6 off, then falling fast."""
+def amount_score(found, expected, full_credit_powers=0.0):
+    """A peak: 100% when found equals expected, EDGE_SCORE at EDGE_DISTANCE powers of 6 off, then falling fast.
+    With full_credit_powers the peak becomes a plateau: that many powers of 6 either side of expected score 100% too."""
     if not found:
         return 0.0
-    steps = abs(math.log(found / expected, POWER_BASE)) / EDGE_DISTANCE
+    steps = max(0.0, abs(math.log(found / expected, POWER_BASE)) - full_credit_powers) / EDGE_DISTANCE
     if steps <= 1:
         return 1 - (1 - EDGE_SCORE) * steps
     return EDGE_SCORE * FALLOFF_PER_STEP ** (steps - 1)
 
 
-def describe_amount(noun, found, expected, lines):
-    """`Encountered 103 comments, expected 149 (range 61 to 365, 2185 lines of code)`. The range is where EDGE_SCORE applies."""
+def edge_range(expected):
+    """(low, high): the amounts that still score EDGE_SCORE, a little off the ideal in either direction."""
     spread = POWER_BASE ** EDGE_DISTANCE
-    return f"Encountered {found} {noun}, expected {expected:.0f} (range {expected / spread:.0f} to {expected * spread:.0f}, {lines} lines of code)"
+    return expected / spread, expected * spread
+
+
+def describe_amount(noun, found, expected, low, high, lines):
+    """`Encountered 103 comments, expected 149 (range 61 to 365, 2185 lines of code)`. Inside the range scores well."""
+    return f"Encountered {found} {noun}, expected {expected:.0f} (range {low:.0f} to {high:.0f}, {lines} lines of code)"
 
 
 def count_plain_comments(project):
@@ -40,4 +46,4 @@ def check_comment_amount(project):
     if not lines:
         return Result.passed("no source files found")
     found, expected = count_plain_comments(project), lines / LINES_PER_COMMENT
-    return Result.scored(amount_score(found, expected), describe_amount("non-complex comments", found, expected, lines))
+    return Result.scored(amount_score(found, expected), describe_amount("non-complex comments", found, expected, *edge_range(expected), lines))

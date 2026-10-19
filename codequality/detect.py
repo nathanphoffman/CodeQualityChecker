@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import warnings
 from pathlib import Path
 
 from .models import Project
@@ -45,8 +46,9 @@ def _detect_ts(project: Project) -> None:
         project.languages.add(TYPESCRIPT)
     if pkg.exists():
         try:
-            data = json.loads(pkg.read_text())
-        except json.JSONDecodeError:
+            data = json.loads(read_source(pkg))
+        except json.JSONDecodeError as error:
+            warnings.warn(f"skipped framework detection: {pkg} is not valid JSON ({error})")
             return
         deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
         for dep, name in TS_FRAMEWORKS.items():
