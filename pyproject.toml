@@ -1,0 +1,9 @@
+[project]
+name = "codequality"
+version = "0.1.0"
+description = "Grade a project against a personal set of code quality rules"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+codequality = "codequality.cli:main"
