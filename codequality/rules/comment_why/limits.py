@@ -39,8 +39,16 @@ STOP_WORDS = {"a", "an", "the", "to", "of", "in", "on", "is", "are", "be", "this
 PRAGMA_PREFIXES = ("noqa", "type:", "fmt:", "pylint", "pragma", "isort", "ruff", "nosec", "eslint", "@ts-",
                    "prettier", "istanbul", "clippy", "region", "endregion", "-*-", "noinspection", "usr/bin")
 
-# How much commentary is the right amount: one comment for every 6 * 6 lines, about one per large function.
-LINES_PER_COMMENT = 6 ** 2
-# Below the target the score falls fast (squared); above it, slowly (square root), so too many is kinder than too few.
-TOO_FEW_EXPONENT = 2
-TOO_MANY_EXPONENT = 0.5
+# How much commentary is the right amount, in lines of code per comment.
+# 6 lines is a simple function and 36 is a complex one (rule 1). A simple function needs less than one comment and a
+# complex one needs more than one, so both ends are fine (90%, see EDGE_SCORE) and the ideal is the middle of the two on a
+# scale of powers of 6: 6 ** 1.5, about one comment per 15 lines.
+LINES_PER_COMMENT = 6 ** 1.5
+
+# The amount score is a peak. It is 100% at the ideal, and EDGE_SCORE when the actual amount is EDGE_DISTANCE powers of 6
+# from the ideal (6 ** 0.5, about 2.4 times too many or too few). Past that, every further EDGE_DISTANCE
+# multiplies the score by FALLOFF_PER_STEP, so being far off is punished hard.
+POWER_BASE = 6
+EDGE_DISTANCE = 0.5
+EDGE_SCORE = 0.90
+FALLOFF_PER_STEP = 0.25

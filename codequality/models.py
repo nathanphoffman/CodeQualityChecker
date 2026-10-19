@@ -77,10 +77,11 @@ class Rule:
     framework: str | None = None  # None = any
     severity: str = SEVERITY_WARN
     checkable: str = CHECK_AUTO
+    weight_multiplier: int = 1  # a check that stands in for several counts that many times
 
     @property
     def weight(self) -> int:
-        return SEVERITY_WEIGHTS[self.severity]
+        return SEVERITY_WEIGHTS[self.severity] * self.weight_multiplier
 
     def applies_to(self, project: Project) -> bool:
         if self.language and self.language not in project.languages:

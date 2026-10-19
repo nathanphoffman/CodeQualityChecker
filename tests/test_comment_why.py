@@ -49,35 +49,38 @@ def test_comment_above_a_multi_line_statement_covers_clever_code_inside_it():
     assert not python_comments("# just a note\nx = 1\n")[0].explains_clever
 
 
-def amount_scores(tmp_path: Path, comment_count: int, code_lines: int):
+def test_amount_score_is_a_peak():
+    from codequality.rules.comment_why.amount_checks import amount_score
+
+    ideal = 6 ** 1.5
+    assert amount_score(10, 10) == 1.0
+    assert abs(amount_score(10 * ideal / 6, 10) - 0.90) < 1e-9  # one comment per 6 lines: the simple-function edge
+    assert abs(amount_score(10 * ideal / 36, 10) - 0.90) < 1e-9  # one per 36: the complex-function edge
+    assert abs(amount_score(10 * 6 ** 0.5, 10) - 0.90) < 1e-9 and abs(amount_score(10 / 6 ** 0.5, 10) - 0.90) < 1e-9
+    assert abs(amount_score(10 * 6, 10) - 0.90 * 0.25) < 1e-9  # a whole power of 6 off: the edge, then one more step
+    assert amount_score(0, 10) == 0.0
+
+
+def test_comment_amount_message_reads_as_a_scale(tmp_path: Path):
     from codequality import report
     from codequality.detect import detect
     from codequality.registry import all_rules
 
-    commented = "".join(f"# note {n}\nx = 1\n" for n in range(comment_count))  # code between, or the comments would merge
-    body = commented + "x = 1\n" * (code_lines - 2 * comment_count)
-    (tmp_path / "a.py").write_text(body)
-    results = {rule.id: result.score for rule, result in report.run(detect(tmp_path), all_rules())}
-    return results["RULE-09-ENOUGH-COMMENTS"], results["RULE-09-MODEST-COMMENTS"]
+    (tmp_path / "a.py").write_text("# note\nx = 1\n" + "x = 1\n" * 28)
+    results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
+    assert results["RULE-09-COMMENT-AMOUNT"].message.startswith("Encountered 1 non-complex comments, expected 2")
 
 
-def test_one_comment_per_36_lines_is_perfect_on_both_sides(tmp_path: Path):
-    assert amount_scores(tmp_path, 1, 36) == (1.0, 1.0)
+def test_the_amount_check_counts_twice_as_much_as_a_warning():
+    from codequality.registry import all_rules
 
-
-def test_too_few_is_harsher_than_too_many(tmp_path: Path):
-    few, _ = amount_scores(tmp_path, 1, 72)  # half the target: 0.5 squared
-    assert abs(few - 0.25) < 1e-9
-    other = tmp_path / "many"
-    other.mkdir()
-    _, many = amount_scores(other, 2, 36)  # double the target: 1 / sqrt(2)
-    assert abs(many - 0.5 ** 0.5) < 1e-9 and many > few
+    weights = {rule.id: rule.weight for rule in all_rules()}
+    assert weights["RULE-09-COMMENT-AMOUNT"] == 2 * weights["RULE-09-COMMENTS-SAY-WHY"]
 
 
 def test_comments_on_clever_code_do_not_count_toward_the_amount(tmp_path: Path):
-    from codequality.rules.comment_why.amount_checks import comments_per_target
+    from codequality.rules.comment_why.amount_checks import count_plain_comments
     from codequality.detect import detect
 
     (tmp_path / "a.py").write_text("import re\n# how this works\nPATTERN = re.compile('x')\n# plain note\ny = 1\n")
-    count, _, _ = comments_per_target(detect(tmp_path))
-    assert count == 1
+    assert count_plain_comments(detect(tmp_path)) == 1

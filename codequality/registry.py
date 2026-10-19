@@ -8,11 +8,11 @@ _RULES: dict[str, Rule] = {}
 
 
 def rule(id: str, title: str, *, language: str | None = None, framework: str | None = None,
-         severity: str = SEVERITY_WARN, checkable: str = "auto"):
+         severity: str = SEVERITY_WARN, checkable: str = "auto", weight_multiplier: int = 1):
     def wrap(fn: Callable[[Project], Result]):
         if id in _RULES:
             raise ValueError(f"duplicate rule id {id}")
-        _RULES[id] = Rule(id, title, fn, language, framework, severity, checkable)
+        _RULES[id] = Rule(id, title, fn, language, framework, severity, checkable, weight_multiplier)
         return fn
     return wrap
 
