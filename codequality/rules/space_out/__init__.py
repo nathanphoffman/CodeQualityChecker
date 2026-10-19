@@ -3,10 +3,12 @@ after multi-line statements, and never two blank lines in a row."""
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from ...source_code import PYTHON, SUFFIX_LANGUAGE, read_source
+from ...deor_support.quality.deor_spacing import deor_gaps
+from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ..power_of_six.limits import MAX_ITEMS
 from ..power_of_six.scoring import function_length_credit
 from .limits import MAX_BLANK_LINES_IN_A_ROW
+from .Spacing_Gaps import Spacing_Gaps
 from .paragraphs import find_blank_runs, find_paragraphs, is_judged
 from .python_spacing import python_gaps, python_string_lines
 from .text_spacing import text_gaps
@@ -21,7 +23,7 @@ def grade_gaps(project, total_field, missing_field, noun):
     total, places = 0, []
 
     for label, language, source in source_files(project):
-        gaps = python_gaps(source) if language == PYTHON else text_gaps(source, language)
+        gaps = python_gaps(source) if language == PYTHON else Spacing_Gaps(*deor_gaps(source)) if language == DEOR else text_gaps(source, language)
         total += getattr(gaps, total_field)
         places += [f"{label}:{line}" for line in getattr(gaps, missing_field)]
 

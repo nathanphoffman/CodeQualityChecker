@@ -1,7 +1,9 @@
 import ast
 
 from ...python_support.parse_python import parse_python
-from ...source_code import PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
+from ...deor_support.structure.declarations import declarations_in
+from ...deor_support.structure.tree import parse_deor
+from ...source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...tree_sitter_support.parse_tree import parse_tree
 from ...tree_sitter_support.tree_walk import squashed, walk
 from ..be_secure.uses import find_uses
@@ -9,6 +11,7 @@ from ..be_secure.uses import find_uses
 TYPESCRIPT_TEST_CALLS = {"it", "test", "it.only", "test.only"}
 CALLBACK_MARKERS = ("=>", "function")  # a real test passes its body as a function: test("name", () => ...)
 PYTHON_TEST_PREFIX = "test"
+DEOR_EXPECTATION = "expect"  # a comment starting "expect:" or "expect-error:" in a Deor test example
 RUST_TEST_ATTRIBUTE_END = "test]"  # #[test] and #[tokio::test], but not #[cfg(test)]
 
 def count_python_tests(source):
@@ -36,9 +39,18 @@ def count_typescript_tests(source):
 
     return len([call for call in calls if any(marker in call.text for marker in CALLBACK_MARKERS)])
 
+def count_deor_tests(source):
+    """Functions named test..., plus one for a file that states what it expects (# expect:, # expect-error: ...), which is how
+    the Deor test runner reads a test example."""
+    parsed = parse_deor(source)
+    functions = [item for item in declarations_in(parsed.roots, ("fn",)) if item.name.startswith(PYTHON_TEST_PREFIX)]
+    states_expectation = any(line.comment is not None and line.comment.strip().startswith(DEOR_EXPECTATION) for line in parsed.lines)
+
+    return len(functions) + states_expectation
+
 def count_tests_in_project(project):
     """Tests in every Python, Rust and TypeScript file, test folders included."""
-    counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests}
+    counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests}
     total = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

@@ -1,6 +1,7 @@
 import re
 
-from .deor_functions import deor_functions
+from ...deor_support.structure.declarations import FUNCTION_KINDS, declarations_in
+from ...deor_support.structure.tree import parse_deor
 from .Function_Info import Function_Info
 from ...python_support.python_functions import python_functions
 from ...source_code import DEOR, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
@@ -76,12 +77,19 @@ def describe_function(text, match):
 
     return Function_Info(match.group(NAME_GROUP), arguments, last_line - first_line + 1, first_line)
 
+def deor_function_infos(source):
+    """A Deor macro is measured like a function: lines from its header to its last body line."""
+    declarations = declarations_in(parse_deor(source).roots, FUNCTION_KINDS)
+
+    return [Function_Info(item.label, len(item.parameter_names), item.statement.end_line - item.statement.first_line + 1,
+                          item.statement.first_line) for item in declarations]
+
 def find_functions(source, language):
     if language == PYTHON:
         return [Function_Info(*fields) for fields in python_functions(source)]
 
     if language == DEOR:
-        return [Function_Info(*fields) for fields in deor_functions(source, count_arguments)]
+        return deor_function_infos(source)
 
     text = blank_out_text(source)
     found = {}

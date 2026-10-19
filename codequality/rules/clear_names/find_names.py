@@ -1,7 +1,8 @@
 import re
 
+from ...deor_support.judging.deor_names import deor_names
 from ...python_support.python_names import python_names
-from ...source_code import NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
+from ...source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ...tree_sitter_support.parse_tree import parse_tree
 from ...tree_sitter_support.tree_walk import identifiers_in, walk
 
@@ -48,6 +49,9 @@ def find_names(source, language):
     # Python isn't in NAME_PATTERNS: its parser finds names exactly, so no patterns are needed.
     if language == PYTHON:
         return python_names(source)
+
+    if language == DEOR:
+        return deor_names(source)
 
     text = blank_out_text(source)
     names = []

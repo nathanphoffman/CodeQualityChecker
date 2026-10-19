@@ -2,6 +2,8 @@ import io
 import tokenize
 import warnings
 
+from ....deor_support.quality.deor_comments import deor_raw_comments
+from ....source_code import DEOR
 from ....tree_sitter_support.parse_tree import parse_tree
 from ....tree_sitter_support.tree_walk import walk
 
@@ -21,6 +23,9 @@ def python_raw(source):
             for token in tokens if token.type == tokenize.COMMENT and not token.string.startswith("#!")]
 
 def tree_raw(source, language):
+    if language == DEOR:
+        return deor_raw_comments(source)
+
     lines = source.splitlines()
 
     return [(node.start_point.row + 1, node.end_point.row + 1, node.text.decode(),

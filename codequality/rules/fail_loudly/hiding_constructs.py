@@ -12,6 +12,7 @@ HIDING_CHECK = Call_Check("hiding", "Calls that hide errors", SEVERITY_WARN, {
 
     "typescript": (),
     "rust": (),
+    "deor": (),
 })
 
 def hiding_constructs(project):

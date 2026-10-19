@@ -1,4 +1,6 @@
-from ...source_code import RUST, TYPESCRIPT
+from ...deor_support.quality.deor_handlers import deor_handlers
+from ...deor_support.structure.rust_blocks import real_line, rust_blocks
+from ...source_code import DEOR, RUST, TYPESCRIPT
 from ...tree_sitter_support.parse_tree import parse_tree
 from ...tree_sitter_support.tree_walk import identifiers_in, squashed, walk
 from ...tree_sitter_support.use_names import dotted
@@ -67,7 +69,20 @@ def typescript_handlers(root):
 
     return found
 
+def deor_error_handlers(source):
+    """Deor crashes and failed-validity checks, plus the handlers in its `rust` blocks (read as Rust, lines moved back)."""
+    found = [Error_Handler(*fields) for fields in deor_handlers(source)]
+
+    for first_line, wrapped in rust_blocks(source):
+        found += [Error_Handler(real_line(first_line, handler.line_number), *handler[1:])
+                  for handler in rust_handlers(parse_tree(wrapped, RUST))]
+
+    return found
+
 def tree_handlers(source, language):
+    if language == DEOR:
+        return deor_error_handlers(source)
+
     root = parse_tree(source, language)
 
     return rust_handlers(root) if language == RUST else typescript_handlers(root)

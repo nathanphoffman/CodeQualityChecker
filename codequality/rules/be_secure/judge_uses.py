@@ -27,7 +27,7 @@ def mentions_any(words, haystacks):
     return False
 
 def is_finding(use, check, language):
-    if not any(matches_entry(use, entry) for entry in check.entries[language]):
+    if not any(matches_entry(use, entry) for entry in check.entries.get(language, ())):
         return False
 
     return mentions_any(check.names_words, use.names) and mentions_any(check.line_words, [use.line_text])

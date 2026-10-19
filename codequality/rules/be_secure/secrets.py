@@ -9,10 +9,10 @@ from .limits import (CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE
 # Clever on purpose: finds a secret word assigned a quoted value, like a password variable or a JSON "api_key" entry.
 #   the secret word, then any other word characters, e.g. api_key or password_hash
 #   an optional closing quote (JSON keys), an optional type like `: string` or `: &str` (TypeScript, Rust, Python hints),
-#   then ":" or "=", then an opening quote
+#   then ":" or "=" (or the word "as", which is how Deor binds a value), then an opening quote
 #   a value of MIN_SECRET_LENGTH or more characters with no spaces or quotes, which also rules out `== "x"` tests
 SECRET_ASSIGNMENT = re.compile(
-    rf"(?:{'|'.join(SECRET_WORDS)})\w*[\"']?(?:\s*:\s*[\w&<>\[\]]+)?\s*[:=]\s*[\"'](?P<value>[^\"'\s]{{{MIN_SECRET_LENGTH},}})[\"']",
+    rf"(?:{'|'.join(SECRET_WORDS)})\w*[\"']?(?:\s*:\s*[\w&<>\[\]]+)?\s*(?:[:=]|\bas\b)\s*[\"'](?P<value>[^\"'\s]{{{MIN_SECRET_LENGTH},}})[\"']",
 
     re.IGNORECASE,
 )

@@ -1,3 +1,5 @@
+from ...deor_support.judging.deor_shapes import deor_shapes
+from ...source_code import DEOR
 from ...tree_sitter_support.parse_tree import parse_tree
 from ...tree_sitter_support.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
 from ...tree_sitter_support.tree_functions import function_name, statements_of
@@ -44,7 +46,14 @@ def block_shapes(block, language):
 
     return shapes
 
+def deor_function_shapes(source):
+    return [Function_Shape(name, line, [[Statement_Shape(*shape) for shape in sequence] for sequence in sequences])
+            for name, line, sequences in deor_shapes(source)]
+
 def tree_shapes(source, language):
+    if language == DEOR:
+        return deor_function_shapes(source)
+
     found = []
 
     for node in walk(parse_tree(source, language)):

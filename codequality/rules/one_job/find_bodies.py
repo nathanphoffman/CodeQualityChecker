@@ -1,10 +1,11 @@
+from ...deor_support.judging.deor_bodies import deor_bodies
 from ...python_support.python_bodies import python_bodies
-from ...source_code import PYTHON, SUFFIX_LANGUAGE, read_source
+from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ...tree_sitter_support.tree_functions import tree_bodies
 from .Function_Body import Function_Body
 
 def find_bodies(source, language):
-    found = python_bodies(source) if language == PYTHON else tree_bodies(source, language)
+    found = python_bodies(source) if language == PYTHON else deor_bodies(source) if language == DEOR else tree_bodies(source, language)
 
     return [Function_Body(*fields) for fields in found]
 

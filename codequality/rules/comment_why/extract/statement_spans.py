@@ -1,7 +1,8 @@
 import ast
 
 from ....python_support.parse_python import parse_python
-from ....source_code import PYTHON
+from ....deor_support.quality.deor_comments import deor_ends
+from ....source_code import DEOR, PYTHON
 from ....tree_sitter_support.parse_tree import parse_tree
 from ....tree_sitter_support.tree_walk import walk
 
@@ -28,4 +29,7 @@ def tree_ends(source, language):
     return ends
 
 def statement_ends(source, language):
+    if language == DEOR:
+        return deor_ends(source)
+
     return python_ends(source) if language == PYTHON else tree_ends(source, language)

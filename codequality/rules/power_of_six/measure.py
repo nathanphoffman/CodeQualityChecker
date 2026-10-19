@@ -1,15 +1,15 @@
 import os
 from pathlib import Path
 
-from ...source_code import FUNCTION_SUFFIX_LANGUAGE, read_source
+from ...source_code import SUFFIX_LANGUAGE, read_source
 from .find_functions import find_functions
 
 def parse_source_files(project):
     """Maps each Rust/TypeScript/Deor file to the functions found in it (Deor macros count as functions)."""
 
     return {
-        project.label_for(path): find_functions(read_source(path), FUNCTION_SUFFIX_LANGUAGE[path.suffix])
-        for path in project.files(*FUNCTION_SUFFIX_LANGUAGE)
+        project.label_for(path): find_functions(read_source(path), SUFFIX_LANGUAGE[path.suffix])
+        for path in project.files(*SUFFIX_LANGUAGE)
     }
 
 def functions_per_file(project):

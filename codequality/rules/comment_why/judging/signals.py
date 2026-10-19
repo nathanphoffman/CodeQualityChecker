@@ -1,6 +1,7 @@
 import ast
 
-from ....source_code import PYTHON
+from ....deor_support.quality.deor_comments import looks_like_deor
+from ....source_code import DEOR, PYTHON
 from ....tree_sitter_support.parse_tree import has_clean_parse
 from ...clear_names.judge_names import WORD_PATTERN
 from ..limits import CODE_SYMBOLS, STOP_WORDS, WHY_PHRASES
@@ -57,6 +58,9 @@ def has_code_shape(text):
 def is_commented_out_code(text, language):
     if not has_code_shape(text):
         return False
+
+    if language == DEOR:
+        return looks_like_deor(text)
 
     if language != PYTHON:
         return has_clean_parse(text, language)

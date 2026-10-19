@@ -126,3 +126,13 @@ CALL_CHECKS = [
         "rust": tuple(Entry(name) for name in ("println", "eprintln", "print", "eprint", "dbg", "info", "warn", "error", "debug", "trace")),
     }, names_words=SECRET_WORDS),
 ]
+
+# Deor code is judged by its standard library's functions, and its `rust` blocks by the Rust entries.
+DEOR_ENTRIES = {
+    "RULE-05-WEAK-RANDOM": tuple(Entry(name) for name in ("m_rand_int", "m_rand_float", "m_rand_bool")),
+    "RULE-05-USER-PATHS": tuple(Entry(name) for name in ("f_read", "f_write", "f_append", "f_exists", "f_lines", "f_delete")),
+    "RULE-05-SECRET-LOGGING": (Entry("print"),),
+}
+
+for check in CALL_CHECKS:
+    check.entries["deor"] = check.entries["rust"] + DEOR_ENTRIES.get(check.id, ())
