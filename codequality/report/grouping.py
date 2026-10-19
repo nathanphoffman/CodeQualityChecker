@@ -13,6 +13,8 @@ GROUP_TITLES = {
     "RULE-09": "Rule 9: Add comments",
     "RULE-10": "Rule 10: Test what matters",
     "RULE-11": "Rule 11: Fail loudly",
+    "RULE-12": "Rule 12: Clean up",
+    "RULE-13": "Rule 13: Keep the project small",
     "COMMON": "Project basics",
     "RUST": "Rust",
     "TS": "TypeScript",
