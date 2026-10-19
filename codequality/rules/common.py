@@ -1,6 +1,8 @@
 from ..models import Project, Result, SEVERITY_INFO, SEVERITY_WARN
 from ..registry import rule
 from ..source_code import TYPESCRIPT_SUFFIXES
+from .few_dependencies import count_code_lines
+from .test_what_matters.limits import MAX_LINES_WITHOUT_TESTS
 
 @rule("COMMON-001", "Project has a README", severity=SEVERITY_INFO)
 def readme(p: Project) -> Result:
@@ -14,6 +16,9 @@ def gitignore(p: Project) -> Result:
 
 @rule("COMMON-003", "Project has tests", severity=SEVERITY_WARN, checkable="partial")
 def has_tests(p: Project) -> Result:
+    if count_code_lines(p) < MAX_LINES_WITHOUT_TESTS:
+        return Result.passed("too small to need tests")
+
     names = ("tests", "test", "__tests__", "spec")
 
     if any((p.root / n).is_dir() for n in names):

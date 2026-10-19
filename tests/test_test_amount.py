@@ -18,3 +18,22 @@ def test_tests_in_test_folders_are_counted(tmp_path: Path):
     (tmp_path / "tests" / "test_a.py").write_text(PYTHON)
     (tmp_path / "b.rs").write_text(RUST)
     assert count_tests_in_project(detect(tmp_path)) == 4
+
+def test_small_projects_need_no_tests(tmp_path: Path):
+    from codequality import report
+    from codequality.registry import all_rules
+
+    (tmp_path / "app.py").write_text("x = 1\n" * 100)
+    results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
+    assert results["RULE-10-TEST-AMOUNT"].score == 1.0
+    assert results["COMMON-003"].score == 1.0
+
+    (tmp_path / "test_app.py").write_text("def test_a():\n    pass\n" * 10)
+    results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
+    assert 0.4 < results["RULE-10-TEST-AMOUNT"].score < 0.45  # 10 tests for 216 lines
+
+    (tmp_path / "test_app.py").unlink()
+    (tmp_path / "big.py").write_text("x = 1\n" * 300)
+    results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
+    assert results["RULE-10-TEST-AMOUNT"].score == 0.0
+    assert results["COMMON-003"].score == 0.0

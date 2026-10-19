@@ -10,6 +10,7 @@ from .limits import EDGE_DISTANCE, EDGE_SCORE, FALLOFF_PER_STEP, LINES_PER_COMME
 
 # This one rule is a too-few check and a too-many check in one, so it counts twice as much as an ordinary warning.
 STANDS_IN_FOR_CHECKS = 2
+SMALL_AMOUNT = 10
 
 def amount_score(found, expected, full_credit_powers=0.0):
     """A peak: 100% when found equals expected, EDGE_SCORE at EDGE_DISTANCE powers of 6 off, then falling fast.
@@ -31,10 +32,15 @@ def edge_range(expected):
 
     return expected / spread, expected * spread
 
+def rounded(amount):
+    """Whole numbers for big amounts. Small ones keep a decimal, or an expected 0.6 would read as 0 and look like zero is fine."""
+
+    return f"{amount:.0f}" if amount >= SMALL_AMOUNT else f"{amount:.1f}"
+
 def describe_amount(noun, found, expected, low, high, lines):
     """`Encountered 103 comments, expected 149 (range 61 to 365, 2185 lines of code)`. Inside the range scores well."""
 
-    return f"Encountered {found} {noun}, expected {expected:.0f} (range {low:.0f} to {high:.0f}, {lines} lines of code)"
+    return f"Encountered {found} {noun}, expected {rounded(expected)} (range {rounded(low)} to {rounded(high)}, {lines} lines of code)"
 
 def count_plain_comments(project):
     """Comments on clever code are left out: rule 3 asks for those, so they say nothing about how much commentary there is."""
