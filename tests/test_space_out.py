@@ -38,8 +38,8 @@ def test_text_gaps_for_typescript_and_rust():
     from codequality.rules.space_out.text_spacing import text_gaps
 
     typescript = "function f(x) {\n  const y = 1;\n  if (x) {\n    return y;\n  }\n  return 2;\n}\n"
-    gaps = text_gaps(typescript)
+    gaps = text_gaps(typescript, "typescript")
     assert gaps.before_control_missing == [3, 6]  # the if and the last return; the first return is first in its block
     assert gaps.after_block_missing == [6]  # the closing brace of the if is followed by a statement
     rust = "fn f() {\n    let a = 1;\n\n    loop {\n        break;\n    }\n\n    match a {\n        1 => (),\n        _ => (),\n    }\n}\n"
-    assert text_gaps(rust).before_control_missing == [] and text_gaps(rust).after_block_missing == []
+    assert text_gaps(rust, "rust").before_control_missing == [] and text_gaps(rust, "rust").after_block_missing == []

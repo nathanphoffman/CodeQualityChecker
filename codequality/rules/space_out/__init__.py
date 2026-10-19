@@ -21,7 +21,7 @@ def grade_gaps(project, total_field, missing_field, noun):
     total, places = 0, []
 
     for label, language, source in source_files(project):
-        gaps = python_gaps(source) if language == PYTHON else text_gaps(source)
+        gaps = python_gaps(source) if language == PYTHON else text_gaps(source, language)
         total += getattr(gaps, total_field)
         places += [f"{label}:{line}" for line in getattr(gaps, missing_field)]
 

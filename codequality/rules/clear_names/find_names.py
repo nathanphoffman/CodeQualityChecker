@@ -2,6 +2,8 @@ import re
 
 from ...python_support.python_names import python_names
 from ...source_code import NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
+from ...tree_sitter_support.parse_tree import parse_tree
+from ...tree_sitter_support.tree_walk import identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".
@@ -22,6 +24,26 @@ NAME_PATTERNS = {
     ],
 }
 
+# Parameters can't be found by a pattern (types, defaults and destructuring get in the way), so the syntax tree finds them:
+# node type -> the field holding the new names. Rust closures list bare names between pipes, so the whole node is read.
+PARAMETER_FIELDS = {
+    "rust": {"parameter": "pattern", "closure_parameters": None},
+    "typescript": {"required_parameter": "pattern", "optional_parameter": "pattern", "arrow_function": "parameter"},
+}
+
+def parameter_names(source, language):
+    names = []
+
+    for node in walk(parse_tree(source, language)):
+        if node.type not in PARAMETER_FIELDS[language]:
+            continue
+
+        field = PARAMETER_FIELDS[language][node.type]
+        declared = node.child_by_field_name(field) if field else node
+        names += identifiers_in(declared, language) if declared else []
+
+    return names
+
 def find_names(source, language):
     # Python isn't in NAME_PATTERNS: its parser finds names exactly, so no patterns are needed.
     if language == PYTHON:
@@ -32,6 +54,8 @@ def find_names(source, language):
 
     for pattern in NAME_PATTERNS[language]:
         names += [match.group(NAME_GROUP) for match in pattern.finditer(text)]
+
+    names += parameter_names(source, language)
 
     return [name for name in names if name != "_"]
 

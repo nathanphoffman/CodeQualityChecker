@@ -66,8 +66,9 @@ CALL_CHECKS = [
     Call_Check("RULE-05-RUN-STRINGS", "No eval or shell commands built from strings", "error", {
         "python": (Entry("eval"), Entry("exec"), Entry("os.system"), Entry("os.popen"))
         + shell_calls("subprocess", ("run", "call", "check_call", "check_output", "Popen")),
-        "typescript": (Entry("eval"), Entry("Function"), Entry("child_process.exec"), Entry("child_process.execSync"),
-                       Entry("execSync"), Entry("vm.runInNewContext"), Entry("vm.runInThisContext")),
+        "typescript": (Entry("eval"), Entry("Function"), Entry("exec"), Entry("child_process.exec"), Entry("child_process.execSync"),
+                       Entry("execSync"), Entry("vm.runInNewContext"), Entry("vm.runInThisContext"),
+                       Entry("spawn", ("shell:true",)), Entry("spawnSync", ("shell:true",)), Entry("child_process.spawn", ("shell:true",))),
 
         "rust": (Entry("libc.system"),) + tuple(Entry("Command.new", (shell,)) for shell in SHELLS),
     }),

@@ -9,7 +9,7 @@ from .registry import all_rules
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="codequality", description="Grade a project against RULES.md")
-    p.add_argument("path", type=Path, help="project root to check")
+    p.add_argument("path", type=Path, nargs="?", default=Path("."), help="project root to check (default: current directory)")
     p.add_argument("--json", action="store_true", help="output JSON")
     p.add_argument("--only", action="append", default=[], help="only run rules whose ID starts with this, e.g. RULE-03 (repeatable)")
     p.add_argument("--min-score", type=float, default=None, help="exit 1 if overall score is below this")
