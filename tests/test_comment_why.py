@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from codequality.rules.comment_why.extract import python_comments, tree_comments
-from codequality.rules.comment_why.judge_comment import why_confidence
+from codequality.rules.comment_why.judging.judge_comment import why_confidence
 
 CASES = [
     # (source, expected: "what" if confidence is low, "why" if high)
@@ -47,3 +47,28 @@ def test_comment_above_a_multi_line_statement_covers_clever_code_inside_it():
     (comment,) = python_comments(source)
     assert comment.explains_clever
     assert not python_comments("# just a note\nx = 1\n")[0].explains_clever
+
+
+def amount_scores(tmp_path: Path, comment_count: int, code_lines: int):
+    from codequality import report
+    from codequality.detect import detect
+    from codequality.registry import all_rules
+
+    commented = "".join(f"# note {n}\nx = 1\n" for n in range(comment_count))  # code between, or the comments would merge
+    body = commented + "x = 1\n" * (code_lines - 2 * comment_count)
+    (tmp_path / "a.py").write_text(body)
+    results = {rule.id: result.score for rule, result in report.run(detect(tmp_path), all_rules())}
+    return results["RULE-09-ENOUGH-COMMENTS"], results["RULE-09-MODEST-COMMENTS"]
+
+
+def test_one_comment_per_36_lines_is_perfect_on_both_sides(tmp_path: Path):
+    assert amount_scores(tmp_path, 1, 36) == (1.0, 1.0)
+
+
+def test_too_few_is_harsher_than_too_many(tmp_path: Path):
+    few, _ = amount_scores(tmp_path, 1, 72)  # half the target: 0.5 squared
+    assert abs(few - 0.25) < 1e-9
+    other = tmp_path / "many"
+    other.mkdir()
+    _, many = amount_scores(other, 2, 36)  # double the target: 1 / sqrt(2)
+    assert abs(many - 0.5 ** 0.5) < 1e-9 and many > few

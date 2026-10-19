@@ -38,3 +38,9 @@ STOP_WORDS = {"a", "an", "the", "to", "of", "in", "on", "is", "are", "be", "this
 # Comments that talk to tools, not people.
 PRAGMA_PREFIXES = ("noqa", "type:", "fmt:", "pylint", "pragma", "isort", "ruff", "nosec", "eslint", "@ts-",
                    "prettier", "istanbul", "clippy", "region", "endregion", "-*-", "noinspection", "usr/bin")
+
+# How much commentary is the right amount: one comment for every 6 * 6 lines, about one per large function.
+LINES_PER_COMMENT = 6 ** 2
+# Below the target the score falls fast (squared); above it, slowly (square root), so too many is kinder than too few.
+TOO_FEW_EXPONENT = 2
+TOO_MANY_EXPONENT = 0.5

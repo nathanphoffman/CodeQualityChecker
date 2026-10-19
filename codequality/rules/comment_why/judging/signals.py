@@ -1,9 +1,9 @@
 import ast
 
-from ...source_code import PYTHON
-from ...tree_sitter_support.parse_tree import has_clean_parse
-from ..clear_names.judge_names import WORD_PATTERN
-from .limits import CODE_SYMBOLS, STOP_WORDS, WHY_PHRASES
+from ....source_code import PYTHON
+from ....tree_sitter_support.parse_tree import has_clean_parse
+from ...clear_names.judge_names import WORD_PATTERN
+from ..limits import CODE_SYMBOLS, STOP_WORDS, WHY_PHRASES
 
 STEM_ENDINGS = ("ing", "ed", "es", "s")
 MIN_STEMMED_LENGTH = 3

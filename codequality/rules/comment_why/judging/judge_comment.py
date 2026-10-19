@@ -1,4 +1,4 @@
-from .limits import (CODE_KEYWORDS, COMMENTED_CODE_PENALTY, KEYWORD_PENALTY, MIN_TODO_WORDS, NOISE_PENALTY,
+from ..limits import (CODE_KEYWORDS, COMMENTED_CODE_PENALTY, KEYWORD_PENALTY, MIN_TODO_WORDS, NOISE_PENALTY,
                      OPENER_PENALTY, OVERLAP_WEIGHT, PUNCTUATION_ONLY, SYMBOL_PENALTY, TODO_MARKERS, TOLERANCE,
                      VAGUE_TODO_PENALTY, WHAT_VERBS, WHY_DISCOUNT)
 from .signals import has_code_symbols, is_commented_out_code, mentions_reason, overlap_ratio, words_of
