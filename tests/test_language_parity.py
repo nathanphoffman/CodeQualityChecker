@@ -51,3 +51,11 @@ def test_gitignored_files_are_skipped(tmp_path):
     (tmp_path / "a.skip.ts").write_text("export const c = 1;\n")
     (tmp_path / "kept.ts").write_text("export const d = 1;\n")
     assert [path.name for path in detect(tmp_path).files(".ts")] == ["kept.ts"]
+
+def test_going_over_six_slides_the_credit_down():
+    from codequality.rules.power_of_six.scoring import function_length_credit, strict_credit
+
+    assert strict_credit(6) == 1.0 and 0.97 < strict_credit(7) < strict_credit(6)
+    assert strict_credit(7) > strict_credit(8) > strict_credit(12) > strict_credit(36) > strict_credit(100)
+    assert strict_credit(100) < 0.01
+    assert abs(function_length_credit(36) - 0.5) < 1e-9 and function_length_credit(100) < 0.2

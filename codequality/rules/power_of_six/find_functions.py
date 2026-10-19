@@ -1,8 +1,9 @@
 import re
 
+from .deor_functions import deor_functions
 from .Function_Info import Function_Info
 from ...python_support.python_functions import python_functions
-from ...source_code import NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
+from ...source_code import DEOR, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
 from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES
 
 OPENERS = "([{<"
@@ -78,6 +79,9 @@ def describe_function(text, match):
 def find_functions(source, language):
     if language == PYTHON:
         return [Function_Info(*fields) for fields in python_functions(source)]
+
+    if language == DEOR:
+        return [Function_Info(*fields) for fields in deor_functions(source, count_arguments)]
 
     text = blank_out_text(source)
     found = {}

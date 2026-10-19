@@ -1,9 +1,11 @@
 import re
 import warnings
 
-PYTHON, RUST, TYPESCRIPT = "python", "rust", "typescript"
+PYTHON, RUST, TYPESCRIPT, DEOR = "python", "rust", "typescript", "deor"
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
 SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT}
+# Deor is only read by the rule of 6s so far; every other rule still sees just the languages in SUFFIX_LANGUAGE.
+FUNCTION_SUFFIX_LANGUAGE = {**SUFFIX_LANGUAGE, ".deor": DEOR}
 TSCONFIG_FILE = "tsconfig.json"
 NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes that find functions and declarations
 
