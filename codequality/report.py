@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 
 from .models import Project, Result, Rule, Status
 
@@ -35,14 +36,26 @@ def letter(score: float) -> str:
     return "F"
 
 
+# ANSI colors, left empty when output is piped or redirected so files and JSON stay clean.
+USE_COLOR = sys.stdout.isatty()
+GREEN, YELLOW, RED, BOLD, DIM, RESET = ("\033[" + code + "m" if USE_COLOR else "" for code in ("32", "33", "31", "1", "2", "0"))
+STATUS_COLORS = {Status.PASS: GREEN, Status.PARTIAL: YELLOW, Status.FAIL: RED}
+
+
+def print_rule(r: Rule, res: Result) -> None:
+    color = STATUS_COLORS.get(res.status, DIM)
+    print(f"{color}{res.status.value.upper():7}{RESET} {BOLD}{r.id}{RESET}  {r.title}  ({res.score:.0%})")
+    if res.message:
+        print(f"{DIM}        {res.message}{RESET}")
+    print()
+
+
 def print_text(project: Project, results: list[tuple[Rule, Result]]) -> None:
     print(f"Project: {project.root}")
     print(f"Languages: {', '.join(sorted(project.languages)) or 'none detected'}")
     print(f"Frameworks: {', '.join(sorted(project.frameworks)) or 'none detected'}\n")
     for r, res in results:
-        print(f"[{res.status.value.upper():7}] {r.id}  {r.title}  ({res.score:.0%})")
-        if res.message:
-            print(f"          {res.message}")
+        print_rule(r, res)
     score = overall_score(results)
     manual = sum(1 for _, res in results if res.status == Status.MANUAL)
     print(f"\nScore: {score:.1f} ({letter(score)})   manual-review rules: {manual}")

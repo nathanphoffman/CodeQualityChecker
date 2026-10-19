@@ -19,5 +19,6 @@
 10. Test what matters. Verify every change. Write simple unit and integration tests for critical logic only; skip trivial code.
 11. Fail loudly. Never hide errors.
 12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables.
+13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
 
 Short version: Power of 6s. Clear names. Simple first. One job. Be secure. No repetition. Test what matters. Fail loud. Leave it cleaner.
