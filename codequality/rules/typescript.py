@@ -1,10 +1,18 @@
 import re
 
-from ..models import CHECK_MANUAL, Project, Result, SEVERITY_ERROR, SEVERITY_WARN
+from ..models import CHECK_MANUAL, Project, Result, SEVERITY_ERROR, SEVERITY_INFO, SEVERITY_WARN
 from ..registry import rule
-from ..source_code import TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
+from ..source_code import TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, non_test_files, read_source
 
 MAX_ANY_PER_FILE = 3  # this many explicit `any` types per file scores zero
+
+# Clever on purpose: a NEXT_PUBLIC_ variable whose name says it holds something private.
+#   NEXT_PUBLIC_, any other name characters, then a secret-sounding word (case-insensitive, so env names and code both match)
+NEXT_PUBLIC_SECRET = re.compile(r"NEXT_PUBLIC_\w*(?:SECRET|PASSWORD|PRIVATE|TOKEN)", re.I)
+
+# Clever on purpose: `<img ` and `<a href="/...` (a plain internal link) against `<Image ` and `<Link `.
+PLAIN_IMAGE_OR_LINK = re.compile(r"<img\b|<a\s[^>]*href=[\"']/")
+NEXT_IMAGE_OR_LINK = re.compile(r"<Image\b|<Link\b")
 
 # --- core TypeScript ---------------------------------------------------------
 
@@ -45,9 +53,23 @@ def linter(p: Project) -> Result:
 def react_placeholder(p: Project) -> Result:
     return Result.manual()
 
-@rule("TS-NEXT-001", "next: placeholder", language=TYPESCRIPT, framework="next", checkable=CHECK_MANUAL)
-def next_placeholder(p: Project) -> Result:
-    return Result.manual()
+@rule("TS-NEXT-001", "next: no secrets in NEXT_PUBLIC_ variables", language=TYPESCRIPT, framework="next", severity=SEVERITY_WARN)
+def next_public_secrets(p: Project) -> Result:
+    paths = non_test_files(p, TYPESCRIPT_SUFFIXES) + sorted(p.root.glob(".env*"))
+    hits = [p.label_for(path) for path in paths if NEXT_PUBLIC_SECRET.search(read_source(path))]
+
+    # NEXT_PUBLIC_ values are shipped to every visitor's browser, so a real secret there is public
+    return Result.failed(f"browser-visible secret names in: {', '.join(hits)}") if hits else Result.passed()
+
+@rule("TS-NEXT-002", "next: use next/image and next/link", language=TYPESCRIPT, framework="next", severity=SEVERITY_INFO)
+def next_components(p: Project) -> Result:
+    text = "\n".join(read_source(path) for path in non_test_files(p, TYPESCRIPT_SUFFIXES))
+    plain, better = len(PLAIN_IMAGE_OR_LINK.findall(text)), len(NEXT_IMAGE_OR_LINK.findall(text))
+
+    if not plain + better:
+        return Result.passed("no images or links found")
+
+    return Result.scored(better / (plain + better), f"{plain} plain <img>/<a> where next/image or next/link fits")
 
 @rule("TS-EXPRESS-001", "express: placeholder", language=TYPESCRIPT, framework="express", checkable=CHECK_MANUAL)
 def express_placeholder(p: Project) -> Result:

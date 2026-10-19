@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import subprocess
 from enum import Enum
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
@@ -10,6 +12,18 @@ MAX_LISTED_OFFENDERS = 5
 SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO = "error", "warn", "info"
 SEVERITY_WEIGHTS = {SEVERITY_ERROR: 3, SEVERITY_WARN: 2, SEVERITY_INFO: 1}
 CHECK_AUTO, CHECK_PARTIAL, CHECK_MANUAL = "auto", "partial", "manual"
+
+@lru_cache(maxsize=None)
+def git_ignored_paths(root: Path) -> frozenset[str]:
+    """Paths (relative to root) that .gitignore hides. A wholly ignored folder is listed once. Empty when root is not a git repo."""
+    command = ["git", "-C", str(root), "ls-files", "--others", "--ignored", "--exclude-standard", "--directory", "-z"]
+
+    try:
+        listing = subprocess.run(command, capture_output=True, text=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return frozenset()  # no git, or not a repo: only the built-in ignore list applies
+
+    return frozenset(path.rstrip("/") for path in listing.split("\0") if path)
 
 class Status(str, Enum):
     PASS = "pass"
@@ -53,19 +67,31 @@ class Project:
     root: Path
     languages: set[str] = field(default_factory=set)  # "rust", "typescript"
     frameworks: set[str] = field(default_factory=set)  # "axum", "react", ...
+    _remembered: dict = field(default_factory=dict, repr=False)  # answers to slow questions, so each is worked out once per run
 
     def label_for(self, path) -> str:
         return str(Path(path).relative_to(self.root))
 
+    def remember(self, key, compute):
+        """The result of compute(), worked out the first time this key is asked for. Callers must not change what they get."""
+
+        if key not in self._remembered:
+            self._remembered[key] = compute()
+
+        return self._remembered[key]
+
+    def is_ignored(self, path) -> bool:
+        """True for build/vendor folders and anything .gitignore hides, or sits inside something it hides."""
+        parts = Path(path).relative_to(self.root).parts
+        hidden = git_ignored_paths(self.root)
+
+        return bool(IGNORED_FOLDERS & set(parts)) or any("/".join(parts[:end]) in hidden for end in range(1, len(parts) + 1))
+
     def files(self, *suffixes: str) -> list[Path]:
-        """Source files under root, skipping build/vendor dirs."""
-        out = []
+        """Source files under root, skipping build/vendor dirs and gitignored files."""
+        found = self.remember(("files", suffixes), lambda: [p for p in self.root.rglob("*") if p.is_file() and p.suffix in suffixes and not self.is_ignored(p)])
 
-        for p in self.root.rglob("*"):
-            if p.is_file() and p.suffix in suffixes and not IGNORED_FOLDERS & set(p.relative_to(self.root).parts):
-                out.append(p)
-
-        return out
+        return list(found)
 
 @dataclass
 class Rule:

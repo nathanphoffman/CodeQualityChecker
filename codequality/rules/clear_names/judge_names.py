@@ -2,7 +2,7 @@ import re
 from collections import Counter
 
 from ...models import MAX_LISTED_OFFENDERS, Result
-from .limits import ALLOWED_ACRONYMS, MIN_NAME_LENGTH
+from .limits import ALLOWED_ACRONYMS, FRAMEWORK_NAMES, MIN_NAME_LENGTH
 
 # Clever on purpose: splits a name into words by casing, so both camelCase and Pascal_Snake work.
 #   [A-Z]+(?![a-z])  an uppercase run that isn't the start of a Capitalized word (HTTP in parseHTTPResponse)
@@ -11,7 +11,7 @@ from .limits import ALLOWED_ACRONYMS, MIN_NAME_LENGTH
 WORD_PATTERN = re.compile(r"[A-Z]+(?![a-z])|[A-Z]?[a-z]+|[0-9]+")
 
 def is_too_short(name):
-    return len(name.strip("_")) < MIN_NAME_LENGTH
+    return len(name.strip("_")) < MIN_NAME_LENGTH and name not in FRAMEWORK_NAMES
 
 def has_unknown_acronym(name):
     if name.isupper():  # SCREAMING_SNAKE constants are all capitals on purpose

@@ -22,3 +22,32 @@ def test_rust_value_at_the_end_of_a_block_counts_as_a_return():
 def test_typescript_arrow_functions_are_definitions():
     typescript = "const a = 1;\nconst f = (x: number): number => {\n  return x;\n};\nconst g = items.map((i) => {\n  return i;\n});\n"
     assert text_gaps(typescript, "typescript").before_control_missing == [2]
+
+def test_next_project_with_tsx(tmp_path):
+    from codequality import report
+    from codequality.detect import detect
+    from codequality.registry import all_rules
+
+    (tmp_path / "package.json").write_text('{"dependencies": {"next": "14"}}')
+    (tmp_path / ".env").write_text("NEXT_PUBLIC_API_TOKEN=abc\n")
+    (tmp_path / "card.tsx").write_text('export default function Card() {\n  return <img src="/a.png" />;\n}\n')
+    (tmp_path / "route.ts").write_text("export function GET() {\n  return 1;\n}\n")
+    results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
+    assert results["TS-NEXT-001"].score == 0.0
+    assert results["TS-NEXT-002"].score == 0.0
+    assert "GET" not in results["RULE-02-NAME-LENGTH"].message
+
+def test_gitignored_files_are_skipped(tmp_path):
+    import subprocess
+
+    from codequality.detect import detect
+
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / ".gitignore").write_text("generated/\n*.skip.ts\n")
+    (tmp_path / "generated").mkdir()
+    (tmp_path / "generated" / "big.ts").write_text("export const a = 1;\n")
+    (tmp_path / "node_modules").mkdir()
+    (tmp_path / "node_modules" / "dep.ts").write_text("export const b = 1;\n")
+    (tmp_path / "a.skip.ts").write_text("export const c = 1;\n")
+    (tmp_path / "kept.ts").write_text("export const d = 1;\n")
+    assert [path.name for path in detect(tmp_path).files(".ts")] == ["kept.ts"]

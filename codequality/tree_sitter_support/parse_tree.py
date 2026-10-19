@@ -1,4 +1,5 @@
 import warnings
+from functools import lru_cache
 
 import tree_sitter_rust
 import tree_sitter_typescript
@@ -10,6 +11,9 @@ GRAMMARS = {
     "typescript": [tree_sitter_typescript.language_typescript, tree_sitter_typescript.language_tsx],
 }
 
+MAX_CACHED_FILES = 2048  # every rule parses every file, so keeping the trees means each file is parsed once per run
+
+@lru_cache(maxsize=MAX_CACHED_FILES)
 def parse_tree(source, language):
     """Root node of the syntax tree. Like parse_python, it warns when the source has errors."""
 
@@ -23,6 +27,7 @@ def parse_tree(source, language):
 
     return root
 
+@lru_cache(maxsize=MAX_CACHED_FILES)
 def has_clean_parse(source, language):
     """True when the text parses as code with no errors. Unlike parse_tree, it never warns."""
 

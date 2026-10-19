@@ -1,6 +1,6 @@
 import os
+from pathlib import Path
 
-from ...models import IGNORED_FOLDERS
 from ...source_code import SUFFIX_LANGUAGE, read_source
 from .find_functions import find_functions
 
@@ -28,7 +28,7 @@ def items_per_folder(project):
     counts = {}
 
     for folder, subfolders, names in os.walk(project.root):
-        subfolders[:] = [s for s in subfolders if s not in IGNORED_FOLDERS and not s.startswith(".")]
-        counts[project.label_for(folder)] = len([n for n in subfolders + names if not n.startswith(".")])
+        subfolders[:] = [s for s in subfolders if not Path(folder, s).name.startswith(".") and not project.is_ignored(Path(folder, s))]
+        counts[project.label_for(folder)] = len([n for n in subfolders + names if not n.startswith(".") and not project.is_ignored(Path(folder, n))])
 
     return counts

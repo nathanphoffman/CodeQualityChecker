@@ -8,6 +8,10 @@ PACKAGE_INIT = "__init__.py"
 
 def analyze_project(project):
     """[(file label, Cleanup_Findings, Name_Usage)] for every Python, Rust and TypeScript file, tests included."""
+
+    return project.remember("analyze_project", lambda: analyze_files(project))
+
+def analyze_files(project):
     analyzed = []
 
     for path in project.files(*SUFFIX_LANGUAGE):

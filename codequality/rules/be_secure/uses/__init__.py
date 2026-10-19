@@ -8,6 +8,10 @@ def find_uses(source, language):
 
 def uses_in_project(project):
     """(file label, language, uses) for every Python, Rust and TypeScript file."""
+
+    return project.remember("uses_in_project", lambda: uses_in_files(project))
+
+def uses_in_files(project):
     found = []
 
     for path in non_test_files(project, SUFFIX_LANGUAGE):
