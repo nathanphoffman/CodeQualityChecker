@@ -1,7 +1,7 @@
+# Rule of 6s: one clever line hides about as much as 6 normal lines, so it is penalized 6 times over.
+CLEVER_LINE_WEIGHT = 6
 MAX_CHAIN_LENGTH = 3
 MAX_TERNARIES_PER_STATEMENT = 1
-MAX_CLEVER_PER_100_LINES = 5
-LINES_PER_DENSITY_UNIT = 100
 
 # A comment on the same line, or starting the line above.
 SAME_LINE_COMMENTS = {"python": ("#",), "rust": ("//", "/*"), "typescript": ("//", "/*")}

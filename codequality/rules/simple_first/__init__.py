@@ -4,7 +4,7 @@ from collections import Counter
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from .find_clever import scan_project
-from .limits import LINES_PER_DENSITY_UNIT, MAX_CLEVER_PER_100_LINES
+from .limits import CLEVER_LINE_WEIGHT
 
 
 def describe_unexplained(unexplained):
@@ -26,7 +26,7 @@ def check_cleverness_amount(project):
     hits, line_count = scan_project(project)
     if not hits:
         return Result.passed("no clever code found")
-    per_hundred = len(hits) * LINES_PER_DENSITY_UNIT / line_count
+    clever_lines = len({hit.label for hit in hits})  # label is file:line, so one entry per line
     kind_counts = Counter([hit.kind for hit in hits]).most_common()
     kinds = ", ".join([f"{kind} ({count})" for kind, count in kind_counts])
-    return Result.scored(1 - per_hundred / MAX_CLEVER_PER_100_LINES, f"{len(hits)} in {line_count} lines: {kinds}")
+    return Result.scored(1 - clever_lines * CLEVER_LINE_WEIGHT / line_count, f"{clever_lines} clever lines of {line_count}: {kinds}")
