@@ -9,6 +9,7 @@ GREEN, YELLOW, RED, BOLD, DIM, RESET = ("\033[" + code + "m" if USE_COLOR else "
 WIDTH = 78
 GOOD_SCORE, OK_SCORE = 90, 70
 HEAVY_LINE = "━" * WIDTH
+
 BOX_INNER_WIDTH = WIDTH - 2
 
 
@@ -45,6 +46,7 @@ def print_group(group):
     else:
         percent = group.score * PERCENT
         print_banner(group.title.upper(), f"{percent:.0f}%  {letter(percent)}", percent)
+
     for rule, result in group.entries:
         print_check(rule, result)
     print()
@@ -56,6 +58,7 @@ def print_text(project, results):
     print(f"Frameworks: {', '.join(sorted(project.frameworks)) or 'none detected'}\n")
     score = overall_score(results)
     print_total(score)
+
     for group in group_results(results):
         print_group(group)
     print_total(score)

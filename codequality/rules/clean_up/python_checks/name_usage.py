@@ -15,6 +15,7 @@ def is_private(name):
 def python_name_usage(tree):
     """Private functions and classes, and how often every name is mentioned (names, attributes, imports, strings)."""
     references, private = Counter(), []
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Name):
             references[node.id] += 1
@@ -26,5 +27,7 @@ def python_name_usage(tree):
             references[node.name.split(".")[-1]] += 1
         elif isinstance(node, DEFINITIONS):
             references[node.name] += 1
+
             private += [(node.name, node.lineno)] if is_private(node.name) else []
+
     return Name_Usage(private, references)

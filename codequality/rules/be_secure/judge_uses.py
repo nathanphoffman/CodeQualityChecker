@@ -20,6 +20,7 @@ def mentions_any(words, haystacks):
     """True when no words were asked for, or any haystack contains one of them."""
     if not words:
         return True
+
     for haystack in haystacks:
         if any(word in haystack for word in words):
             return True
@@ -37,6 +38,7 @@ def grade_findings(flagged, file_count):
     if not file_count:
         return Result.passed("no files found")
     places = []
+
     for label, lines in flagged.items():
         places += [f"{label}:{line}" for line in lines]
     listed = ", ".join(places[:MAX_LISTED_OFFENDERS])
@@ -47,6 +49,7 @@ def grade_findings(flagged, file_count):
 def run_call_check(check, project):
     files = uses_in_project(project)
     flagged = {}
+
     for label, language, uses in files:
         lines = sorted({use.line_number for use in uses if is_finding(use, check, language)})
         if lines:

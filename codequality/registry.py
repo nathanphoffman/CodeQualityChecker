@@ -13,7 +13,9 @@ def rule(id: str, title: str, *, language: str | None = None, framework: str | N
         if id in _RULES:
             raise ValueError(f"duplicate rule id {id}")
         _RULES[id] = Rule(id, title, fn, language, framework, severity, checkable, weight_multiplier)
+
         return fn
+
     return wrap
 
 

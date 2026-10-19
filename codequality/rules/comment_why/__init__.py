@@ -23,12 +23,14 @@ def check_comments_say_why(project):
     comments = [(label, comment) for label, comment in items_in_project(project, python_comments, tree_comments)
                 if not comment.explains_clever]
     graded = [(label, comment, why_confidence(comment)) for label, comment in comments]
+
     if not graded:
         return Result.passed("no comments found")
     worst = sorted((entry for entry in graded if entry[2] < LIKELY_WHAT_BELOW), key=lambda entry: entry[2])
     listed = ", ".join(f'{label}:{comment.first_line} {confidence:.0%} "{snippet(comment.text)}"'
                        for label, comment, confidence in worst[:MAX_LISTED_OFFENDERS])
     message = f"{len(worst)} of {len(graded)} comments likely say what, not why: {listed}" if worst else ""
+
     return Result.scored(sum(confidence for _, _, confidence in graded) / len(graded), message)
 
 
@@ -44,10 +46,12 @@ def check_complex_code_commented(project):
     for label, comment in items_in_project(project, python_comments, tree_comments):
         comments.setdefault(label, []).append(comment)
     functions = items_in_project(project, partial(find_bodies, language=PYTHON), find_bodies)
+
     complicated = [(label, f) for label, f in functions if f.branch_count + 1 >= MIN_COMPLEXITY_NEEDING_COMMENT]
     if not complicated:
         return Result.passed("no complicated functions found")
     bare = [(label, f) for label, f in complicated if not is_explained(f, comments.get(label, []))]
     listed = ", ".join(f"{label}:{f.line_number} {f.name}" for label, f in bare[:MAX_LISTED_OFFENDERS])
     message = f"{len(bare)} of {len(complicated)} complicated functions have no comment: {listed}" if bare else ""
+
     return Result.scored(1 - len(bare) / len(complicated), message)

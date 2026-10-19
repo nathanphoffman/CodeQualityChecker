@@ -7,19 +7,23 @@ GROUP_TITLES = {
     "RULE-03": "Rule 3: Simple beats clever",
     "RULE-04": "Rule 4: One job per function",
     "RULE-05": "Rule 5: Be secure",
+
     "RULE-06": "Rule 6: Don't repeat yourself",
     "RULE-07": "Rule 7: No magic numbers",
     "RULE-08": "Rule 8: Minimize dependencies",
     "RULE-09": "Rule 9: Add comments",
     "RULE-10": "Rule 10: Test what matters",
     "RULE-11": "Rule 11: Fail loudly",
+
     "RULE-12": "Rule 12: Clean up",
     "RULE-13": "Rule 13: Keep the project small",
     "RULE-14": "Rule 14: Space it out",
     "COMMON": "Project basics",
     "RUST": "Rust",
+
     "TS": "TypeScript",
 }
+
 UNGRADED = (Status.MANUAL, Status.SKIPPED)
 GRADE_CUTOFFS = ((90, "A"), (80, "B"), (70, "C"), (60, "D"))
 PERCENT = 100.0
@@ -39,6 +43,7 @@ def group_score(entries):
     total_weight = sum(rule.weight for rule, _ in graded)
     if not total_weight:
         return None
+
     return sum(rule.weight * result.score for rule, result in graded) / total_weight
 
 
@@ -48,6 +53,7 @@ def group_results(results):
     for rule, result in results:
         entries_by_key.setdefault(group_key(rule.id), []).append((rule, result))
     keys = sorted(entries_by_key, key=lambda key: (not key.startswith("RULE"), key))
+
     return [Rule_Group(key, GROUP_TITLES.get(key, key), group_score(entries_by_key[key]), entries_by_key[key]) for key in keys]
 
 

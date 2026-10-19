@@ -32,6 +32,7 @@ def _detect_rust(project: Project) -> None:
         return
     project.languages.add(RUST)
     text = read_source(cargo)
+
     for crate, name in RUST_FRAMEWORKS.items():
         # finds a line starting with the crate name followed by "=" or "." (a Cargo.toml dependency entry)
         if re.search(rf"^\s*{re.escape(crate)}\s*[=.]", text, re.M):
@@ -44,12 +45,14 @@ def _detect_ts(project: Project) -> None:
         return
     if (project.root / TSCONFIG_FILE).exists() or project.files(*TYPESCRIPT_SUFFIXES):
         project.languages.add(TYPESCRIPT)
+
     if pkg.exists():
         try:
             data = json.loads(read_source(pkg))
         except json.JSONDecodeError as error:
             warnings.warn(f"skipped framework detection: {pkg} is not valid JSON ({error})")
             return
+
         deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
         for dep, name in TS_FRAMEWORKS.items():
             if dep in deps:

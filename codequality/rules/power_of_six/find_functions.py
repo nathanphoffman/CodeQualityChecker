@@ -15,6 +15,7 @@ CLOSERS = ")]}>"
 #   and an indented `name(` for class methods (control keywords are filtered out later).
 START_PATTERNS = {
     "rust": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()")],  # "fn", a name, optional <generics>, then the "(" opening the arguments
+
     "typescript": [
         re.compile(r"\bfunction\s*\*?\s*(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()"),  # "function", optional "*" for generators, a name, optional <generics>, then "("
         re.compile(r"\b(?P<name>\w+)(?:\s*:\s*[^=;(){}]+)?\s*=\s*(?:async\s*)?(?P<paren>\()"),  # arrow functions: a name, optional ": Type", "=", optional "async", then "("
@@ -24,13 +25,16 @@ START_PATTERNS = {
 
 def split_top_level(text):
     pieces, depth, current = [], 0, ""
+
     for char in text:
         depth += (char in OPENERS) - (char in CLOSERS)
+
         if char == "," and depth == 0:
             pieces.append(current)
             current = ""
         else:
             current += char
+
     return pieces + [current]
 
 
@@ -43,6 +47,7 @@ def count_arguments(argument_text):
 
 def body_start(text, close_paren):
     """Index of the "{" opening the body, or None for bodiless declarations and expression arrows."""
+
     for index in range(close_paren + 1, len(text)):
         if text[index] == "{":
             return index
@@ -57,12 +62,14 @@ def describe_function(text, match):
     open_paren = match.start(PAREN_GROUP)
     close_paren = matching_close(text, open_paren)
     body_open = close_paren and body_start(text, close_paren)
+
     body_close = body_open and matching_close(text, body_open)
     if not body_close:
         return None
     first_line = line_number_at(text, match.start())
     last_line = line_number_at(text, body_close)
     arguments = count_arguments(text[open_paren + 1:close_paren])
+
     return Function_Info(match.group(NAME_GROUP), arguments, last_line - first_line + 1, first_line)
 
 
@@ -71,6 +78,7 @@ def find_functions(source, language):
         return [Function_Info(*fields) for fields in python_functions(source)]
     text = blank_out_text(source)
     found = {}
+
     for pattern in START_PATTERNS[language]:
         for match in pattern.finditer(text):
             info = describe_function(text, match)

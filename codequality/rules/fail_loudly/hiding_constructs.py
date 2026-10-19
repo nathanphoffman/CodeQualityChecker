@@ -9,6 +9,7 @@ HIDING_CHECK = Call_Check("hiding", "Calls that hide errors", SEVERITY_WARN, {
                Entry(ANY_NAME, ("errors=" + "'ignore'",)), Entry(ANY_NAME, ("errors=" + "'replace'",)),
                Entry("warnings.filterwarnings", ("'ig" + "nore'",)), Entry("warnings.simplefilter", ("'ig" + "nore'",)),
                Entry(ANY_NAME, ("check=" + "False",))),
+
     "typescript": (),
     "rust": (),
 })

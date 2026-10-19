@@ -14,12 +14,14 @@ def next_code(lines, after):
         text = lines[number - 1].strip()
         if text and not text.startswith(COMMENT_MARKERS):
             return number, text
+
     return 0, ""
 
 
 def merge_runs(raw):
     """A run of // or # lines on consecutive lines is one comment. Comments trailing code stay alone."""
     merged = []
+
     for first, last, text, code_before in sorted(raw):
         if merged and not code_before and not merged[-1][3] and first == merged[-1][1] + 1:
             merged[-1] = (merged[-1][0], last, merged[-1][2] + "\n" + text, "")

@@ -10,11 +10,13 @@ COMMENT_TYPES = {"comment", "line_comment", "block_comment"}
 
 def python_raw(source):
     """(first_line, last_line, raw text, code before it on the line) for every # comment."""
+
     try:
         tokens = list(tokenize.generate_tokens(io.StringIO(source).readline))
     except (tokenize.TokenError, IndentationError, SyntaxError) as error:
         warnings.warn(f"skipped Python comments that could not be read: {error}")
         return []
+
     return [(token.start[0], token.end[0], token.string, token.line[:token.start[1]].strip())
             for token in tokens if token.type == tokenize.COMMENT and not token.string.startswith("#!")]
 

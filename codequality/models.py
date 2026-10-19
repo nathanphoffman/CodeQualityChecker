@@ -39,6 +39,7 @@ class Result:
     def scored(cls, score: float, message: str = "") -> Result:
         score = max(0.0, min(1.0, score))
         status = Status.PARTIAL
+
         if score >= 1.0:
             status = Status.PASS
         elif score <= 0.0:
@@ -65,6 +66,7 @@ class Project:
         for p in self.root.rglob("*"):
             if p.is_file() and p.suffix in suffixes and not IGNORED_FOLDERS & set(p.relative_to(self.root).parts):
                 out.append(p)
+
         return out
 
 
@@ -74,6 +76,7 @@ class Rule:
     title: str
     check: Callable[[Project], Result]
     language: str | None = None  # None = all languages
+
     framework: str | None = None  # None = any
     severity: str = SEVERITY_WARN
     checkable: str = CHECK_AUTO

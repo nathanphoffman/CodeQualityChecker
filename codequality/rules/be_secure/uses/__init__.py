@@ -14,4 +14,5 @@ def uses_in_project(project):
     for path in non_test_files(project, SUFFIX_LANGUAGE):
         language = SUFFIX_LANGUAGE[path.suffix]
         found.append((project.label_for(path), language, find_uses(read_source(path), language)))
+
     return found

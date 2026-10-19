@@ -13,6 +13,7 @@ FUNCTION_TYPES = {
 BINDING_FIELDS = {
     "rust": {"let_declaration": "pattern", "parameter": "pattern", "for_expression": "pattern",
              "let_condition": "pattern", "match_arm": "pattern"},
+
     "typescript": {"variable_declarator": "name", "required_parameter": "pattern",
                    "optional_parameter": "pattern", "arrow_function": "parameter",
                    "for_in_statement": "left", "catch_clause": "parameter"},
@@ -30,4 +31,5 @@ BRANCH_TYPES = {
     "typescript": {"if_statement", "for_statement", "for_in_statement", "while_statement", "do_statement",
                    "switch_case", "catch_clause", "ternary_expression"},
 }
+
 BRANCH_OPERATORS = {"&&", "||", "??"}

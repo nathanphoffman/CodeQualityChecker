@@ -23,6 +23,7 @@ def use_name(node):
         return dotted(node.child_by_field_name(NAMING_FIELDS[node.type]).text.decode())
     if node.type == "assignment_expression":
         return assignment_name(node)
+
     if node.type == "jsx_attribute":
         return "jsx." + node.named_children[0].text.decode()
     return "unsafe" if node.type == "unsafe_block" else None

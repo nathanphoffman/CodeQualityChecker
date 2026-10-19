@@ -20,6 +20,7 @@ def count_python_tests(source):
 def has_test_attribute(function):
     """Whether the attributes stacked above a Rust function include #[test] or #[something::test]."""
     sibling = function.prev_named_sibling
+
     while sibling is not None and sibling.type in ("attribute_item", "line_comment", "block_comment"):
         if sibling.type == "attribute_item" and squashed(sibling.text.decode()).endswith(RUST_TEST_ATTRIBUTE_END):
             return True
@@ -42,4 +43,5 @@ def count_tests_in_project(project):
     total = 0
     for path in project.files(*SUFFIX_LANGUAGE):
         total += counters[SUFFIX_LANGUAGE[path.suffix]](read_source(path))
+
     return total

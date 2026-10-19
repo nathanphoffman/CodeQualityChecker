@@ -14,6 +14,7 @@ STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next "
 def method_calls(text):
     """(start, close_paren, name) for every .name(...) call."""
     calls = []
+
     for match in CALL_PATTERN.finditer(text):
         close = matching_close(text, match.start(PAREN_GROUP))
         if close is not None:
@@ -35,6 +36,7 @@ def long_chain_hits(text, language):
     next_start = {start: CHAIN_GAP.match(text, close + 1).end() for start, close, _ in calls}
     continued = set(next_start.values())
     heads = [start for start in by_start if start not in continued]
+
     hits = []
     for head in heads:
         names = chain_names(head, by_start, next_start)
@@ -46,6 +48,7 @@ def long_chain_hits(text, language):
 def expression_end(text, start):
     """Where a closure body without braces stops: an unmatched closer, or "," / ";" at the top level."""
     depth = 0
+
     for index in range(start, len(text)):
         depth += (text[index] in "([{") - (text[index] in ")]}")
         if depth < 0 or (depth == 0 and text[index] in ",;"):
@@ -55,18 +58,21 @@ def expression_end(text, start):
 
 def closure_bodies(text, language):
     bodies = []
+
     for match in CLOSURE_START[language].finditer(text):
         start = match.end()
         first = CHAIN_GAP.match(text, start).end()
         braced = first < len(text) and text[first] == "{"
         end = matching_close(text, first) if braced else expression_end(text, start)
         bodies.append((start, end or len(text)))
+
     return bodies
 
 
 def nested_closure_hits(text, language):
     bodies = closure_bodies(text, language)
     hits = []
+
     for start, end in bodies:
         starts_inside = [other for other, _ in bodies if start < other < end]
         if starts_inside:
@@ -80,4 +86,5 @@ def ternary_hits(text):
         found = list(TERNARY.finditer(statement.group()))
         if len(found) > MAX_TERNARIES_PER_STATEMENT:
             hits.append(("chained_ternary", line_number_at(text, statement.start() + found[1].start())))
+
     return hits

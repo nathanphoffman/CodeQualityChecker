@@ -58,6 +58,7 @@ def is_commented_out_code(text, language):
         return False
     if language != PYTHON:
         return has_clean_parse(text, language)
+
     try:
         return bool(ast.parse(text).body)  # text that is itself a # comment parses to nothing
     except (SyntaxError, ValueError):

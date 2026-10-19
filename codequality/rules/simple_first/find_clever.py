@@ -19,6 +19,7 @@ def clever_constructs(source, language):
         return python_clever(source)
     text = blank_out_text(source)
     found = pattern_hits(source, text, language) + long_chain_hits(text, language) + nested_closure_hits(text, language)
+
     return found + ternary_hits(text) if language == TYPESCRIPT else found
 
 
@@ -31,6 +32,7 @@ def find_clever(source, language, file_label):
 def scan_project(project):
     """Returns (all clever hits, total source lines)."""
     hits, line_count = [], 0
+
     for path in project.files(*SUFFIX_LANGUAGE):
         source = read_source(path)
         hits += find_clever(source, SUFFIX_LANGUAGE[path.suffix], project.label_for(path))

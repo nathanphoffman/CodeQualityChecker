@@ -12,6 +12,7 @@ def analyze_tree(source, language):
     imports_total, unused_imports = tree_imports(root, source.splitlines(), language)
     variables_total, unused_variables = tree_variables(root, language)
     statements_total, unreachable = tree_unreachable(root)
+
     findings = Cleanup_Findings(imports_total, sorted(unused_imports), variables_total, sorted(unused_variables),
                                 statements_total, sorted(unreachable))
     return findings, tree_name_usage(root, language)

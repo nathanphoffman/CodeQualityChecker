@@ -98,6 +98,7 @@ def test_renamed_copies_of_functions_are_found_in_every_language(tmp_path: Path)
         folder.mkdir()
         result = grade(folder, filename, source, "RULE-06-DUPLICATE-FUNCTIONS")
         assert result.score == 0.5, filename
+
         assert "second" in result.message, filename
 
 

@@ -13,11 +13,14 @@ def named_use(node, name, lines):
 def tree_uses(source, language):
     lines = source.splitlines()
     uses = []
+
     for node in walk(parse_tree(source, language)):
         name = use_name(node)
         if name:
             uses.append(named_use(node, name, lines))
         built = string_use(node, frozenset(), lines)
+
         if built:
             uses.append(built)
+
     return uses

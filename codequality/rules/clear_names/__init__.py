@@ -10,6 +10,7 @@ def check_name_length(project):
     result = grade_names(names, is_too_short, "are too short")
     if names:
         result.message = f"average length {sum(map(len, names)) / len(names):.1f}; {result.message}"
+
     return result
 
 

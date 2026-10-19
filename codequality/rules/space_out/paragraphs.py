@@ -5,12 +5,14 @@ from .limits import IMPORT_STARTS
 def find_paragraphs(lines):
     """[(first line number, length)] for each run of non-blank lines."""
     found, start = [], None
+
     for number, line in enumerate(lines + [""], start=1):
         if line.strip() and start is None:
             start = number
         elif not line.strip() and start is not None:
             found.append((start, number - start))
             start = None
+
     return found
 
 
@@ -23,10 +25,12 @@ def is_judged(lines, first_line, length):
 def find_blank_runs(lines):
     """[(first blank line number, length)] for each run of blank lines between code. The start and end of a file don't count."""
     runs, length, seen_code = [], 0, False
+
     for number, line in enumerate(lines, start=1):
         if line.strip():
             runs += [(number - length, length)] if length and seen_code else []
             length, seen_code = 0, True
         else:
             length += 1
+
     return runs

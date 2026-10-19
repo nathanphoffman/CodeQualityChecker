@@ -28,11 +28,13 @@ def is_loud(handler):
     nodes = [node for statement in handler.body for node in ast.walk(statement)]
     raises = any(isinstance(node, ast.Raise) for node in nodes)
     uses_error = handler.name is not None and any(isinstance(node, ast.Name) and node.id == handler.name for node in nodes)
+
     return raises or uses_error or any(isinstance(node, ast.Call) and is_loud_name(dotted_name(node.func)) for node in nodes)
 
 
 def python_handlers(source):
     found = []
+
     for node in ast.walk(parse_python(source)):
         if isinstance(node, ast.ExceptHandler):
             found.append(Error_Handler(node.lineno, True, is_loud(node), is_broad(node)))

@@ -14,6 +14,7 @@ def check_duplicate_functions(project):
     copies = repeated_functions(entries)
     if not entries:
         return Result.passed("no functions found")
+
     listed = ", ".join(f"{where(c[0], c[1].line_number)} {c[1].name} (same as {where(o[0], o[1].line_number)})"
                        for c, o in copies[:MAX_LISTED_OFFENDERS])
     message = f"{len(copies)} of {len(entries)} functions copy another: {listed}" if copies else ""
@@ -30,16 +31,19 @@ def check_duplicate_blocks(project):
     copied_functions = {(c[0], c[1].line_number) for c, _ in repeated_functions(entries)}
     judged = [entry for entry in entries if (entry[0], entry[1].line_number) not in copied_functions]
     all_lines = set()
+
     for label, function in judged:
         for sequence in function.sequences:
             all_lines |= lines_of(label, sequence)
     if not all_lines:
         return Result.passed("no statements found")
     repeats = repeated_blocks(judged)
+
     repeated_lines = set()
     for label, run, _, _ in repeats:
         repeated_lines |= lines_of(label, run)
     listed = ", ".join(f"{where(label, run[0].first_line)}-{run[-1].last_line} (same as {where(original, first[0].first_line)})"
                        for label, run, original, first in repeats[:MAX_LISTED_OFFENDERS])
     message = f"{len(repeated_lines)} of {len(all_lines)} lines are repeats: {listed}" if repeats else ""
+
     return Result.scored(1 - len(repeated_lines) / len(all_lines), message)

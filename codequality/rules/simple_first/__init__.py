@@ -18,6 +18,7 @@ def check_clever_is_explained(project):
     if not hits:
         return Result.passed("no clever code found")
     unexplained = [hit for hit in hits if not hit.explained]
+
     return Result.scored(1 - len(unexplained) / len(hits), describe_unexplained(unexplained))
 
 
@@ -27,6 +28,7 @@ def check_cleverness_amount(project):
     if not hits:
         return Result.passed("no clever code found")
     clever_lines = len({hit.label for hit in hits})  # label is file:line, so one entry per line
+
     kind_counts = Counter([hit.kind for hit in hits]).most_common()
     kinds = ", ".join([f"{kind} ({count})" for kind, count in kind_counts])
     return Result.scored(1 - clever_lines * CLEVER_LINE_WEIGHT / line_count, f"{clever_lines} clever lines of {line_count}: {kinds}")

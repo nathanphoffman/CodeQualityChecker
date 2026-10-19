@@ -24,6 +24,7 @@ def unwrap_usage(p: Project) -> Result:
     if not files:
         return Result.passed("no source files")
     hits = 0
+
     for f in files:
         text = read_source(f)
         hits += text.count(".unwrap(") + text.count(".expect(")

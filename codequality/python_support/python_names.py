@@ -9,6 +9,7 @@ def names_declared_by(node):
         return [node.name]
     if isinstance(node, ast.ExceptHandler) and node.name:
         return [node.name]
+
     if isinstance(node, ast.arg) and node.arg not in RECEIVER_NAMES:
         return [node.arg]
     if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):

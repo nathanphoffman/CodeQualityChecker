@@ -14,6 +14,7 @@ def label_of(node, language):
         return "id"
     operator = node.child_by_field_name(OPERATOR_FIELD)
     kept = node.text.decode() if node.type in KEPT_NAME_TYPES else (operator.text.decode() if operator else "")
+
     return f"{node.type}.{kept}" if kept else node.type
 
 
@@ -26,6 +27,7 @@ def shape_of(node, language):
 def blocks_within(function, language):
     """The body block first, then every block nested in it. Nested functions are left to their own entry."""
     blocks, pending = [], [function.child_by_field_name(BODY_FIELD)]
+
     while pending:
         node = pending.pop()
         blocks += [node] if node.type in BLOCK_TYPES else []
@@ -43,6 +45,7 @@ def block_shapes(block, language):
 
 def tree_shapes(source, language):
     found = []
+
     for node in walk(parse_tree(source, language)):
         body = node.child_by_field_name(BODY_FIELD)
         if node.type in FUNCTION_TYPES[language] and body is not None and body.type in BLOCK_TYPES:

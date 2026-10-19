@@ -10,6 +10,7 @@ TWO_JOBS = {
     title = report.name
     report.header = title
 """,
+
     "rust": """fn process(order: &mut Order, report: &mut Report) {
     let total = order.price;
     let tax = total * 2;
@@ -18,6 +19,7 @@ TWO_JOBS = {
     report.header = title;
 }
 """,
+
     "typescript": """function process(order: Order, report: Report) {
   const total = order.price;
   const tax = total * 2;

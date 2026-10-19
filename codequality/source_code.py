@@ -6,6 +6,7 @@ TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
 SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT}
 TSCONFIG_FILE = "tsconfig.json"
 NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes that find functions and declarations
+
 # Tests may fake secrets, call unsafe things and repeat themselves on purpose, so some rules only judge real code.
 TEST_FOLDERS = {"tests", "test", "__tests__", "fixtures"}
 BRACKET_PAIRS = {"(": ")", "{": "}", "[": "]"}
@@ -25,6 +26,7 @@ def matching_close(text, open_index):
     open_char = text[open_index]
     close_char = BRACKET_PAIRS[open_char]
     depth = 0
+
     for index in range(open_index, len(text)):
         depth += (text[index] == open_char) - (text[index] == close_char)
         if depth == 0:
@@ -43,6 +45,7 @@ def non_test_files(project, suffixes):
 
 def read_source(path):
     """The text of a file. A file that is not valid UTF-8 is skipped with a warning, not half-read."""
+
     try:
         return path.read_text()
     except UnicodeDecodeError as error:
@@ -53,6 +56,7 @@ def read_source(path):
 def items_in_project(project, for_python, for_tree):
     """[(file label, item)] from every non-test source file: Python read by for_python(source), others by for_tree(source, language)."""
     found = []
+
     for path in non_test_files(project, SUFFIX_LANGUAGE):
         language = SUFFIX_LANGUAGE[path.suffix]
         source = read_source(path)

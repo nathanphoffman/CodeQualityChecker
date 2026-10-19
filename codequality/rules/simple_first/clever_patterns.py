@@ -12,15 +12,18 @@ from ...source_code import TYPESCRIPT, line_number_at
 TEXT_PATTERNS = {
     "rust": {
         "regex": r"\bRegex(?:Builder|Set)?::new\s*\(|\bregex!\s*\(",
+
         "fold": r"\.\s*(?:fold|scan)\s*\(",
         "macro": r"\bmacro_rules!",
         "transmute": r"\btransmute\s*(?:::<[^>]*>)?\s*\(",
         "bit_tricks": r"\s(?:<<|>>|\^)\s",
     },
+
     "typescript": {
         "regex": r"\bnew\s+RegExp\s*\(",
         "reduce": r"\.\s*reduce(?:Right)?\s*\(",
         "iife": r"(?<![\w)\]])\(\s*(?:async\s+)?(?:function\b|\([^)]*\)\s*=>)",
+
         "bit_tricks": r"\s(?:<<|>>>?|\^)\s",
     },
 }
@@ -39,6 +42,7 @@ def pattern_hits(source, text, language):
     for kind, pattern in TEXT_PATTERNS[language].items():
         # every place this kind's pattern from TEXT_PATTERNS matches, as (kind, line)
         hits += [(kind, line_number_at(text, m.start())) for m in re.finditer(pattern, text)]
+
     if language == TYPESCRIPT:
         hits += [("regex", line_number_at(source, m.start())) for m in TS_REGEX_LITERAL.finditer(source)]
     return hits

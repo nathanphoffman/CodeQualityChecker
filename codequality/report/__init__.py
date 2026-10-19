@@ -6,14 +6,17 @@ from .text_output import print_text  # noqa: F401
 
 def run(project: Project, rules: list[Rule]) -> list[tuple[Rule, Result]]:
     results = []
+
     for r in rules:
         if not r.applies_to(project):
             continue
         if r.checkable == CHECK_MANUAL:
             results.append((r, Result.manual("needs human review")))
             continue
+
         try:
             results.append((r, r.check(project)))
         except Exception as e:  # a broken check shouldn't kill the whole run
             results.append((r, Result(Status.SKIPPED, 0.0, f"check crashed: {e}")))
+
     return results

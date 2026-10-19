@@ -43,6 +43,7 @@ def test_related_package_names_count_as_one_family(tmp_path: Path):
     (tmp_path / "pyproject.toml").write_text(f'[project]\nname = "x"\ndependencies = [{deps}]\n')
     (tmp_path / "a.py").write_text("x = 1\n")
     result = dependency_result(tmp_path)
+
     # 3 related names count as the square root of 3, plus 1 unrelated: 2.73 dependencies on 1296 lines
     assert abs(result.score - 0.75 ** (3 ** 0.5 + 1)) < 1e-9
     assert result.message.startswith("4 dependencies counted as 2.7")

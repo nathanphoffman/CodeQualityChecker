@@ -17,6 +17,7 @@ def parse_tree(source, language):
         root = Parser(Language(grammar())).parse(source.encode()).root_node
         if not root.has_error:
             return root
+
     warnings.warn(f"{language} source has syntax errors; its results may be incomplete")
     return root
 

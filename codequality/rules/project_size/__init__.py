@@ -21,6 +21,7 @@ def size_score(power):
         return 1.0
     if power <= EDGE_POWER:
         return 1 - (1 - SCORE_AT_EDGE) * ((power - FULL_CREDIT_POWER) / (EDGE_POWER - FULL_CREDIT_POWER)) ** 2
+
     return SCORE_AT_EDGE * math.exp(-DECAY * (power - EDGE_POWER) ** STEEPNESS)
 
 
@@ -30,5 +31,6 @@ def check_project_size(project):
     if not lines:
         return Result.passed("no source files found")
     power = math.log(lines, BASE)
+
     message = f"{lines:,} lines of code, 6^{power:.1f} (full marks to {BASE ** FULL_CREDIT_POWER:,}, {SCORE_AT_EDGE:.0%} at {BASE ** EDGE_POWER:,})"
     return Result.scored(size_score(power), message)

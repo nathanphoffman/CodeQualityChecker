@@ -19,6 +19,7 @@ def has_tests(p: Project) -> Result:
     names = ("tests", "test", "__tests__", "spec")
     if any((p.root / n).is_dir() for n in names):
         return Result.passed()
+
     if any(".test." in f.name or ".spec." in f.name for f in p.files(*TYPESCRIPT_SUFFIXES)):
         return Result.passed()
     return Result.failed("no tests directory or test files found")

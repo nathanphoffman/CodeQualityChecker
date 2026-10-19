@@ -20,20 +20,24 @@ def rust_error_arm(arm):
     if pattern is None or pattern.type != "tuple_struct_pattern" or pattern.child_by_field_name("type").text.decode() != ERR_CONSTRUCTOR:
         return None
     body = arm.child_by_field_name("value")
+
     is_empty = body.type in SILENT_RUST_BODIES and not (body.type == "block" and body.named_children)
     return Error_Handler(line_of(arm), True, not is_empty, len(pattern.named_children) == 1)
 
 
 def rust_handlers(root):
     found = []
+
     for node in walk(root):
         if node.type == "match_arm":
             arm = rust_error_arm(node)
+
             found += [arm] if arm else []
         elif node.type == "let_declaration" and squashed(node.text.decode()).startswith("let_="):
             found.append(Error_Handler(line_of(node), True, False, True))  # `let _ = might_fail();` throws the result away
         elif node.type == "try_expression" or (node.type == "call_expression" and node.child_by_field_name("function").text.decode() == ERR_CONSTRUCTOR):
             found.append(Error_Handler(line_of(node), False, True, False))
+
     return found
 
 
@@ -53,6 +57,7 @@ def promise_catch_is_silent(call):
 
 def typescript_handlers(root):
     found = []
+
     for node in walk(root):
         if node.type == "catch_clause":
             found.append(Error_Handler(line_of(node), True, catch_clause_is_loud(node), True))
@@ -60,6 +65,7 @@ def typescript_handlers(root):
             found.append(Error_Handler(line_of(node), False, True, False))
         elif node.type == "call_expression" and node.child_by_field_name("function").text.decode().endswith(".catch"):
             found.append(Error_Handler(line_of(node), True, not promise_catch_is_silent(node), True))
+
     return found
 
 

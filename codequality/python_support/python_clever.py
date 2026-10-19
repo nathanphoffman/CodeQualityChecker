@@ -38,6 +38,7 @@ CHECKS = [
     (lambda node: isinstance(node, ast.IfExp) and isinstance(node.orelse, ast.IfExp), "chained_ternary"),
     (lambda node: isinstance(node, ast.Lambda) and sum(isinstance(n, ast.Lambda) for n in ast.walk(node)) > 1, "nested_closure"),
     (lambda node: isinstance(node, ast.BinOp) and isinstance(node.op, BIT_OPERATORS), "bit_tricks"),
+
     (lambda node: isinstance(node, ast.NamedExpr), "walrus"),
     (is_nested_comprehension, "nested_comprehension"),
     (is_pipeline, "long_chain"),
@@ -47,6 +48,7 @@ CHECKS = [
 def python_clever(source):
     """(kind, line_number) for every clever construct."""
     found = []
+
     for node in ast.walk(parse_python(source)):
         for check, kind in CHECKS:
             if check(node):

@@ -15,6 +15,7 @@ def ends_the_block(statement):
 def tree_unreachable(root):
     """(statements in the file, line numbers of statements after a return, throw, break or continue in the same block)."""
     total, unreachable = 0, []
+
     for block in [node for node in walk(root) if node.type in BLOCK_TYPES]:
         statements = statements_of(block)
         total += len(statements)

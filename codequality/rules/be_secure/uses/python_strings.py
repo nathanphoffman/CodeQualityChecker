@@ -26,6 +26,7 @@ def is_built_from_parts(node):
         return any(isinstance(part, ast.FormattedValue) for part in node.values)
     if isinstance(node, ast.BinOp) and isinstance(node.op, BUILDING_OPERATORS):
         return any(isinstance(n, VARIABLE_PARTS) for n in ast.walk(node))
+
     return is_format_call(node)
 
 

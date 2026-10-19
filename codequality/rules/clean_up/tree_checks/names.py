@@ -18,4 +18,5 @@ def counts_outside_imports(root):
     for node in walk(root):
         if node.type in IMPORT_TYPES:
             counts.subtract(name_counts(node))
+
     return counts

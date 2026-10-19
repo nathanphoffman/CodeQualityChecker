@@ -14,6 +14,7 @@ def strict_mode(p: Project) -> Result:
     if not cfg.exists():
         return Result.failed("no tsconfig.json")
     text = read_source(cfg)
+
     # looks for "strict": true, allowing any whitespace around the colon
     return Result.passed() if re.search(r'"strict"\s*:\s*true', text) else Result.failed("strict is not true")
 
@@ -23,6 +24,7 @@ def any_usage(p: Project) -> Result:
     files = p.files(*TYPESCRIPT_SUFFIXES)
     if not files:
         return Result.passed("no source files")
+
     # counts `: any`, `as any` and `<any>`, the three ways to write an explicit any
     hits = sum(len(re.findall(r":\s*any\b|\bas any\b|<any>", read_source(f))) for f in files)
     return Result.scored(1 - (hits / len(files)) / MAX_ANY_PER_FILE, f"{hits} `any` uses across {len(files)} files")

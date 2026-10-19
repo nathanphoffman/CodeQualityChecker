@@ -53,6 +53,7 @@ EXPECTED = {
     "RULE-05-RUN-STRINGS": ("bad.py", "bad.ts", "bad.rs"),
     "RULE-05-UNSAFE-LOADING": ("bad.py",),
     "RULE-05-WEAK-HASH": ("bad.py", "bad.ts"),
+
     "RULE-05-WEAK-RANDOM": ("bad.py", "bad.ts"),
     "RULE-05-SAFETY-OFF": ("bad.py", "bad.ts", "bad.rs"),
     "RULE-05-RISKY-OUTPUT": ("bad.ts", "bad.rs"),
@@ -67,6 +68,7 @@ def grade_bad_project(root: Path):
     (root / "bad.rs").write_text(BAD_RUST)
     (root / ".env").write_text("X=1\n")
     project = detect(root)
+
     return {rule.id: result for rule, result in report.run(project, all_rules())}
 
 
@@ -97,6 +99,7 @@ def test_ordinary_sentences_and_safe_code_pass(tmp_path: Path):
         "    subprocess.run(['ls', '-l'])\n"
         "    print(f'Select an item from the list {name}')\n"
     )
+
     results = grade_bad_project_free(tmp_path)
     assert all(result.score == 1.0 for rule_id, result in results.items() if rule_id.startswith("RULE-05"))
 

@@ -10,6 +10,7 @@ def is_constant_definition(node):
         return False
     targets = node.targets if isinstance(node, ast.Assign) else [node.target]
     names = []
+
     for target in targets:
         names += target.elts if isinstance(target, ast.Tuple) else [target]
     return all(isinstance(name, ast.Name) and name.id.isupper() for name in names)
@@ -25,6 +26,7 @@ def literal_of(node, in_constant):
         return Literal_Use(KIND_NUMBER, -node.operand.value, node.lineno, in_constant)
     if is_number(node):
         return Literal_Use(KIND_NUMBER, node.value, node.lineno, in_constant)
+
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
         return Literal_Use(KIND_STRING, node.value, node.lineno, in_constant)
     return None
@@ -38,12 +40,15 @@ def children_are_named(node, child, in_constant):
 
 def python_literals(source):
     found, pending = [], [(parse_python(source), False)]
+
     while pending:
         node, in_constant = pending.pop()
         literal = literal_of(node, in_constant)
         if literal:
             found.append(literal)
+
         if literal and literal.kind == KIND_NUMBER and isinstance(node, ast.UnaryOp):
             continue
         pending += [(child, children_are_named(node, child, in_constant)) for child in ast.iter_child_nodes(node)]
+
     return found

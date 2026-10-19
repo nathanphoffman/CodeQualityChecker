@@ -18,6 +18,7 @@ def amount_score(found, expected, full_credit_powers=0.0):
     if not found:
         return 0.0
     steps = max(0.0, abs(math.log(found / expected, POWER_BASE)) - full_credit_powers) / EDGE_DISTANCE
+
     if steps <= 1:
         return 1 - (1 - EDGE_SCORE) * steps
     return EDGE_SCORE * FALLOFF_PER_STEP ** (steps - 1)
@@ -46,4 +47,5 @@ def check_comment_amount(project):
     if not lines:
         return Result.passed("no source files found")
     found, expected = count_plain_comments(project), lines / LINES_PER_COMMENT
+
     return Result.scored(amount_score(found, expected), describe_amount("non-complex comments", found, expected, *edge_range(expected), lines))

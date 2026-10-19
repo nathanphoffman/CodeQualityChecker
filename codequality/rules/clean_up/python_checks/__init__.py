@@ -12,6 +12,7 @@ def analyze_python(source, is_package_init):
     imports_total, unused_imports = python_imports(tree, source.splitlines(), is_package_init)
     variables_total, unused_variables = python_variables(tree)
     statements_total, unreachable = python_unreachable(tree)
+
     findings = Cleanup_Findings(imports_total, sorted(unused_imports), variables_total, sorted(unused_variables),
                                 statements_total, sorted(unreachable))
     return findings, python_name_usage(tree)

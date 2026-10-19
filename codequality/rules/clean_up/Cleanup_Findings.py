@@ -8,6 +8,7 @@ class Cleanup_Findings(NamedTuple):
     unused_imports: list
     variables_total: int
     unused_variables: list
+
     statements_total: int
     unreachable: list
 

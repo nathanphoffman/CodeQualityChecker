@@ -14,6 +14,7 @@ def count_arguments(arguments):
 def python_functions(source):
     """(name, argument_count, line_count, line_number) for every def."""
     definitions = (ast.FunctionDef, ast.AsyncFunctionDef)
+
     return [
         (node.name, count_arguments(node.args), node.end_lineno - node.lineno + 1, node.lineno)
         for node in ast.walk(parse_python(source))

@@ -9,11 +9,13 @@ from .names import name_counts
 def is_private_definition(node, language):
     """A Rust fn without `pub` (not main, not a test, not in a trait impl), or a TypeScript function that is not exported
     or a method marked `private`."""
+
     if language == RUST:
         in_trait_impl = node.parent.parent is not None and node.parent.parent.child_by_field_name("trait") is not None
         has_pub = any(child.type == "visibility_modifier" for child in node.children)
         name = node.child_by_field_name("name")
         return node.type == "function_item" and not has_pub and not in_trait_impl and not has_test_attribute(node) and name.text.decode() != RUST_ENTRY_POINT
+
     if node.type == "function_declaration":
         return node.parent.type == "program"
     return node.type == "method_definition" and any(child.type == "accessibility_modifier" and child.text == b"private" for child in node.children)

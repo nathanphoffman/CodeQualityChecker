@@ -12,6 +12,7 @@ def find_bodies(source, language):
 def bodies_in_project(project):
     """Maps "file:line name" to the Function_Body found there."""
     bodies = {}
+
     for path in project.files(*SUFFIX_LANGUAGE):
         label = project.label_for(path)
         for body in find_bodies(read_source(path), SUFFIX_LANGUAGE[path.suffix]):

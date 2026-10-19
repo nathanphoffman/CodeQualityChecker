@@ -12,6 +12,7 @@ from .limits import (CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE
 #   a value of MIN_SECRET_LENGTH or more characters with no spaces or quotes, which also rules out `== "x"` tests
 SECRET_ASSIGNMENT = re.compile(
     rf"(?:{'|'.join(SECRET_WORDS)})\w*[\"']?\s*[:=]\s*[\"'](?P<value>[^\"'\s]{{{MIN_SECRET_LENGTH},}})[\"']",
+
     re.IGNORECASE,
 )
 
@@ -31,6 +32,7 @@ def secret_line_numbers(text):
         assignment = SECRET_ASSIGNMENT.search(line)
         if KNOWN_KEY_FORMAT.search(line) or (assignment and not is_placeholder(assignment.group("value"))):
             found.append(number)
+
     return found
 
 
@@ -38,6 +40,7 @@ def hardcoded_secrets(project):
     """({file label: line numbers}, number of files scanned)."""
     paths = non_test_files(project, tuple(SUFFIX_LANGUAGE) + CONFIG_SUFFIXES)
     flagged = {}
+
     for path in paths:
         lines = secret_line_numbers(read_source(path))
         if lines:

@@ -14,6 +14,7 @@ def are_related(first, second):
 def find_families(names):
     """Groups of related names. If A is related to B and B to C, all three are one family."""
     families = []
+
     for name in sorted(names):
         related = [family for family in families if any(are_related(name, member) for member in family)]
         families = [family for family in families if family not in related]
@@ -27,4 +28,5 @@ def effective_count(dependencies):
     for ecosystem in {ecosystem for ecosystem, _ in dependencies}:
         names = [name for where, name in dependencies if where == ecosystem]
         total += sum(len(family) ** FAMILY_SIZE_EXPONENT for family in find_families(names))
+
     return total

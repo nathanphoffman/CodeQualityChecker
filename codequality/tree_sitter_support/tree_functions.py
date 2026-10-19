@@ -13,6 +13,7 @@ def function_name(function):
 def local_names(function, language):
     """Parameters plus everything declared inside the function."""
     names = set()
+
     for node in walk(function):
         field = BINDING_FIELDS[language].get(node.type)
         bound = node.child_by_field_name(field) if field else None
@@ -26,6 +27,7 @@ def branch_count(function, language):
         operator = node.child_by_field_name(OPERATOR_FIELD)
         count += node.type in BRANCH_TYPES[language]
         count += node.type == "binary_expression" and operator.text.decode() in BRANCH_OPERATORS
+
     return count
 
 
@@ -36,12 +38,15 @@ def statements_of(body):
 def tree_bodies(source, language):
     """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
     bodies = []
+
     for function in walk(parse_tree(source, language)):
         body = function.child_by_field_name(BODY_FIELD)
         if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block")):
             continue
         locals_ = local_names(function, language)
         used = [identifiers_in(statement, language) & locals_ for statement in statements_of(body)]
+
         bodies.append((function_name(function), function.start_point.row + 1, used, branch_count(function, language),
                        function.end_point.row + 1, False))
+
     return bodies

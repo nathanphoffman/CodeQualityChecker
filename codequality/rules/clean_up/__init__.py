@@ -4,6 +4,7 @@ from ...registry import rule
 from ...source_code import items_in_project
 from ..comment_why.extract import python_comments, tree_comments
 from ..comment_why.judging.signals import is_commented_out_code
+
 from .project_cleanup import analyze_project, unused_private_definitions
 
 
@@ -13,6 +14,7 @@ def grade_leftovers(total, places, noun):
         return Result.passed(f"no {noun} found")
     listed = ", ".join(places[:MAX_LISTED_OFFENDERS])
     message = f"{len(places)} of {total} {noun}: {listed}" if places else ""
+
     return Result.scored(1 - len(places) / total, message)
 
 

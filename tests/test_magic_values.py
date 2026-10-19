@@ -50,6 +50,7 @@ def test_typescript_and_rust_numbers(tmp_path: Path):
     other = tmp_path / "rust"
     other.mkdir()
     rust = grade(other, "a.rs", RUST, "RULE-07-MAGIC-NUMBERS")
+
     assert rust.message.startswith("2 of ") and "86400" in rust.message and "255" in rust.message
 
 

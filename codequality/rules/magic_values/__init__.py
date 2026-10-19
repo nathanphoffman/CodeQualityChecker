@@ -14,6 +14,7 @@ def check_magic_numbers(project):
     if not numbers:
         return Result.passed("no numbers found")
     magic = [(label, use) for label, use in numbers if not use.in_constant and use.value not in ALLOWED_NUMBERS]
+
     listed = ", ".join(f"{label}:{use.line_number} ({use.value})" for label, use in magic[:MAX_LISTED_OFFENDERS])
     message = f"{len(magic)} of {len(numbers)} numbers are not named: {listed}" if magic else ""
     return Result.scored(1 - len(magic) / len(numbers), message)
@@ -25,6 +26,7 @@ def check_repeated_strings(project):
                if use.kind == KIND_STRING and not use.in_constant and len(use.value) >= MIN_STRING_LENGTH]
     if not strings:
         return Result.passed("no strings found")
+
     counts = Counter(strings)
     repeated = {text: count for text, count in counts.items() if count >= MIN_REPEATS_FOR_CONSTANT}
     listed = ", ".join(f'"{text}" ({count}x)' for text, count in Counter(repeated).most_common(MAX_LISTED_OFFENDERS))

@@ -4,6 +4,7 @@ SYMBOL_PENALTY = 0.3  # code symbols such as () or => outside backticks
 KEYWORD_PENALTY = 0.2  # a code keyword such as if or for anywhere in the comment
 OPENER_PENALTY = 0.4  # starts with a what-verb such as "increment" or "loop"
 VAGUE_TODO_PENALTY = 0.8  # a TODO that says nothing more
+
 NOISE_PENALTY = 1.0  # empty, or only punctuation
 COMMENTED_CODE_PENALTY = 1.0  # the comment is code that was switched off
 
@@ -24,13 +25,16 @@ CODE_SYMBOLS = ("()", "{}", "[]", " = ", "==", "!=", "->", "=>", "+=", "-=", ";"
 CODE_KEYWORDS = {"if", "else", "elif", "for", "while", "return", "def", "class", "try", "except", "finally", "raise",
                  "import", "continue", "break", "loop", "match", "switch", "case", "fn", "let", "const", "var",
                  "function", "struct", "enum", "impl", "async", "await", "yield", "lambda"}
+
 WHAT_VERBS = {"increment", "decrement", "loop", "iterate", "initialize", "initialise", "init", "set", "get", "return",
               "create", "call", "check", "define", "declare", "import", "add", "remove", "delete", "print", "update",
               "assign", "convert", "append", "store", "open", "close", "read", "write", "calculate", "compute"}
+
 WHY_PHRASES = ("because", "since", "so that", "to avoid", "otherwise", "workaround", "due to", "must", "needed",
                "need to", "why", "instead", "in case", "unless", "except", "prevents", "ensures", "ensure", "avoid",
                "assumes", "careful", "legacy", "rather than", "would", "might", "can't", "cannot", "won't", "not yet",
                "on purpose", "intentionally", "deliberately", "required")
+
 # Common words that say nothing about overlap between a comment and code.
 STOP_WORDS = {"a", "an", "the", "to", "of", "in", "on", "is", "are", "be", "this", "that", "it", "we", "for", "and",
               "or", "with", "as", "at", "by", "from", "if", "while", "so", "then", "all", "each", "any", "our", "us"}
@@ -51,4 +55,5 @@ LINES_PER_COMMENT = 6 ** 1.5
 POWER_BASE = 6
 EDGE_DISTANCE = 0.5
 EDGE_SCORE = 0.90
+
 FALLOFF_PER_STEP = 0.25

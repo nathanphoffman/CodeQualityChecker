@@ -24,19 +24,23 @@ def statement_shapes(statements):
         if not is_docstring(statement):
             text, size = shape_of(statement)
             shapes.append(Statement_Shape(text, size, statement.lineno, statement.end_lineno))
+
     return shapes
 
 
 def sequences_of(function):
     """Every list of statements in the function, body first. Nested functions are left to their own entry."""
     sequences, pending = [], [function]
+
     while pending:
         node = pending.pop()
         for field in BLOCK_FIELDS:
             statements = getattr(node, field, None)
             if isinstance(statements, list) and statements and isinstance(statements[0], ast.stmt):
                 sequences.append(statement_shapes(statements))
+
         pending += [child for child in ast.iter_child_nodes(node) if not isinstance(child, FUNCTIONS)]
+
     return sequences
 
 

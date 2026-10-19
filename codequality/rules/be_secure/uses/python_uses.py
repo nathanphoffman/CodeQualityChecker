@@ -11,6 +11,7 @@ def dotted_name(node):
     while isinstance(node, ast.Attribute):
         parts.append(node.attr)
         node = node.value
+
     if isinstance(node, ast.Name):
         parts.append(node.id)
     return ".".join(reversed(parts))
@@ -30,10 +31,12 @@ def call_use(node, lines):
 def python_uses(source):
     lines = source.splitlines()
     uses = []
+
     for node in ast.walk(parse_python(source)):
         if isinstance(node, ast.Call):
             uses.append(call_use(node, lines))
         built = string_use(node, lines)
         if built:
             uses.append(built)
+
     return uses

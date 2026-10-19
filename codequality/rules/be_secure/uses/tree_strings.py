@@ -17,6 +17,7 @@ def is_built_from_parts(node):
         return any(child.type == "template_substitution" for child in node.children)
     if node.type == "binary_expression":
         return node.child_by_field_name(OPERATOR_FIELD).text == b"+"
+
     macro = node.child_by_field_name("macro")
     return node.type == "macro_invocation" and macro.text == b"format"
 

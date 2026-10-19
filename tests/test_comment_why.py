@@ -9,9 +9,11 @@ CASES = [
     ("x = 1\n# total = price * quantity\ny = 2\n", "what"),
     ("x = 1\n# -----\ny = 2\n", "what"),
     ("x = 1\n# TODO\ny = 2\n", "what"),
+
     ("for item in items:\n    # loop over each item in items\n    handle(item)\n", "what"),
     ("retries = 3\n# the server rate-limits us, so we back off instead of hammering it\nretries += 1\n", "why"),
     ("x = 1\n# handle the case if the file is missing\ny = open(path)\n", "why"),  # a lone "if" is just wording
+
     ("x = 1\n# Stripe sends this twice, so the second one must be ignored (see https://example.com/bug)\ny = 2\n", "why"),
     ("x = 1\n# see `close()` for the cleanup that follows\ny = 2\n", "why"),
 ]
@@ -58,6 +60,7 @@ def test_amount_score_is_a_peak():
     assert abs(amount_score(10 * ideal / 36, 10) - 0.90) < 1e-9  # one per 36: the complex-function edge
     assert abs(amount_score(10 * 6 ** 0.5, 10) - 0.90) < 1e-9 and abs(amount_score(10 / 6 ** 0.5, 10) - 0.90) < 1e-9
     assert abs(amount_score(10 * 6, 10) - 0.90 * 0.25) < 1e-9  # a whole power of 6 off: the edge, then one more step
+
     assert amount_score(0, 10) == 0.0
 
 

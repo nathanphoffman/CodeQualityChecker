@@ -14,6 +14,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--json", action="store_true", help="output JSON")
     p.add_argument("--only", action="append", default=[], help="only run rules whose ID starts with this, e.g. RULE-03 (repeatable)")
     p.add_argument("--min-score", type=float, default=None, help="exit 1 if overall score is below this")
+
     args = p.parse_args(argv)
 
     root = args.path.resolve()
@@ -23,6 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     project = detect(root)
     rules = [r for r in all_rules() if not args.only or r.id.startswith(tuple(args.only))]
     results = report.run(project, rules)
+
     if args.json:
         print(report.to_json(project, results))
     else:

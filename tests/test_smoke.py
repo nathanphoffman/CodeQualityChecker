@@ -18,5 +18,6 @@ def test_detects_ts_react(tmp_path: Path):
     p = detect(tmp_path)
     assert p.languages == {"typescript"}
     assert p.frameworks == {"react"}
+
     results = report.run(p, all_rules())
     assert any(r.id == "TS-001" and res.score == 1.0 for r, res in results)

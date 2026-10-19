@@ -22,10 +22,12 @@ def mentioned_names(tree):
 def python_imports(tree, lines, is_package_init):
     """(imported names, line numbers of the unused ones). A package's __init__.py re-exports on purpose, so it is skipped."""
     mentioned, total, unused = mentioned_names(tree), 0, []
+
     for node in ast.walk(tree):
         if not isinstance(node, (ast.Import, ast.ImportFrom)) or is_package_init or NOQA_MARKER in lines[node.lineno - 1]:
             continue
         names = bound_names(node)
         total += len(names)
         unused += [node.lineno for name in names if name not in mentioned]
+
     return total, unused
