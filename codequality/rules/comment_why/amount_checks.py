@@ -9,7 +9,9 @@ from .limits import LINES_PER_COMMENT, TOO_FEW_EXPONENT, TOO_MANY_EXPONENT
 
 def comments_per_target(project):
     """(comment count, line count, comments per LINES_PER_COMMENT lines). 1.0 is the target."""
-    count = len(items_in_project(project, python_comments, tree_comments))
+    # Comments on clever code are left out: rule 3 asks for those, so they say nothing about how much commentary there is.
+    comments = [comment for _, comment in items_in_project(project, python_comments, tree_comments)]
+    count = len([comment for comment in comments if not comment.explains_clever])
     lines = count_code_lines(project)
     return count, lines, count * LINES_PER_COMMENT / lines if lines else 0.0
 

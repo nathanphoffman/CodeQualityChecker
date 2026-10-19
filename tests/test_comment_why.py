@@ -72,3 +72,12 @@ def test_too_few_is_harsher_than_too_many(tmp_path: Path):
     other.mkdir()
     _, many = amount_scores(other, 2, 36)  # double the target: 1 / sqrt(2)
     assert abs(many - 0.5 ** 0.5) < 1e-9 and many > few
+
+
+def test_comments_on_clever_code_do_not_count_toward_the_amount(tmp_path: Path):
+    from codequality.rules.comment_why.amount_checks import comments_per_target
+    from codequality.detect import detect
+
+    (tmp_path / "a.py").write_text("import re\n# how this works\nPATTERN = re.compile('x')\n# plain note\ny = 1\n")
+    count, _, _ = comments_per_target(detect(tmp_path))
+    assert count == 1
