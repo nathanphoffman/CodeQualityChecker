@@ -34,7 +34,7 @@ def statements_of(body):
 
 
 def tree_bodies(source, language):
-    """(name, line_number, statement_variables, branch_count) for every function with a block body."""
+    """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
     bodies = []
     for function in walk(parse_tree(source, language)):
         body = function.child_by_field_name(BODY_FIELD)
@@ -42,5 +42,6 @@ def tree_bodies(source, language):
             continue
         locals_ = local_names(function, language)
         used = [identifiers_in(statement, language) & locals_ for statement in statements_of(body)]
-        bodies.append((function_name(function), function.start_point.row + 1, used, branch_count(function, language)))
+        bodies.append((function_name(function), function.start_point.row + 1, used, branch_count(function, language),
+                       function.end_point.row + 1, False))
     return bodies

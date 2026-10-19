@@ -19,3 +19,8 @@ def parse_tree(source, language):
             return root
     warnings.warn(f"{language} source has syntax errors; its results may be incomplete")
     return root
+
+
+def has_clean_parse(source, language):
+    """True when the text parses as code with no errors. Unlike parse_tree, it never warns."""
+    return any(not Parser(Language(grammar())).parse(source.encode()).root_node.has_error for grammar in GRAMMARS[language])

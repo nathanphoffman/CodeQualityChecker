@@ -27,11 +27,11 @@ def branch_count(function):
 
 
 def python_bodies(source):
-    """(name, line_number, statement_variables, branch_count) for every def."""
+    """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every def."""
     bodies = []
     for node in ast.walk(parse_python(source)):
         if isinstance(node, FUNCTIONS):
             locals_ = local_names(node)
             used = [names_used(statement) & locals_ for statement in node.body]
-            bodies.append((node.name, node.lineno, used, branch_count(node)))
+            bodies.append((node.name, node.lineno, used, branch_count(node), node.end_lineno, ast.get_docstring(node) is not None))
     return bodies
