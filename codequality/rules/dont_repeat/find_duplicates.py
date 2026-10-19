@@ -1,4 +1,4 @@
-from ...source_code import PYTHON, SUFFIX_LANGUAGE, non_test_files, read_source
+from ...source_code import items_in_project
 from .limits import MIN_DUPLICATE_STATEMENTS, MIN_SHAPE_SIZE
 from .python_shapes import python_shapes
 from .tree_shapes import tree_shapes
@@ -6,13 +6,7 @@ from .tree_shapes import tree_shapes
 
 def shapes_in_project(project):
     """[(file label, Function_Shape)] for every function in non-test Python, Rust and TypeScript files."""
-    found = []
-    for path in non_test_files(project, SUFFIX_LANGUAGE):
-        language = SUFFIX_LANGUAGE[path.suffix]
-        source = read_source(path)
-        shapes = python_shapes(source) if language == PYTHON else tree_shapes(source, language)
-        found += [(project.label_for(path), shape) for shape in shapes]
-    return found
+    return items_in_project(project, python_shapes, tree_shapes)
 
 
 def repeated_functions(entries):

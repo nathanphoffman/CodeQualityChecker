@@ -43,3 +43,14 @@ def non_test_files(project, suffixes):
 def read_source(path):
     """The text of a file. Bytes that are not valid text are skipped instead of stopping the run."""
     return path.read_text(errors="ignore")
+
+
+def items_in_project(project, for_python, for_tree):
+    """[(file label, item)] from every non-test source file: Python read by for_python(source), others by for_tree(source, language)."""
+    found = []
+    for path in non_test_files(project, SUFFIX_LANGUAGE):
+        language = SUFFIX_LANGUAGE[path.suffix]
+        source = read_source(path)
+        items = for_python(source) if language == PYTHON else for_tree(source, language)
+        found += [(project.label_for(path), item) for item in items]
+    return found

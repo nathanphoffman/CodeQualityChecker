@@ -9,6 +9,7 @@ GROUP_TITLES = {
     "RULE-05": "Rule 5: Be secure",
     "RULE-06": "Rule 6: Don't repeat yourself",
     "RULE-07": "Rule 7: No magic numbers",
+    "RULE-08": "Rule 8: Minimize dependencies",
     "COMMON": "Project basics",
     "RUST": "Rust",
     "TS": "TypeScript",
