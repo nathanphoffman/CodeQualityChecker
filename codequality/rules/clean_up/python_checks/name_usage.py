@@ -7,10 +7,8 @@ from ..limits import PRIVATE_PREFIX
 DEFINITIONS = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
 DUNDER = "__"
 
-
 def is_private(name):
     return name.startswith(PRIVATE_PREFIX) and not (name.startswith(DUNDER) and name.endswith(DUNDER))
-
 
 def python_name_usage(tree):
     """Private functions and classes, and how often every name is mentioned (names, attributes, imports, strings)."""

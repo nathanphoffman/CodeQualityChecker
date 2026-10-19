@@ -5,6 +5,7 @@ def count_job_groups(statement_variables):
     for variables in statement_variables:
         if not variables:
             continue
+
         touching = [group for group in groups if group & variables]
         untouched = [group for group in groups if not group & variables]
         groups = untouched + [set(variables).union(*touching)]

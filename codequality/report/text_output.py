@@ -12,33 +12,31 @@ HEAVY_LINE = "━" * WIDTH
 
 BOX_INNER_WIDTH = WIDTH - 2
 
-
 def score_color(score):
     """Green for an A, yellow for a C or better, red below that. `score` is 0-100."""
+
     if score >= GOOD_SCORE:
         return GREEN
-    return YELLOW if score >= OK_SCORE else RED
 
+    return YELLOW if score >= OK_SCORE else RED
 
 def print_banner(left, right, score):
     """A heading between two heavy lines, with the text on the left and the score on the right."""
     gap = WIDTH - len(left) - len(right) - 2
     print(f"{BOLD}{score_color(score)}{HEAVY_LINE}\n {left}{' ' * gap}{right} \n{HEAVY_LINE}{RESET}")
 
-
 def print_total(score):
     """The most important line: a double-line box with arrows pointing at the score."""
     text = f"▶▶▶   TOTAL SCORE   {score:.1f} / 100   {letter(score)}   ◀◀◀".center(BOX_INNER_WIDTH)
     print(f"{BOLD}{score_color(score)}╔{'═' * BOX_INNER_WIDTH}╗\n║{text}║\n╚{'═' * BOX_INNER_WIDTH}╝{RESET}\n")
 
-
 def print_check(rule, result):
     """One sub-rule: small and dim, so the headings stand out."""
     mark = f"{result.score:.0%}" if result.status not in (Status.MANUAL, Status.SKIPPED) else result.status.value
     print(f"{DIM}    {result.status.value.upper():8}{rule.id}  {rule.title}  ({mark}){RESET}")
+
     if result.message:
         print(f"{DIM}            {result.message}{RESET}")
-
 
 def print_group(group):
     if group.score is None:
@@ -49,8 +47,8 @@ def print_group(group):
 
     for rule, result in group.entries:
         print_check(rule, result)
-    print()
 
+    print()
 
 def print_text(project, results):
     print(f"Project: {project.root}")
@@ -61,4 +59,5 @@ def print_text(project, results):
 
     for group in group_results(results):
         print_group(group)
+
     print_total(score)

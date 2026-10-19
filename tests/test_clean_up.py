@@ -65,7 +65,6 @@ fn main() {
 }
 '''
 
-
 def test_python_findings():
     findings, usage = analyze_python(MESSY_PYTHON, is_package_init=False)
     assert findings.imports_total == 4 and findings.unused_imports == [1, 3, 4]  # os, List, json (sys has noqa; Dict is used)
@@ -73,10 +72,8 @@ def test_python_findings():
     assert findings.unreachable == [16]
     assert [name for name, _ in usage.private_definitions] == ["_never_called", "_called"]
 
-
 def test_package_init_is_left_alone():
     assert analyze_python("import os\n", is_package_init=True)[0].imports_total == 0
-
 
 def test_typescript_findings():
     findings, usage = analyze_tree(MESSY_TYPESCRIPT, "typescript")
@@ -85,14 +82,12 @@ def test_typescript_findings():
     assert findings.unreachable == [8]
     assert sorted(name for name, _ in usage.private_definitions) == ["helper", "hidden", "shown", "work"]
 
-
 def test_rust_findings():
     findings, usage = analyze_tree(MESSY_RUST, "rust")
     assert findings.unused_imports == [1, 2, 4]  # fmt, HashSet, Alias; HashMap is used; `pub use` is skipped
     assert findings.unused_variables == [9]
     assert findings.unreachable == [12]
     assert [name for name, _ in usage.private_definitions] == ["helper"]
-
 
 def test_project_level_rules_see_unused_private_functions_and_commented_code(tmp_path: Path):
     (tmp_path / "a.py").write_text(MESSY_PYTHON + "\n# total = price * quantity\n")

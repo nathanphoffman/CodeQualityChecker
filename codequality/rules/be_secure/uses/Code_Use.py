@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 @dataclass(frozen=True)
 class Code_Use:
     """A call, or another construct worth checking, such as an assignment or a string built from parts."""

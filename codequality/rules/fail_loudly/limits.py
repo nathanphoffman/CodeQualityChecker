@@ -1,6 +1,7 @@
 # A handler is loud if it re-raises, uses the caught error, or calls something that speaks up: print, a logger, exit.
 LOUD_NAME_ENDINGS = {"debug", "info", "warning", "warn", "error", "exception", "critical", "print", "exit", "fatal",
                      "println", "eprintln", "dbg", "panic", "abort", "trace"}
+
 LOUD_RECEIVERS = {"logging", "logger", "log", "console", "tracing"}
 BROAD_EXCEPTIONS = {"Exception", "BaseException"}
 

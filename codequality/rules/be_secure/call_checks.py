@@ -5,14 +5,12 @@ from .limits import INPUT_WORDS, SECRET_WORDS
 
 ANY_NAME = "*"  # an Entry with this name matches any call, judged only by its text
 
-
 class Entry(NamedTuple):
     """A bare name like "eval" must match exactly. A dotted name like "os.system" also matches "x.os.system"."""
     name: str
     must_contain: tuple = ()  # every one of these must be in the use's text
     must_not_contain: tuple = ()
     prefix: str = ""  # the use's text must start with this
-
 
 class Call_Check(NamedTuple):
     id: str
@@ -23,25 +21,25 @@ class Call_Check(NamedTuple):
 
     line_words: tuple = ()  # if given, the source line must contain one of these
 
-
 def shell_calls(prefix, names):
     return tuple(Entry(f"{prefix}.{name}", ("shell=True",)) for name in names)
 
-
 def hash_calls(names, algorithms):
     entries = []
+
     for name in names:
         for algorithm in algorithms:
             entries += [Entry(name, (quote + algorithm + quote,)) for quote in ("'", '"')]
-    return tuple(entries)
 
+    return tuple(entries)
 
 def log_calls(receivers, methods):
     entries = []
+
     for receiver in receivers:
         entries += [Entry(f"{receiver}.{method}") for method in methods]
-    return tuple(entries)
 
+    return tuple(entries)
 
 SQL_METHODS = (
     # A SELECT also needs "*", a column list or a WHERE, so a sentence like "Select an item from the list" passes.

@@ -3,16 +3,15 @@ from ...registry import rule
 from .find_names import names_in_project
 from .judge_names import grade_names, has_unknown_acronym, is_too_short
 
-
 @rule("RULE-02-NAME-LENGTH", "Names are long enough to explain themselves")
 def check_name_length(project):
     names = names_in_project(project)
     result = grade_names(names, is_too_short, "are too short")
+
     if names:
         result.message = f"average length {sum(map(len, names)) / len(names):.1f}; {result.message}"
 
     return result
-
 
 @rule("RULE-02-NO-ACRONYMS", "No unfamiliar acronyms in names")
 def check_acronyms(project):

@@ -22,21 +22,23 @@ NAME_PATTERNS = {
     ],
 }
 
-
 def find_names(source, language):
     # Python isn't in NAME_PATTERNS: its parser finds names exactly, so no patterns are needed.
     if language == PYTHON:
         return python_names(source)
+
     text = blank_out_text(source)
     names = []
 
     for pattern in NAME_PATTERNS[language]:
         names += [match.group(NAME_GROUP) for match in pattern.finditer(text)]
-    return [name for name in names if name != "_"]
 
+    return [name for name in names if name != "_"]
 
 def names_in_project(project):
     names = []
+
     for path in project.files(*SUFFIX_LANGUAGE):
         names += find_names(read_source(path), SUFFIX_LANGUAGE[path.suffix])
+
     return names

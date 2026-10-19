@@ -6,29 +6,32 @@ from ...registry import rule
 from .find_clever import scan_project
 from .limits import CLEVER_LINE_WEIGHT
 
-
 def describe_unexplained(unexplained):
     listed = ", ".join(f"{hit.label} {hit.kind}" for hit in unexplained[:MAX_LISTED_OFFENDERS])
-    return f"{len(unexplained)} clever constructs have no comment: {listed}" if unexplained else ""
 
+    return f"{len(unexplained)} clever constructs have no comment: {listed}" if unexplained else ""
 
 @rule("RULE-03-CLEVER-IS-EXPLAINED", "Clever code has a comment explaining how it works")
 def check_clever_is_explained(project):
     hits, _ = scan_project(project)
+
     if not hits:
         return Result.passed("no clever code found")
+
     unexplained = [hit for hit in hits if not hit.explained]
 
     return Result.scored(1 - len(unexplained) / len(hits), describe_unexplained(unexplained))
 
-
 @rule("RULE-03-LITTLE-CLEVERNESS", "Clever constructs are rare")
 def check_cleverness_amount(project):
     hits, line_count = scan_project(project)
+
     if not hits:
         return Result.passed("no clever code found")
+
     clever_lines = len({hit.label for hit in hits})  # label is file:line, so one entry per line
 
     kind_counts = Counter([hit.kind for hit in hits]).most_common()
     kinds = ", ".join([f"{kind} ({count})" for kind, count in kind_counts])
+
     return Result.scored(1 - clever_lines * CLEVER_LINE_WEIGHT / line_count, f"{clever_lines} clever lines of {line_count}: {kinds}")

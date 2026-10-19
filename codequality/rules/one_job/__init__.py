@@ -7,32 +7,29 @@ from .grading import grade_bodies
 
 from .limits import JOINING_WORDS, MAX_COMPLEXITY, MAX_JOB_GROUPS, MIN_STATEMENTS_TO_CHECK
 
-
 def has_separate_jobs(body):
     """True when the statements split into groups that share no local variables."""
+
     if len(body.statement_variables) < MIN_STATEMENTS_TO_CHECK:
         return False
-    return count_job_groups(body.statement_variables) > MAX_JOB_GROUPS
 
+    return count_job_groups(body.statement_variables) > MAX_JOB_GROUPS
 
 def has_joining_word(body):
     words = {word.lower() for word in WORD_PATTERN.findall(body.name)}
-    return bool(words & JOINING_WORDS)
 
+    return bool(words & JOINING_WORDS)
 
 def is_too_complex(body):
     return body.branch_count + 1 > MAX_COMPLEXITY
-
 
 @rule("RULE-04-COHESION", "Statements in a function work on the same variables")
 def check_cohesion(project):
     return grade_bodies(bodies_in_project(project), has_separate_jobs, "split into unrelated groups of statements")
 
-
 @rule("RULE-04-NAMES", "Function names don't say \"and\", \"or\" or \"then\"")
 def check_function_names(project):
     return grade_bodies(bodies_in_project(project), has_joining_word, "are named as if they do several things")
-
 
 @rule("RULE-04-COMPLEXITY", "Functions have at most 6 paths through them")
 def check_complexity(project):

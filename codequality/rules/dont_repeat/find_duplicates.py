@@ -3,11 +3,10 @@ from .limits import MIN_DUPLICATE_STATEMENTS, MIN_SHAPE_SIZE
 from .python_shapes import python_shapes
 from .tree_shapes import tree_shapes
 
-
 def shapes_in_project(project):
     """[(file label, Function_Shape)] for every function in non-test Python, Rust and TypeScript files."""
-    return items_in_project(project, python_shapes, tree_shapes)
 
+    return items_in_project(project, python_shapes, tree_shapes)
 
 def repeated_functions(entries):
     """Functions whose whole body matches an earlier function: [(copy entry, original entry)]."""
@@ -24,7 +23,6 @@ def repeated_functions(entries):
 
     return copies
 
-
 def repeated_blocks(entries):
     """Runs of statements matching an earlier run: [(label, copy statements, original label, original statements)]."""
     first_seen, repeats = {}, []
@@ -37,6 +35,7 @@ def repeated_blocks(entries):
 
                 if sum(statement.size for statement in run) < MIN_SHAPE_SIZE:
                     continue
+
                 if key in first_seen:
                     repeats.append((label, run, *first_seen[key]))
                 else:

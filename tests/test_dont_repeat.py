@@ -86,11 +86,10 @@ def second(items, percent):
     return sum_so_far + extra
 '''
 
-
 def grade(root: Path, filename: str, source: str, rule_id: str):
     (root / filename).write_text(source)
-    return {rule.id: result for rule, result in report.run(detect(root), all_rules())}[rule_id]
 
+    return {rule.id: result for rule, result in report.run(detect(root), all_rules())}[rule_id]
 
 def test_renamed_copies_of_functions_are_found_in_every_language(tmp_path: Path):
     for filename, source in (("a.py", PYTHON_COPY), ("a.ts", TYPESCRIPT_COPY), ("a.rs", RUST_COPY)):
@@ -101,11 +100,9 @@ def test_renamed_copies_of_functions_are_found_in_every_language(tmp_path: Path)
 
         assert "second" in result.message, filename
 
-
 def test_copied_block_inside_different_functions_is_found(tmp_path: Path):
     result = grade(tmp_path, "a.py", PYTHON_PARTIAL_COPY, "RULE-06-DUPLICATE-BLOCKS")
     assert result.score < 1.0
-
 
 def test_a_changed_operator_is_not_a_copy(tmp_path: Path):
     assert grade(tmp_path, "a.py", DIFFERENT, "RULE-06-DUPLICATE-FUNCTIONS").score == 1.0

@@ -1,8 +1,6 @@
 from typing import NamedTuple
 
-
 KIND_NUMBER, KIND_STRING = "number", "string"
-
 
 class Literal_Use(NamedTuple):
     kind: str  # "number" or "string"

@@ -10,11 +10,9 @@ from ...models import SEVERITY_ERROR
 for check in CALL_CHECKS:
     rule(check.id, check.title, severity=check.severity)(partial(run_call_check, check))
 
-
 @rule("RULE-05-HARDCODED-SECRETS", "No passwords, keys or tokens written in the code", severity=SEVERITY_ERROR)
 def check_hardcoded_secrets(project):
     return grade_findings(*hardcoded_secrets(project))
-
 
 @rule("RULE-05-SECRET-FILES", "Key and .env files are listed in .gitignore", severity=SEVERITY_ERROR)
 def check_secret_files(project):

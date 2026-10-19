@@ -10,25 +10,26 @@ CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescr
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match
 STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next ";" or brace
 
-
 def method_calls(text):
     """(start, close_paren, name) for every .name(...) call."""
     calls = []
 
     for match in CALL_PATTERN.finditer(text):
         close = matching_close(text, match.start(PAREN_GROUP))
+
         if close is not None:
             calls.append((match.start(), close, match.group(NAME_GROUP)))
-    return calls
 
+    return calls
 
 def chain_names(start, by_start, next_start):
     names = []
+
     while start in by_start:
         names.append(by_start[start])
         start = next_start[start]
-    return names
 
+    return names
 
 def long_chain_hits(text, language):
     calls = method_calls(text)
@@ -38,12 +39,14 @@ def long_chain_hits(text, language):
     heads = [start for start in by_start if start not in continued]
 
     hits = []
+
     for head in heads:
         names = chain_names(head, by_start, next_start)
+
         if len([name for name in names if name in CHAIN_METHODS[language]]) >= MAX_CHAIN_LENGTH:
             hits.append(("long_chain", line_number_at(text, head)))
-    return hits
 
+    return hits
 
 def expression_end(text, start):
     """Where a closure body without braces stops: an unmatched closer, or "," / ";" at the top level."""
@@ -51,10 +54,11 @@ def expression_end(text, start):
 
     for index in range(start, len(text)):
         depth += (text[index] in "([{") - (text[index] in ")]}")
+
         if depth < 0 or (depth == 0 and text[index] in ",;"):
             return index
-    return len(text)
 
+    return len(text)
 
 def closure_bodies(text, language):
     bodies = []
@@ -68,22 +72,24 @@ def closure_bodies(text, language):
 
     return bodies
 
-
 def nested_closure_hits(text, language):
     bodies = closure_bodies(text, language)
     hits = []
 
     for start, end in bodies:
         starts_inside = [other for other, _ in bodies if start < other < end]
+
         if starts_inside:
             hits.append(("nested_closure", line_number_at(text, start)))
-    return hits
 
+    return hits
 
 def ternary_hits(text):
     hits = []
+
     for statement in STATEMENT.finditer(text):
         found = list(TERNARY.finditer(statement.group()))
+
         if len(found) > MAX_TERNARIES_PER_STATEMENT:
             hits.append(("chained_ternary", line_number_at(text, statement.start() + found[1].start())))
 

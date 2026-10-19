@@ -5,7 +5,6 @@ from .names import IMPORT_TYPES, counts_outside_imports
 
 PUBLIC_MARKER = "visibility_modifier"  # `pub use` re-exports on purpose
 
-
 def typescript_bound_names(statement):
     """Names from `import a, { b, c as d }, * as e from "x"`. Side-effect imports bind nothing."""
     names = []
@@ -15,8 +14,8 @@ def typescript_bound_names(statement):
             names.append((node.child_by_field_name("alias") or node.child_by_field_name("name")).text.decode())
         elif node.type in ("import_clause", "namespace_import"):
             names += [child.text.decode() for child in node.children if child.type == "identifier"]
-    return names
 
+    return names
 
 def rust_bound_names(declaration):
     """Names from a `use` line: the last segment of each path, or its `as` alias. Wildcards bind nothing."""
@@ -24,6 +23,7 @@ def rust_bound_names(declaration):
 
     for node in walk(declaration):
         parent = node.parent
+
         if node.type != "identifier" or parent is None or parent.type == "use_wildcard":
             continue
 
@@ -38,7 +38,6 @@ def rust_bound_names(declaration):
 
     return names
 
-
 def tree_imports(root, lines, language):
     """(imported names, line numbers of the unused ones)."""
     used = counts_outside_imports(root)
@@ -46,8 +45,10 @@ def tree_imports(root, lines, language):
 
     for node in walk(root):
         line = node.start_point.row + 1
+
         if node.type not in IMPORT_TYPES or NOQA_MARKER in lines[line - 1]:
             continue
+
         if any(child.type == PUBLIC_MARKER for child in node.children):
             continue
 

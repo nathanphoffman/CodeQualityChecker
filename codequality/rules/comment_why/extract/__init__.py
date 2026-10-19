@@ -8,7 +8,6 @@ from .line_helpers import clean_text, merge_runs, next_code
 from .raw_comments import python_raw, tree_raw
 from .statement_spans import statement_ends
 
-
 def build_comments(source, language, raw):
     """A comment is about the whole statement under it (or the one it trails), however many lines that runs."""
     lines = source.splitlines()
@@ -18,8 +17,10 @@ def build_comments(source, language, raw):
 
     for first, last, text, code_before in merge_runs(raw):
         cleaned = clean_text(text)
+
         if cleaned.lower().startswith(PRAGMA_PREFIXES):
             continue
+
         next_number, next_text = next_code(lines, last)
         start = first if code_before else next_number
 
@@ -28,10 +29,8 @@ def build_comments(source, language, raw):
 
     return found
 
-
 def python_comments(source):
     return build_comments(source, PYTHON, python_raw(source))
-
 
 def tree_comments(source, language):
     return build_comments(source, language, tree_raw(source, language))

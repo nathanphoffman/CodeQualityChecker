@@ -7,7 +7,6 @@ from . import report
 from .detect import detect
 from .registry import all_rules
 
-
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="codequality", description="Grade a project against RULES.md")
     p.add_argument("path", type=Path, help="project root to check")
@@ -18,6 +17,7 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
 
     root = args.path.resolve()
+
     if not root.is_dir():
         p.error(f"{root} is not a directory")
 
@@ -32,4 +32,5 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.min_score is not None and report.overall_score(results) < args.min_score:
         return 1
+
     return 0

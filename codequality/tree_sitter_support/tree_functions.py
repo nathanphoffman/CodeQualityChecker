@@ -2,13 +2,13 @@ from .parse_tree import parse_tree
 from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
 from .tree_walk import identifiers_in, walk
 
-
 def function_name(function):
     name = function.child_by_field_name(NAME_FIELD)
+
     if name is None and function.parent.type == "variable_declarator":
         name = function.parent.child_by_field_name(NAME_FIELD)
-    return name.text.decode() if name else "anonymous"
 
+    return name.text.decode() if name else "anonymous"
 
 def local_names(function, language):
     """Parameters plus everything declared inside the function."""
@@ -18,11 +18,12 @@ def local_names(function, language):
         field = BINDING_FIELDS[language].get(node.type)
         bound = node.child_by_field_name(field) if field else None
         names |= identifiers_in(bound, language) if bound else set()
-    return names
 
+    return names
 
 def branch_count(function, language):
     count = 0
+
     for node in walk(function):
         operator = node.child_by_field_name(OPERATOR_FIELD)
         count += node.type in BRANCH_TYPES[language]
@@ -30,10 +31,8 @@ def branch_count(function, language):
 
     return count
 
-
 def statements_of(body):
     return [child for child in body.named_children if "comment" not in child.type]
-
 
 def tree_bodies(source, language):
     """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
@@ -41,8 +40,10 @@ def tree_bodies(source, language):
 
     for function in walk(parse_tree(source, language)):
         body = function.child_by_field_name(BODY_FIELD)
+
         if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block")):
             continue
+
         locals_ = local_names(function, language)
         used = [identifiers_in(statement, language) & locals_ for statement in statements_of(body)]
 

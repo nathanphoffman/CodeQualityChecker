@@ -8,29 +8,28 @@ BIT_OPERATORS = (ast.LShift, ast.RShift, ast.BitXor)
 COMPREHENSIONS = (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)
 MIN_PIPELINE_CALLS = 3
 
-
 def called_name(node):
     if not isinstance(node, ast.Call):
         return None
-    return node.func.id if isinstance(node.func, ast.Name) else getattr(node.func, "attr", None)
 
+    return node.func.id if isinstance(node.func, ast.Name) else getattr(node.func, "attr", None)
 
 def is_regex_call(node):
     is_re_module = isinstance(getattr(node, "func", None), ast.Attribute) and getattr(node.func.value, "id", None) == "re"
-    return is_re_module and called_name(node) in REGEX_FUNCTIONS
 
+    return is_re_module and called_name(node) in REGEX_FUNCTIONS
 
 def is_nested_comprehension(node):
     if not isinstance(node, COMPREHENSIONS):
         return False
-    return len(node.generators) > 1 or sum(isinstance(n, COMPREHENSIONS) for n in ast.walk(node)) > 1
 
+    return len(node.generators) > 1 or sum(isinstance(n, COMPREHENSIONS) for n in ast.walk(node)) > 1
 
 def is_pipeline(node):
     if called_name(node) not in PIPELINE_FUNCTIONS:
         return False
-    return sum(called_name(n) in PIPELINE_FUNCTIONS for n in ast.walk(node)) >= MIN_PIPELINE_CALLS
 
+    return sum(called_name(n) in PIPELINE_FUNCTIONS for n in ast.walk(node)) >= MIN_PIPELINE_CALLS
 
 CHECKS = [
     (is_regex_call, "regex"),
@@ -44,7 +43,6 @@ CHECKS = [
     (is_pipeline, "long_chain"),
 ]
 
-
 def python_clever(source):
     """(kind, line_number) for every clever construct."""
     found = []
@@ -53,4 +51,5 @@ def python_clever(source):
         for check, kind in CHECKS:
             if check(node):
                 found.append((kind, node.lineno))
+
     return found

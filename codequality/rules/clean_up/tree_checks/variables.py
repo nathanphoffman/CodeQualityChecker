@@ -4,7 +4,6 @@ from ....tree_sitter_support.tree_walk import walk
 from ..limits import PRIVATE_PREFIX
 from .names import name_counts
 
-
 def declared_variable(node, language):
     """The name node of `let x = ...` (Rust) or `const x = ...` (TypeScript), or None for other nodes."""
 
@@ -17,7 +16,6 @@ def declared_variable(node, language):
 
     return name if name is not None and name.type == "identifier" else None
 
-
 def tree_variables(root, language):
     """(declared variables, line numbers of the ones never mentioned again in their function)."""
     total, unused = 0, []
@@ -27,8 +25,10 @@ def tree_variables(root, language):
 
         for node in walk(function):
             name = declared_variable(node, language)
+
             if name is None or name.text.decode().startswith(PRIVATE_PREFIX):
                 continue
+
             total += 1
             unused += [name.start_point.row + 1] if counts[name.text.decode()] <= 1 else []
 

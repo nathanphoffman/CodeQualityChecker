@@ -7,18 +7,19 @@ from .limits import LINES_PER_DEPENDENCY, SCORE_PER_DEPENDENCY
 
 from .read_manifests import project_dependencies
 
-
 def count_code_lines(project):
     """Non-blank lines in the project's own (non-test) source files."""
     lines = 0
+
     for path in non_test_files(project, SUFFIX_LANGUAGE):
         lines += len([line for line in read_source(path).splitlines() if line.strip()])
-    return lines
 
+    return lines
 
 @rule("RULE-08-DEPENDENCIES", "Few dependencies for the amount of code")
 def check_dependencies(project):
     dependencies = project_dependencies(project)
+
     if not dependencies:
         return Result.passed("no dependencies")
 
@@ -31,4 +32,5 @@ def check_dependencies(project):
 
     message = (f"{len(dependencies)} dependencies counted as {counted:.1f}, "
                f"{counted * LINES_PER_DEPENDENCY / lines:.2f} per {LINES_PER_DEPENDENCY} lines: {related or names}")
+
     return Result.scored(SCORE_PER_DEPENDENCY ** (counted * LINES_PER_DEPENDENCY / lines), message)

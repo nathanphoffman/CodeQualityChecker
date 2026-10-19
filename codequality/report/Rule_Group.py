@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 @dataclass(frozen=True)
 class Rule_Group:
     """All the checks that belong to one numbered rule in RULES.md (or to one language or the common checks)."""

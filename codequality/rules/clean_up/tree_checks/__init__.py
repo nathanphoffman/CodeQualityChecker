@@ -5,7 +5,6 @@ from .name_usage import tree_name_usage
 from .unreachable import tree_unreachable
 from .variables import tree_variables
 
-
 def analyze_tree(source, language):
     """(Cleanup_Findings, Name_Usage) for one Rust or TypeScript file."""
     root = parse_tree(source, language)
@@ -15,4 +14,5 @@ def analyze_tree(source, language):
 
     findings = Cleanup_Findings(imports_total, sorted(unused_imports), variables_total, sorted(unused_variables),
                                 statements_total, sorted(unreachable))
+
     return findings, tree_name_usage(root, language)

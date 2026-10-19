@@ -37,13 +37,12 @@ def split_top_level(text):
 
     return pieces + [current]
 
-
 def count_arguments(argument_text):
     # Arrows contain ">" which would look like a closing generic.
     cleaned = argument_text.replace("=>", "  ").replace("->", "  ")
     pieces = [piece.strip() for piece in split_top_level(cleaned)]
-    return len([p for p in pieces if p and not p.startswith(IGNORED_ARGUMENT_PREFIXES)])
 
+    return len([p for p in pieces if p and not p.startswith(IGNORED_ARGUMENT_PREFIXES)])
 
 def body_start(text, close_paren):
     """Index of the "{" opening the body, or None for bodiless declarations and expression arrows."""
@@ -51,37 +50,43 @@ def body_start(text, close_paren):
     for index in range(close_paren + 1, len(text)):
         if text[index] == "{":
             return index
+
         if text[index] == ";":
             return None
-    return None
 
+    return None
 
 def describe_function(text, match):
     if match.group(NAME_GROUP) in CONTROL_KEYWORDS:
         return None
+
     open_paren = match.start(PAREN_GROUP)
     close_paren = matching_close(text, open_paren)
     body_open = close_paren and body_start(text, close_paren)
 
     body_close = body_open and matching_close(text, body_open)
+
     if not body_close:
         return None
+
     first_line = line_number_at(text, match.start())
     last_line = line_number_at(text, body_close)
     arguments = count_arguments(text[open_paren + 1:close_paren])
 
     return Function_Info(match.group(NAME_GROUP), arguments, last_line - first_line + 1, first_line)
 
-
 def find_functions(source, language):
     if language == PYTHON:
         return [Function_Info(*fields) for fields in python_functions(source)]
+
     text = blank_out_text(source)
     found = {}
 
     for pattern in START_PATTERNS[language]:
         for match in pattern.finditer(text):
             info = describe_function(text, match)
+
             if info:
                 found[match.start(PAREN_GROUP)] = info
+
     return list(found.values())

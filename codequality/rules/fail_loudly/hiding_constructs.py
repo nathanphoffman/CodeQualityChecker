@@ -14,10 +14,11 @@ HIDING_CHECK = Call_Check("hiding", "Calls that hide errors", SEVERITY_WARN, {
     "rust": (),
 })
 
-
 def hiding_constructs(project):
     """[(file label, line number)] for every call that hides errors."""
     found = []
+
     for label, language, uses in uses_in_project(project):
         found += [(label, use.line_number) for use in uses if is_finding(use, HIDING_CHECK, language)]
+
     return found

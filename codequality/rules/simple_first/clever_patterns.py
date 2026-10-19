@@ -35,14 +35,15 @@ TS_REGEX_LITERAL = re.compile(
     r"(?:=>|[=(,:;!&|?{}\[]|\breturn)[ \t]*/(?![/*])(?:\\.|\[(?:\\.|[^\]\\\n])*\]|[^/\\\n\[])+/[a-z]*"
 )
 
-
 def pattern_hits(source, text, language):
     """Returns (kind, line_number) for every simple clever construct."""
     hits = []
+
     for kind, pattern in TEXT_PATTERNS[language].items():
         # every place this kind's pattern from TEXT_PATTERNS matches, as (kind, line)
         hits += [(kind, line_number_at(text, m.start())) for m in re.finditer(pattern, text)]
 
     if language == TYPESCRIPT:
         hits += [("regex", line_number_at(source, m.start())) for m in TS_REGEX_LITERAL.finditer(source)]
+
     return hits

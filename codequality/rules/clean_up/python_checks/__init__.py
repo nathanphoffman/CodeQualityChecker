@@ -5,7 +5,6 @@ from .name_usage import python_name_usage
 from .unreachable import python_unreachable
 from .variables import python_variables
 
-
 def analyze_python(source, is_package_init):
     """(Cleanup_Findings, Name_Usage) for one Python file."""
     tree = parse_python(source)
@@ -15,4 +14,5 @@ def analyze_python(source, is_package_init):
 
     findings = Cleanup_Findings(imports_total, sorted(unused_imports), variables_total, sorted(unused_variables),
                                 statements_total, sorted(unreachable))
+
     return findings, python_name_usage(tree)

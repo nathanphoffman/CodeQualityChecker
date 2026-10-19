@@ -4,7 +4,6 @@ from .grouping import PERCENT, group_results, letter, overall_score
 
 SCORE_KEY = "score"
 
-
 def to_json(project, results):
     score = overall_score(results)
 

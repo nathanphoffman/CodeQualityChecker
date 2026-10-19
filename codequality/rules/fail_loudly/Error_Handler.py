@@ -1,6 +1,5 @@
 from typing import NamedTuple
 
-
 class Error_Handler(NamedTuple):
     """A place where code deals with an error: catches it, raises one, or passes it up."""
     line_number: int

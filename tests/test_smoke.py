@@ -4,13 +4,11 @@ from codequality import report
 from codequality.detect import detect
 from codequality.registry import all_rules
 
-
 def test_detects_rust_axum(tmp_path: Path):
     (tmp_path / "Cargo.toml").write_text('[dependencies]\naxum = "0.7"\n')
     p = detect(tmp_path)
     assert p.languages == {"rust"}
     assert p.frameworks == {"axum"}
-
 
 def test_detects_ts_react(tmp_path: Path):
     (tmp_path / "package.json").write_text('{"dependencies": {"react": "18"}}')

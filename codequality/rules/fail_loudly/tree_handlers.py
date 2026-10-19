@@ -9,21 +9,21 @@ from .python_handlers import is_loud_name
 ERR_CONSTRUCTOR = "Err"
 SILENT_RUST_BODIES = {"block", "unit_expression"}  # `{}` and `()`
 
-
 def line_of(node):
     return node.start_point.row + 1
-
 
 def rust_error_arm(arm):
     """An Error_Handler for a match arm that handles Err(...), or None for any other arm."""
     pattern = arm.child_by_field_name("pattern").named_children[0] if arm.child_by_field_name("pattern").named_children else None
+
     if pattern is None or pattern.type != "tuple_struct_pattern" or pattern.child_by_field_name("type").text.decode() != ERR_CONSTRUCTOR:
         return None
+
     body = arm.child_by_field_name("value")
 
     is_empty = body.type in SILENT_RUST_BODIES and not (body.type == "block" and body.named_children)
-    return Error_Handler(line_of(arm), True, not is_empty, len(pattern.named_children) == 1)
 
+    return Error_Handler(line_of(arm), True, not is_empty, len(pattern.named_children) == 1)
 
 def rust_handlers(root):
     found = []
@@ -40,20 +40,19 @@ def rust_handlers(root):
 
     return found
 
-
 def catch_clause_is_loud(clause):
     body = clause.child_by_field_name("body")
     parameter = clause.child_by_field_name("parameter")
     throws = any(node.type == "throw_statement" for node in walk(body))
     speaks = any(node.type == "call_expression" and is_loud_name(dotted(node.child_by_field_name("function").text.decode())) for node in walk(body))
-    return throws or speaks or (parameter is not None and parameter.text.decode() in identifiers_in(body, TYPESCRIPT))
 
+    return throws or speaks or (parameter is not None and parameter.text.decode() in identifiers_in(body, TYPESCRIPT))
 
 def promise_catch_is_silent(call):
     """`.catch(() => {})` and friends: the callback does nothing with the error."""
     arguments = squashed(call.child_by_field_name("arguments").text.decode())
-    return "=>" in arguments and arguments.split("=>")[-1] in SILENT_CALLBACK_BODIES
 
+    return "=>" in arguments and arguments.split("=>")[-1] in SILENT_CALLBACK_BODIES
 
 def typescript_handlers(root):
     found = []
@@ -68,7 +67,7 @@ def typescript_handlers(root):
 
     return found
 
-
 def tree_handlers(source, language):
     root = parse_tree(source, language)
+
     return rust_handlers(root) if language == RUST else typescript_handlers(root)

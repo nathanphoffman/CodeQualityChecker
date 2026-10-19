@@ -5,13 +5,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Callable
 
-
 IGNORED_FOLDERS = {"node_modules", "target", ".git", "dist", "build", ".next", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
 MAX_LISTED_OFFENDERS = 5
 SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO = "error", "warn", "info"
 SEVERITY_WEIGHTS = {SEVERITY_ERROR: 3, SEVERITY_WARN: 2, SEVERITY_INFO: 1}
 CHECK_AUTO, CHECK_PARTIAL, CHECK_MANUAL = "auto", "partial", "manual"
-
 
 class Status(str, Enum):
     PASS = "pass"
@@ -19,7 +17,6 @@ class Status(str, Enum):
     FAIL = "fail"
     MANUAL = "manual"  # can't be checked by code, needs a human
     SKIPPED = "skipped"
-
 
 @dataclass
 class Result:
@@ -44,12 +41,12 @@ class Result:
             status = Status.PASS
         elif score <= 0.0:
             status = Status.FAIL
+
         return cls(status, score, message)
 
     @classmethod
     def manual(cls, message: str = "") -> Result:
         return cls(Status.MANUAL, 0.0, message)
-
 
 @dataclass
 class Project:
@@ -63,12 +60,12 @@ class Project:
     def files(self, *suffixes: str) -> list[Path]:
         """Source files under root, skipping build/vendor dirs."""
         out = []
+
         for p in self.root.rglob("*"):
             if p.is_file() and p.suffix in suffixes and not IGNORED_FOLDERS & set(p.relative_to(self.root).parts):
                 out.append(p)
 
         return out
-
 
 @dataclass
 class Rule:
@@ -89,6 +86,8 @@ class Rule:
     def applies_to(self, project: Project) -> bool:
         if self.language and self.language not in project.languages:
             return False
+
         if self.framework and self.framework not in project.frameworks:
             return False
+
         return True
