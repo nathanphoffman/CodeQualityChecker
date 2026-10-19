@@ -2,6 +2,7 @@
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from ...source_code import SUFFIX_LANGUAGE, non_test_files, read_source
+from .group_dependencies import effective_count, find_families
 from .limits import LINES_PER_DEPENDENCY, SCORE_PER_DEPENDENCY
 from .read_manifests import project_dependencies
 
@@ -16,12 +17,15 @@ def count_code_lines(project):
 
 @rule("RULE-08-DEPENDENCIES", "Few dependencies for the amount of code")
 def check_dependencies(project):
-    names = sorted(name for _, name in project_dependencies(project))
-    if not names:
+    dependencies = project_dependencies(project)
+    if not dependencies:
         return Result.passed("no dependencies")
     # A small project is judged as if it had a full 1296 lines, so one sensible dependency isn't punished.
     lines = max(count_code_lines(project), LINES_PER_DEPENDENCY)
-    per_unit = len(names) * LINES_PER_DEPENDENCY / lines
-    listed = ", ".join(names[:MAX_LISTED_OFFENDERS])
-    message = f"{len(names)} dependencies, {per_unit:.2f} per {LINES_PER_DEPENDENCY} lines: {listed}"
-    return Result.scored(SCORE_PER_DEPENDENCY ** per_unit, message)
+    counted = effective_count(dependencies)
+    families = [family for family in find_families([name for _, name in dependencies]) if len(family) > 1]
+    related = "; ".join(f"{len(family)} related ({', '.join(sorted(family))})" for family in families)
+    names = ", ".join(sorted(name for _, name in dependencies)[:MAX_LISTED_OFFENDERS])
+    message = (f"{len(dependencies)} dependencies counted as {counted:.1f}, "
+               f"{counted * LINES_PER_DEPENDENCY / lines:.2f} per {LINES_PER_DEPENDENCY} lines: {related or names}")
+    return Result.scored(SCORE_PER_DEPENDENCY ** (counted * LINES_PER_DEPENDENCY / lines), message)

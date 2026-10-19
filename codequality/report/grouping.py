@@ -19,6 +19,8 @@ GROUP_TITLES = {
 UNGRADED = (Status.MANUAL, Status.SKIPPED)
 GRADE_CUTOFFS = ((90, "A"), (80, "B"), (70, "C"), (60, "D"))
 PERCENT = 100.0
+# Inside a 10-point band, the bottom three points (_0 to _2) get a minus and the top two (_8 and _9, and 100) get a plus.
+MINUS_BELOW_POINT, PLUS_FROM_POINT = 3, 8
 
 
 def group_key(rule_id):
@@ -51,9 +53,16 @@ def overall_score(results):
     return PERCENT * sum(scores) / len(scores) if scores else PERCENT
 
 
+def grade_sign(points_into_band):
+    """"-" for the bottom of a band, "+" for the top, nothing between."""
+    if points_into_band < MINUS_BELOW_POINT:
+        return "-"
+    return "+" if points_into_band >= PLUS_FROM_POINT else ""
+
+
 def letter(score):
-    """Letter grade for a 0-100 score."""
+    """Letter grade for a 0-100 score, like B+ or C-. F has no sign."""
     for cutoff, grade in GRADE_CUTOFFS:
         if score >= cutoff:
-            return grade
+            return grade + grade_sign(score - cutoff)
     return "F"
