@@ -1,14 +1,14 @@
 import os
 
 from ...models import IGNORED_FOLDERS
-from ...source_code import SUFFIX_LANGUAGE
+from ...source_code import SUFFIX_LANGUAGE, read_source
 from .find_functions import find_functions
 
 
 def parse_source_files(project):
     """Maps each Rust/TypeScript file to the functions found in it."""
     return {
-        project.label_for(path): find_functions(path.read_text(errors="ignore"), SUFFIX_LANGUAGE[path.suffix])
+        project.label_for(path): find_functions(read_source(path), SUFFIX_LANGUAGE[path.suffix])
         for path in project.files(*SUFFIX_LANGUAGE)
     }
 

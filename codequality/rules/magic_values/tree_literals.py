@@ -1,5 +1,6 @@
 from ...tree_sitter_support.parse_tree import parse_tree
-from .Literal_Use import Literal_Use
+from .Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
+from ...tree_sitter_support.syntax_shapes import NAME_FIELD
 
 NUMBER_TYPES = {"number", "integer_literal", "float_literal"}
 STRING_TYPES = {"string", "string_literal"}
@@ -25,7 +26,7 @@ def number_value(text):
 
 def is_constant_declarator(node):
     """`const MAX_RETRIES = 5` in TypeScript."""
-    name = node.child_by_field_name("name") if node.type == "variable_declarator" else None
+    name = node.child_by_field_name(NAME_FIELD) if node.type == "variable_declarator" else None
     return name is not None and name.text.decode().isupper()
 
 
@@ -34,9 +35,9 @@ def literal_of(node, in_constant):
     text = node.text.decode()
     if node.type in NUMBER_TYPES:
         value = number_value(text)
-        return Literal_Use("number", value, line, in_constant) if value is not None else None
+        return Literal_Use(KIND_NUMBER, value, line, in_constant) if value is not None else None
     if node.type in STRING_TYPES and node.parent.type not in NOT_VALUE_PARENTS:
-        return Literal_Use("string", text[1:-1], line, in_constant)
+        return Literal_Use(KIND_STRING, text[1:-1], line, in_constant)
     return None
 
 

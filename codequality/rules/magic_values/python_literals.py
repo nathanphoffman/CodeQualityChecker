@@ -1,7 +1,7 @@
 import ast
 
 from ...python_support.parse_python import parse_python
-from .Literal_Use import Literal_Use
+from .Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 
 
 def is_constant_definition(node):
@@ -22,11 +22,11 @@ def is_number(node):
 def literal_of(node, in_constant):
     """A Literal_Use for a number or string, or None. `-5` is read as one number."""
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub) and is_number(node.operand):
-        return Literal_Use("number", -node.operand.value, node.lineno, in_constant)
+        return Literal_Use(KIND_NUMBER, -node.operand.value, node.lineno, in_constant)
     if is_number(node):
-        return Literal_Use("number", node.value, node.lineno, in_constant)
+        return Literal_Use(KIND_NUMBER, node.value, node.lineno, in_constant)
     if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        return Literal_Use("string", node.value, node.lineno, in_constant)
+        return Literal_Use(KIND_STRING, node.value, node.lineno, in_constant)
     return None
 
 
@@ -43,7 +43,7 @@ def python_literals(source):
         literal = literal_of(node, in_constant)
         if literal:
             found.append(literal)
-        if literal and literal.kind == "number" and isinstance(node, ast.UnaryOp):
+        if literal and literal.kind == KIND_NUMBER and isinstance(node, ast.UnaryOp):
             continue
         pending += [(child, children_are_named(node, child, in_constant)) for child in ast.iter_child_nodes(node)]
     return found

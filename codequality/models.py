@@ -8,6 +8,9 @@ from typing import Callable
 
 IGNORED_FOLDERS = {"node_modules", "target", ".git", "dist", "build", ".next", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
 MAX_LISTED_OFFENDERS = 5
+SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO = "error", "warn", "info"
+SEVERITY_WEIGHTS = {SEVERITY_ERROR: 3, SEVERITY_WARN: 2, SEVERITY_INFO: 1}
+CHECK_AUTO, CHECK_PARTIAL, CHECK_MANUAL = "auto", "partial", "manual"
 
 
 class Status(str, Enum):
@@ -25,15 +28,15 @@ class Result:
     message: str = ""
 
     @classmethod
-    def passed(cls, message: str = "") -> "Result":
+    def passed(cls, message: str = "") -> Result:
         return cls(Status.PASS, 1.0, message)
 
     @classmethod
-    def failed(cls, message: str = "") -> "Result":
+    def failed(cls, message: str = "") -> Result:
         return cls(Status.FAIL, 0.0, message)
 
     @classmethod
-    def scored(cls, score: float, message: str = "") -> "Result":
+    def scored(cls, score: float, message: str = "") -> Result:
         score = max(0.0, min(1.0, score))
         status = Status.PARTIAL
         if score >= 1.0:
@@ -43,7 +46,7 @@ class Result:
         return cls(status, score, message)
 
     @classmethod
-    def manual(cls, message: str = "") -> "Result":
+    def manual(cls, message: str = "") -> Result:
         return cls(Status.MANUAL, 0.0, message)
 
 
@@ -72,12 +75,12 @@ class Rule:
     check: Callable[[Project], Result]
     language: str | None = None  # None = all languages
     framework: str | None = None  # None = any
-    severity: str = "warn"  # error | warn | info
-    checkable: str = "auto"  # auto | partial | manual
+    severity: str = SEVERITY_WARN
+    checkable: str = CHECK_AUTO
 
     @property
     def weight(self) -> int:
-        return {"error": 3, "warn": 2, "info": 1}[self.severity]
+        return SEVERITY_WEIGHTS[self.severity]
 
     def applies_to(self, project: Project) -> bool:
         if self.language and self.language not in project.languages:

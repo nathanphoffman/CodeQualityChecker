@@ -5,11 +5,12 @@ from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from .find_literals import literals_in_project
 from .limits import ALLOWED_NUMBERS, MIN_REPEATS_FOR_CONSTANT, MIN_STRING_LENGTH
+from .Literal_Use import KIND_NUMBER, KIND_STRING
 
 
 @rule("RULE-07-MAGIC-NUMBERS", "Numbers are named constants")
 def check_magic_numbers(project):
-    numbers = [(label, use) for label, use in literals_in_project(project) if use.kind == "number"]
+    numbers = [(label, use) for label, use in literals_in_project(project) if use.kind == KIND_NUMBER]
     if not numbers:
         return Result.passed("no numbers found")
     magic = [(label, use) for label, use in numbers if not use.in_constant and use.value not in ALLOWED_NUMBERS]
@@ -21,7 +22,7 @@ def check_magic_numbers(project):
 @rule("RULE-07-REPEATED-STRINGS", "Strings used again and again are named constants")
 def check_repeated_strings(project):
     strings = [use.value for _, use in literals_in_project(project)
-               if use.kind == "string" and not use.in_constant and len(use.value) >= MIN_STRING_LENGTH]
+               if use.kind == KIND_STRING and not use.in_constant and len(use.value) >= MIN_STRING_LENGTH]
     if not strings:
         return Result.passed("no strings found")
     counts = Counter(strings)

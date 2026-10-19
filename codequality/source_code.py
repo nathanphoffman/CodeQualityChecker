@@ -1,6 +1,10 @@
 import re
 
-SUFFIX_LANGUAGE = {".py": "python", ".rs": "rust", ".ts": "typescript", ".tsx": "typescript"}
+PYTHON, RUST, TYPESCRIPT = "python", "rust", "typescript"
+TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
+SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT}
+TSCONFIG_FILE = "tsconfig.json"
+NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes that find functions and declarations
 # Tests may fake secrets, call unsafe things and repeat themselves on purpose, so some rules only judge real code.
 TEST_FOLDERS = {"tests", "test", "__tests__", "fixtures"}
 BRACKET_PAIRS = {"(": ")", "{": "}", "[": "]"}
@@ -34,3 +38,8 @@ def line_number_at(text, index):
 def non_test_files(project, suffixes):
     """Project files with these suffixes, outside test folders."""
     return [path for path in project.files(*suffixes) if not TEST_FOLDERS & set(path.relative_to(project.root).parts)]
+
+
+def read_source(path):
+    """The text of a file. Bytes that are not valid text are skipped instead of stopping the run."""
+    return path.read_text(errors="ignore")

@@ -1,4 +1,4 @@
-from ...source_code import SUFFIX_LANGUAGE, non_test_files
+from ...source_code import PYTHON, SUFFIX_LANGUAGE, non_test_files, read_source
 from .limits import MIN_DUPLICATE_STATEMENTS, MIN_SHAPE_SIZE
 from .python_shapes import python_shapes
 from .tree_shapes import tree_shapes
@@ -9,8 +9,8 @@ def shapes_in_project(project):
     found = []
     for path in non_test_files(project, SUFFIX_LANGUAGE):
         language = SUFFIX_LANGUAGE[path.suffix]
-        source = path.read_text(errors="ignore")
-        shapes = python_shapes(source) if language == "python" else tree_shapes(source, language)
+        source = read_source(path)
+        shapes = python_shapes(source) if language == PYTHON else tree_shapes(source, language)
         found += [(project.label_for(path), shape) for shape in shapes]
     return found
 

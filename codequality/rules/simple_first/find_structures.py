@@ -1,6 +1,6 @@
 import re
 
-from ...source_code import line_number_at, matching_close
+from ...source_code import NAME_GROUP, PAREN_GROUP, line_number_at, matching_close
 from .limits import CHAIN_METHODS, MAX_CHAIN_LENGTH, MAX_TERNARIES_PER_STATEMENT
 
 CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()")  # a ".", the method name, optional ::<generics>, then the "(" of its call
@@ -15,9 +15,9 @@ def method_calls(text):
     """(start, close_paren, name) for every .name(...) call."""
     calls = []
     for match in CALL_PATTERN.finditer(text):
-        close = matching_close(text, match.start("paren"))
+        close = matching_close(text, match.start(PAREN_GROUP))
         if close is not None:
-            calls.append((match.start(), close, match.group("name")))
+            calls.append((match.start(), close, match.group(NAME_GROUP)))
     return calls
 
 

@@ -1,5 +1,8 @@
 # Node type names from the tree-sitter grammars, so the code that walks trees can stay language-neutral.
 
+# Field names the grammars give to the parts of a node.
+NAME_FIELD, BODY_FIELD, OPERATOR_FIELD = "name", "body", "operator"
+
 FUNCTION_TYPES = {
     "rust": {"function_item"},
     "typescript": {"function_declaration", "generator_function_declaration", "method_definition",

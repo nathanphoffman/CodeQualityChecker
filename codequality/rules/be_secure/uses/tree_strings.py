@@ -1,5 +1,6 @@
 from ....tree_sitter_support.tree_walk import walk
 from .Code_Use import Code_Use
+from ....tree_sitter_support.syntax_shapes import OPERATOR_FIELD
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content"}
 
@@ -15,7 +16,7 @@ def is_built_from_parts(node):
     if node.type == "template_string":
         return any(child.type == "template_substitution" for child in node.children)
     if node.type == "binary_expression":
-        return node.child_by_field_name("operator").text == b"+"
+        return node.child_by_field_name(OPERATOR_FIELD).text == b"+"
     macro = node.child_by_field_name("macro")
     return node.type == "macro_invocation" and macro.text == b"format"
 

@@ -1,12 +1,12 @@
 from .parse_tree import parse_tree
-from .syntax_shapes import BINDING_FIELDS, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES
+from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
 from .tree_walk import identifiers_in, walk
 
 
 def function_name(function):
-    name = function.child_by_field_name("name")
+    name = function.child_by_field_name(NAME_FIELD)
     if name is None and function.parent.type == "variable_declarator":
-        name = function.parent.child_by_field_name("name")
+        name = function.parent.child_by_field_name(NAME_FIELD)
     return name.text.decode() if name else "anonymous"
 
 
@@ -23,7 +23,7 @@ def local_names(function, language):
 def branch_count(function, language):
     count = 0
     for node in walk(function):
-        operator = node.child_by_field_name("operator")
+        operator = node.child_by_field_name(OPERATOR_FIELD)
         count += node.type in BRANCH_TYPES[language]
         count += node.type == "binary_expression" and operator.text.decode() in BRANCH_OPERATORS
     return count
@@ -37,7 +37,7 @@ def tree_bodies(source, language):
     """(name, line_number, statement_variables, branch_count) for every function with a block body."""
     bodies = []
     for function in walk(parse_tree(source, language)):
-        body = function.child_by_field_name("body")
+        body = function.child_by_field_name(BODY_FIELD)
         if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block")):
             continue
         locals_ = local_names(function, language)

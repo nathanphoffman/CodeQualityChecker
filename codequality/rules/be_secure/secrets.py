@@ -2,7 +2,7 @@ import fnmatch
 import re
 
 from ...models import IGNORED_FOLDERS, Result
-from ...source_code import SUFFIX_LANGUAGE, non_test_files
+from ...source_code import SUFFIX_LANGUAGE, non_test_files, read_source
 from .limits import (CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE_FILE_ENDINGS, SECRET_FILE_PATTERNS,
                      SECRET_WORDS)
 
@@ -39,7 +39,7 @@ def hardcoded_secrets(project):
     paths = non_test_files(project, tuple(SUFFIX_LANGUAGE) + CONFIG_SUFFIXES)
     flagged = {}
     for path in paths:
-        lines = secret_line_numbers(path.read_text(errors="ignore"))
+        lines = secret_line_numbers(read_source(path))
         if lines:
             flagged[project.label_for(path)] = lines
     return flagged, len(paths)
@@ -60,7 +60,7 @@ def is_secret_file(project, path):
 def secret_files(project):
     """Key and .env files that are not ignored by .gitignore, so they could be committed."""
     ignore_file = project.root / ".gitignore"
-    ignore_lines = ignore_file.read_text(errors="ignore").splitlines() if ignore_file.exists() else []
+    ignore_lines = read_source(ignore_file).splitlines() if ignore_file.exists() else []
     labels = [project.label_for(path) for path in sorted(project.root.rglob("*")) if is_secret_file(project, path)]
     return [label for label in labels if not is_covered_by_gitignore(label, ignore_lines)]
 

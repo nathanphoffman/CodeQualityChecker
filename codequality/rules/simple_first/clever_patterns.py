@@ -1,6 +1,6 @@
 import re
 
-from ...source_code import line_number_at
+from ...source_code import TYPESCRIPT, line_number_at
 
 # Clever on purpose: one regex per kind of clever construct, run on text with strings and comments blanked.
 #   regex:      building a regex always counts as clever
@@ -39,6 +39,6 @@ def pattern_hits(source, text, language):
     for kind, pattern in TEXT_PATTERNS[language].items():
         # every place this kind's pattern from TEXT_PATTERNS matches, as (kind, line)
         hits += [(kind, line_number_at(text, m.start())) for m in re.finditer(pattern, text)]
-    if language == "typescript":
+    if language == TYPESCRIPT:
         hits += [("regex", line_number_at(source, m.start())) for m in TS_REGEX_LITERAL.finditer(source)]
     return hits

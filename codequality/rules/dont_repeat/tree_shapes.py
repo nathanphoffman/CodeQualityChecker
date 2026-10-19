@@ -1,5 +1,5 @@
 from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.syntax_shapes import FUNCTION_TYPES, IDENTIFIER_TYPES
+from ...tree_sitter_support.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
 from ...tree_sitter_support.tree_functions import function_name, statements_of
 from ...tree_sitter_support.tree_walk import walk
 from .Function_Shape import Function_Shape, Statement_Shape
@@ -12,7 +12,7 @@ def label_of(node, language):
     """Variable names become "id". Operators and method names stay, so `a + b` differs from `a - b`."""
     if node.type in IDENTIFIER_TYPES[language]:
         return "id"
-    operator = node.child_by_field_name("operator")
+    operator = node.child_by_field_name(OPERATOR_FIELD)
     kept = node.text.decode() if node.type in KEPT_NAME_TYPES else (operator.text.decode() if operator else "")
     return f"{node.type}.{kept}" if kept else node.type
 
@@ -25,7 +25,7 @@ def shape_of(node, language):
 
 def blocks_within(function, language):
     """The body block first, then every block nested in it. Nested functions are left to their own entry."""
-    blocks, pending = [], [function.child_by_field_name("body")]
+    blocks, pending = [], [function.child_by_field_name(BODY_FIELD)]
     while pending:
         node = pending.pop()
         blocks += [node] if node.type in BLOCK_TYPES else []
@@ -44,7 +44,7 @@ def block_shapes(block, language):
 def tree_shapes(source, language):
     found = []
     for node in walk(parse_tree(source, language)):
-        body = node.child_by_field_name("body")
+        body = node.child_by_field_name(BODY_FIELD)
         if node.type in FUNCTION_TYPES[language] and body is not None and body.type in BLOCK_TYPES:
             sequences = [block_shapes(block, language) for block in blocks_within(node, language)]
             found.append(Function_Shape(function_name(node), node.start_point.row + 1, sequences))
