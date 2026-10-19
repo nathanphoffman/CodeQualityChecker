@@ -1,4 +1,3 @@
-import re
 
 from ..models import Project, Result
 from ..registry import rule
@@ -21,7 +20,10 @@ def unwrap_usage(p: Project) -> Result:
     files = [f for f in p.files(".rs") if "tests" not in f.parts]
     if not files:
         return Result.passed("no source files")
-    hits = sum(len(re.findall(r"\.(unwrap|expect)\(", f.read_text(errors="ignore"))) for f in files)
+    hits = 0
+    for f in files:
+        text = f.read_text(errors="ignore")
+        hits += text.count(".unwrap(") + text.count(".expect(")
     per_file = hits / len(files)
     return Result.scored(1 - per_file / 5, f"{hits} calls across {len(files)} files")
 

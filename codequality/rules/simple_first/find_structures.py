@@ -3,12 +3,12 @@ import re
 from ...source_code import line_number_at, matching_close
 from .limits import CHAIN_METHODS, MAX_CHAIN_LENGTH, MAX_TERNARIES_PER_STATEMENT
 
-CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()")
+CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()")  # a ".", the method name, optional ::<generics>, then the "(" of its call
 CHAIN_GAP = re.compile(r"[\s?]*")  # whitespace and Rust's "?" between chained calls
 # Rust closures start after "(", "," "=" or "move" as |args|. TypeScript arrows start at "=>".
-CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>")}
+CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>")}  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match
-STATEMENT = re.compile(r"[^;{}]+")
+STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next ";" or brace
 
 
 def method_calls(text):
@@ -35,8 +35,12 @@ def long_chain_hits(text, language):
     next_start = {start: CHAIN_GAP.match(text, close + 1).end() for start, close, _ in calls}
     continued = set(next_start.values())
     heads = [start for start in by_start if start not in continued]
-    long_heads = [h for h in heads if sum(n in CHAIN_METHODS[language] for n in chain_names(h, by_start, next_start)) >= MAX_CHAIN_LENGTH]
-    return [("long_chain", line_number_at(text, head)) for head in long_heads]
+    hits = []
+    for head in heads:
+        names = chain_names(head, by_start, next_start)
+        if len([name for name in names if name in CHAIN_METHODS[language]]) >= MAX_CHAIN_LENGTH:
+            hits.append(("long_chain", line_number_at(text, head)))
+    return hits
 
 
 def expression_end(text, start):
@@ -62,7 +66,12 @@ def closure_bodies(text, language):
 
 def nested_closure_hits(text, language):
     bodies = closure_bodies(text, language)
-    return [("nested_closure", line_number_at(text, s)) for s, e in bodies if any(s < other < e for other, _ in bodies)]
+    hits = []
+    for start, end in bodies:
+        starts_inside = [other for other, _ in bodies if start < other < end]
+        if starts_inside:
+            hits.append(("nested_closure", line_number_at(text, start)))
+    return hits
 
 
 def ternary_hits(text):

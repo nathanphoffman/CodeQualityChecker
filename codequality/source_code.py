@@ -10,6 +10,7 @@ TEXT_PATTERN = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\
 
 def blank_out_text(source):
     """Replace comments and strings with spaces, keeping newlines so line numbers still match."""
+    # each comment or string found is rewritten with every character except newlines turned into a space
     return TEXT_PATTERN.sub(lambda hit: re.sub(r"[^\n]", " ", hit.group()), source)
 
 

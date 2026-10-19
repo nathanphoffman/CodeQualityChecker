@@ -14,11 +14,11 @@ CLOSERS = ")]}>"
 #   typescript: `function name(`, `name = (` / `name: Type = async (` for arrows,
 #   and an indented `name(` for class methods (control keywords are filtered out later).
 START_PATTERNS = {
-    "rust": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()")],
+    "rust": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()")],  # "fn", a name, optional <generics>, then the "(" opening the arguments
     "typescript": [
-        re.compile(r"\bfunction\s*\*?\s*(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()"),
-        re.compile(r"\b(?P<name>\w+)(?:\s*:\s*[^=;(){}]+)?\s*=\s*(?:async\s*)?(?P<paren>\()"),
-        re.compile(r"^[ \t]+(?:(?:public|private|protected|static|async)\s+)*(?P<name>\w+)\s*(?P<paren>\()", re.M),
+        re.compile(r"\bfunction\s*\*?\s*(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()"),  # "function", optional "*" for generators, a name, optional <generics>, then "("
+        re.compile(r"\b(?P<name>\w+)(?:\s*:\s*[^=;(){}]+)?\s*=\s*(?:async\s*)?(?P<paren>\()"),  # arrow functions: a name, optional ": Type", "=", optional "async", then "("
+        re.compile(r"^[ \t]+(?:(?:public|private|protected|static|async)\s+)*(?P<name>\w+)\s*(?P<paren>\()", re.M),  # class methods: an indented name with optional modifiers in front, then "("
     ],
 }
 

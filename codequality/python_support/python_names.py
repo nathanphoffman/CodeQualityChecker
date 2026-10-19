@@ -17,5 +17,7 @@ def names_declared_by(node):
 
 
 def python_names(source):
-    names = [name for node in ast.walk(parse_python(source)) for name in names_declared_by(node)]
+    names = []
+    for node in ast.walk(parse_python(source)):
+        names += names_declared_by(node)
     return [name for name in names if name != "_"]

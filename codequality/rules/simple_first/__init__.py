@@ -27,5 +27,6 @@ def check_cleverness_amount(project):
     if not hits:
         return Result.passed("no clever code found")
     per_hundred = len(hits) * LINES_PER_DENSITY_UNIT / line_count
-    kinds = ", ".join(f"{kind} ({count})" for kind, count in Counter(h.kind for h in hits).most_common())
+    kind_counts = Counter([hit.kind for hit in hits]).most_common()
+    kinds = ", ".join([f"{kind} ({count})" for kind, count in kind_counts])
     return Result.scored(1 - per_hundred / MAX_CLEVER_PER_100_LINES, f"{len(hits)} in {line_count} lines: {kinds}")

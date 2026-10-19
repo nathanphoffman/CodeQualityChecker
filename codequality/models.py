@@ -35,7 +35,11 @@ class Result:
     @classmethod
     def scored(cls, score: float, message: str = "") -> "Result":
         score = max(0.0, min(1.0, score))
-        status = Status.PASS if score >= 1.0 else Status.FAIL if score <= 0.0 else Status.PARTIAL
+        status = Status.PARTIAL
+        if score >= 1.0:
+            status = Status.PASS
+        elif score <= 0.0:
+            status = Status.FAIL
         return cls(status, score, message)
 
     @classmethod

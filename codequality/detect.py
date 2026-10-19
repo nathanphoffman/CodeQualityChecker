@@ -31,6 +31,7 @@ def _detect_rust(project: Project) -> None:
     project.languages.add("rust")
     text = cargo.read_text(errors="ignore")
     for crate, name in RUST_FRAMEWORKS.items():
+        # finds a line starting with the crate name followed by "=" or "." (a Cargo.toml dependency entry)
         if re.search(rf"^\s*{re.escape(crate)}\s*[=.]", text, re.M):
             project.frameworks.add(name)
 

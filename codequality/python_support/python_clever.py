@@ -46,5 +46,9 @@ CHECKS = [
 
 def python_clever(source):
     """(kind, line_number) for every clever construct."""
-    nodes = ast.walk(parse_python(source))
-    return [(kind, node.lineno) for node in nodes for check, kind in CHECKS if check(node)]
+    found = []
+    for node in ast.walk(parse_python(source)):
+        for check, kind in CHECKS:
+            if check(node):
+                found.append((kind, node.lineno))
+    return found

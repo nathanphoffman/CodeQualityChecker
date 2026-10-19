@@ -18,11 +18,11 @@ def functions_per_file(project):
 
 
 def per_function(project, attribute):
-    return {
-        f"{file}:{info.line_number} {info.name}": getattr(info, attribute)
-        for file, infos in parse_source_files(project).items()
-        for info in infos
-    }
+    values = {}
+    for file, infos in parse_source_files(project).items():
+        for info in infos:
+            values[f"{file}:{info.line_number} {info.name}"] = getattr(info, attribute)
+    return values
 
 
 def items_per_folder(project):
