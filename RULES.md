@@ -20,5 +20,10 @@
 11. Fail loudly but directedly. Never hide errors, don't over report or over-throw.
 12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables.
 13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
+14. 14. Space it out. Blank lines separate ideas like paragraphs.
+   - Max 6 lines in a row without a blank line.
+   - A blank line before control statements, returns, and function definitions, unless first in a block.
+   - A blank line after closing brackets or multi-line statements, unless followed by another closing bracket, else, catch, or finally.
+   - Never have two blank lines in a row.
 
 Short version: Power of 6s. Clear names. Simple first. One job. Be secure. No repetition. Test what matters. Fail loud. Leave it cleaner.
