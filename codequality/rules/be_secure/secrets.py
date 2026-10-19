@@ -2,10 +2,9 @@ import fnmatch
 import re
 
 from ...models import IGNORED_FOLDERS, Result
-from ...source_code import SUFFIX_LANGUAGE
+from ...source_code import SUFFIX_LANGUAGE, non_test_files
 from .limits import (CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE_FILE_ENDINGS, SECRET_FILE_PATTERNS,
                      SECRET_WORDS)
-from .uses import scannable_files
 
 # Clever on purpose: finds a secret word assigned a quoted value, like a password variable or a JSON "api_key" entry.
 #   the secret word, then any other word characters, e.g. api_key or password_hash
@@ -37,7 +36,7 @@ def secret_line_numbers(text):
 
 def hardcoded_secrets(project):
     """({file label: line numbers}, number of files scanned)."""
-    paths = scannable_files(project, tuple(SUFFIX_LANGUAGE) + CONFIG_SUFFIXES)
+    paths = non_test_files(project, tuple(SUFFIX_LANGUAGE) + CONFIG_SUFFIXES)
     flagged = {}
     for path in paths:
         lines = secret_line_numbers(path.read_text(errors="ignore"))

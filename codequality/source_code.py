@@ -1,6 +1,8 @@
 import re
 
 SUFFIX_LANGUAGE = {".py": "python", ".rs": "rust", ".ts": "typescript", ".tsx": "typescript"}
+# Tests may fake secrets, call unsafe things and repeat themselves on purpose, so some rules only judge real code.
+TEST_FOLDERS = {"tests", "test", "__tests__", "fixtures"}
 BRACKET_PAIRS = {"(": ")", "{": "}", "[": "]"}
 
 # Clever on purpose: matches comments and string literals so we can blank them out.
@@ -27,3 +29,8 @@ def matching_close(text, open_index):
 
 def line_number_at(text, index):
     return text.count("\n", 0, index) + 1
+
+
+def non_test_files(project, suffixes):
+    """Project files with these suffixes, outside test folders."""
+    return [path for path in project.files(*suffixes) if not TEST_FOLDERS & set(path.relative_to(project.root).parts)]
