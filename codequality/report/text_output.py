@@ -50,10 +50,13 @@ def print_group(group):
 
     print()
 
-def print_text(project, results):
+def print_project_header(project):
     print(f"Project: {project.root}")
     print(f"Languages: {', '.join(sorted(project.languages)) or 'none detected'}")
     print(f"Frameworks: {', '.join(sorted(project.frameworks)) or 'none detected'}\n")
+
+def print_text(project, results):
+    print_project_header(project)
     score = overall_score(results)
     print_total(score)
 

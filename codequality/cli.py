@@ -12,6 +12,9 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("path", type=Path, nargs="?", default=Path("."), help="project root to check (default: current directory)")
     p.add_argument("--json", action="store_true", help="output JSON")
     p.add_argument("--only", action="append", default=[], help="only run rules whose ID starts with this, e.g. RULE-03 (repeatable)")
+    detail = p.add_mutually_exclusive_group()
+    detail.add_argument("--quick", action="store_true", help="only each rule's score and the total")
+    detail.add_argument("--full", action="store_true", help="every check with what it looks for, what was found and how to fix it")
     p.add_argument("--min-score", type=float, default=None, help="exit 1 if overall score is below this")
 
     args = p.parse_args(argv)
@@ -27,6 +30,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.json:
         print(report.to_json(project, results))
+    elif args.quick:
+        report.print_quick(project, results)
+    elif args.full:
+        report.print_full(project, results)
     else:
         report.print_text(project, results)
 
