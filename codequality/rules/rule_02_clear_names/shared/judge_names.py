@@ -2,7 +2,9 @@ import re
 from collections import Counter
 
 from ....models import MAX_LISTED_OFFENDERS, Result
-from .limits import ALLOWED_ACRONYMS, FRAMEWORK_NAMES, MIN_NAME_LENGTH
+from ...rule_01_power_of_six.shared.limits import MAX_ITEMS
+from ...rule_01_power_of_six.shared.scoring import degraded_credit
+from .limits import ALLOWED_ACRONYMS, FRAMEWORK_NAMES, FREE_SHARE, MIN_NAME_LENGTH, SHARE_EDGE_CREDIT, SHARE_EDGE_POWER
 
 # Clever on purpose: splits a name into words by casing, so both camelCase and Pascal_Snake work.
 #   [A-Z]+(?![a-z])  an uppercase run that isn't the start of a Capitalized word (HTTP in parseHTTPResponse)
@@ -34,6 +36,9 @@ def grade_names(names, is_offender, complaint):
         return Result.passed("no names found")
 
     offenders = Counter(name for name in names if is_offender(name))
-    score = 1 - sum(offenders.values()) / len(names)
+    share = sum(offenders.values()) / len(names)
+
+    # Rule 1's slide, with the share of bad names scaled so FREE_SHARE sits at its "6": 6 times that share is 90%.
+    score = degraded_credit(share / FREE_SHARE * MAX_ITEMS, SHARE_EDGE_POWER, SHARE_EDGE_CREDIT)
 
     return Result.scored(score, describe_offenders(offenders, len(names), complaint))
