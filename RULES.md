@@ -1,5 +1,6 @@
 1. Power of 6s. People understand things best in groups of about 6.
    - Everything should have 6 or fewer: functions per file, items per folder, services per system, arguments to functions, attributes on components etc.
+   - Function and macro call depth should strive to be 6 or less
    - Exception: functions should aim for 6 lines or fewer, but may run up to 36 when splitting them is exceedingly difficult for performance or structural reasons.
 2. Clear names. Names should explain themselves; longer and clearer beats short and vague ones. No acronyms unless an intern would know them, like ID. Follow the language's naming conventions; otherwise use:
    - SCREAMING_SNAKE for constants, like MAX_RETRY_COUNT

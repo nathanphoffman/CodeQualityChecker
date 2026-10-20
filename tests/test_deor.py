@@ -131,10 +131,10 @@ def test_deor_comments_and_commented_out_code():
     assert [comment.text for comment in comments] == ["print(missing)"]
     assert is_commented_out_code("print(missing)", "deor") and not is_commented_out_code("loops over every account", "deor")
 
-def test_deor_clever_is_unsafe_macros_and_rust_blocks():
+def test_deor_clever_is_only_rust_blocks():
     from codequality.rules.rule_03_simple_first.shared.find_clever import clever_constructs
 
-    assert clever_constructs(FULL, "deor") == [("unsafe_macro", 7)]
+    assert clever_constructs(FULL, "deor") == []
 
 def test_deor_tests_and_secrets():
     from codequality.rules.rule_05_be_secure.shared.secrets import secret_line_numbers

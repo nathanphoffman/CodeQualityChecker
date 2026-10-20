@@ -1,5 +1,7 @@
 """Rule 1: Power of 6s. Everything should have 6 or fewer; functions aim for 6 lines, hard cap 36."""
 from ...registry import rule
+from .call_depth.call_graph import call_depths
+from .call_depth.grade_depth import grade_depths
 from .shared.measure import functions_per_file, items_per_folder, per_function
 from .shared.scoring import function_length_credit, grade, strict_credit
 
@@ -18,3 +20,7 @@ def check_function_length(project):
 @rule("RULE-01-FOLDER-ITEMS", "At most 6 items per folder")
 def check_folder_items(project):
     return grade(items_per_folder(project), strict_credit, "folders")
+
+@rule("RULE-01-CALL-DEPTH", "Function calls go at most 6 levels deep")
+def check_call_depth(project):
+    return grade_depths(call_depths(project))

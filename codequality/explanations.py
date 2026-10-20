@@ -4,7 +4,7 @@ NO_EXPLANATION = ("(no description written for this check yet)", "Read the messa
 
 # Group key -> what the numbered rule in RULES.md asks for.
 GROUP_SUMMARIES = {
-    "RULE-01": "Everything should come in groups of about 6 or fewer: functions per file, items per folder, arguments per function. Functions aim for 6 lines, with 36 as the hard cap. These are targets, not exact limits: slightly over costs little, so get as close as is reasonable.",
+    "RULE-01": "Everything should come in groups of about 6 or fewer: functions per file, items per folder, arguments per function, levels of function calls. Functions aim for 6 lines, with 36 as the hard cap. These are targets, not exact limits: slightly over costs little, so get as close as is reasonable.",
     "RULE-02": "Names should explain themselves. Longer and clearer beats short and vague, and unfamiliar acronyms are avoided.",
     "RULE-03": "Prefer the simple version of the code. Clever code (regex, long chains, nested ternaries) is allowed only when the simple version is much longer, and must have a comment explaining how it works.",
     "RULE-04": "A function does one job. It should not mix unrelated work or touch things outside its core concern.",
@@ -30,6 +30,8 @@ CHECK_EXPLANATIONS = {
                                 "Pull chunks of the function out into well-named helper functions."),
     "RULE-01-FOLDER-ITEMS": ("Counts the files and folders directly inside each folder.",
                              "Group related files into subfolders so no folder holds more than 6 items."),
+    "RULE-01-CALL-DEPTH": ("Follows calls from each entry point (a function nothing else calls) and measures its longest chain: main -> child -> child is 3 deep. Calls are matched by function name across the project. Each chain is graded (6 or fewer is full credit, 8 is about 90%, 10 is under 20%), then the shortfalls are averaged with almost no tolerance, so even one very deep chain among many shallow ones pulls the score down hard.",
+                           "Flatten the chain: have the entry point call several helpers itself instead of each helper calling the next, or merge tiny functions that only pass work along."),
     "RULE-02-NAME-LENGTH": ("Looks for variable, function and class names that are too short to explain themselves (under 4 characters).",
                             "Rename them to say what they hold or do, like `user_count` instead of `n`."),
     "RULE-02-NO-ACRONYMS": ("Looks for names containing capital-letter acronyms other than well-known ones like ID, URL, HTTP, JSON, HTML, CSS, XML and API.",

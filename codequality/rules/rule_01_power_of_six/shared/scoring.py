@@ -1,7 +1,7 @@
 import math
 
 from ....models import MAX_LISTED_OFFENDERS, Result
-from .limits import (FALLOFF_PER_STEP, ITEM_EDGE_CREDIT, ITEM_EDGE_POWER, LENGTH_EDGE_POWER, MAX_ITEMS, PARTIAL_CREDIT,
+from .limits import (DEPTH_EDGE_CREDIT, DEPTH_EDGE_POWER, FALLOFF_PER_STEP, ITEM_EDGE_CREDIT, ITEM_EDGE_POWER, LENGTH_EDGE_POWER, MAX_ITEMS, PARTIAL_CREDIT,
                      POWER_BASE)
 
 def degraded_credit(value, edge_power, edge_credit):
@@ -27,6 +27,11 @@ def function_length_credit(value):
     """Functions may run past 6 lines, but the credit slides: 50% at the 36 line hard cap and about 13% at 100."""
 
     return degraded_credit(value, LENGTH_EDGE_POWER, PARTIAL_CREDIT)
+
+def depth_credit(value):
+    """For call depth: full credit to 6 levels, 90% at 8, about 40% at 9 and under 20% at 10."""
+
+    return degraded_credit(value, DEPTH_EDGE_POWER, DEPTH_EDGE_CREDIT)
 
 def describe_offenders(measurements, noun):
     over = {label: value for label, value in measurements.items() if value > MAX_ITEMS}

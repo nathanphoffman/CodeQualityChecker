@@ -1,4 +1,3 @@
-from ..deor.deor_clever import deor_unsafe_macros
 from ....language_parsers.deor.rust_blocks import rust_only_source
 from ..python.python_clever import python_clever
 from ....source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, read_source
@@ -17,13 +16,13 @@ def is_explained(lines, line_number, language):
 
 def clever_constructs(source, language):
     """(kind, line_number) pairs. Python is read with its parser; Rust and TypeScript with patterns.
-    Deor has little clever code of its own: an unsafe_macro, and whatever its `rust` blocks do."""
+    Deor has no clever constructs of its own, so only what its `rust` blocks do is judged."""
 
     if language == PYTHON:
         return python_clever(source)
 
     if language == DEOR:
-        return deor_unsafe_macros(source) + clever_constructs(rust_only_source(source), RUST)
+        return clever_constructs(rust_only_source(source), RUST)
 
     text = blank_out_text(source)
     found = pattern_hits(source, text, language) + long_chain_hits(text, language) + nested_closure_hits(text, language)
