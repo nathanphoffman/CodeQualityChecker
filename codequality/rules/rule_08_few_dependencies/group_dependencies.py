@@ -14,8 +14,10 @@ def find_families(names):
     families = []
 
     for name in sorted(names):
+        # the families that have a member related to this name (a loop inside a loop)
         related = [family for family in families if any(are_related(name, member) for member in family)]
         families = [family for family in families if family not in related]
+        # merges the name with every member of every related family into one family
         families.append([name, *[member for family in related for member in family]])
 
     return families

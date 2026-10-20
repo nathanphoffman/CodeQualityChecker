@@ -22,6 +22,7 @@ def check_duplicate_functions(project):
     return Result.scored(1 - len(copies) / len(entries), message)
 
 def lines_of(label, run):
+    # set comprehension with two loops: every line number covered by every statement in the run
     return {(label, line) for statement in run for line in range(statement.first_line, statement.last_line + 1)}
 
 @rule("RULE-06-DUPLICATE-BLOCKS", "No run of statements is copied elsewhere")

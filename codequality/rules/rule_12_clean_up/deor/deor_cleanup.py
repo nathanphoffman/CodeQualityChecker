@@ -6,6 +6,7 @@ from ....language_parsers.deor.tree import parse_deor, walk_statements
 
 PRIVATE_PREFIX = "_"
 TERMINATORS = {"return", "break", "continue"}
+# a line like `macro_run name` or `unsafe_macro_run name`, capturing the name
 MACRO_CALL = re.compile(r"^(?:unsafe_)?macro_run\s+(?P<name>\w+)$")
 
 def own_statements(function):
@@ -40,6 +41,7 @@ def name_counts(function, macros):
 def unused_variables_of(function, macros):
     """(variables declared, line numbers of the ones nothing reads) in one function or macro."""
     counts = name_counts(function, macros)
+    # two loops: every variable declared by every statement that isn't a `for`, skipping private names
     declared = [(name, statement.first_line) for statement in own_statements(function) if statement.keyword != "for"
                 for name in declared_variables(statement) if not name.startswith(PRIVATE_PREFIX)]
 

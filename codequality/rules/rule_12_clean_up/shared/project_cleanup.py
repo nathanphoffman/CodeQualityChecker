@@ -30,5 +30,6 @@ def unused_private_definitions(analyzed):
         mentions.update(usage.references)
         definitions.update(name for name, _ in usage.private_definitions)
 
+    # two loops: every private definition in every file, kept when it is mentioned no more often than it is defined
     return [(label, line, name) for label, _, usage in analyzed for name, line in usage.private_definitions
             if mentions[name] <= definitions[name]]

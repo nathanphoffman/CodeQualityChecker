@@ -26,6 +26,7 @@ def check_dependencies(project):
     # A small project is judged as if it had a full 1296 lines, so one sensible dependency isn't punished.
     lines = max(count_code_lines(project), LINES_PER_DEPENDENCY)
     counted = effective_count(dependencies)
+    # keeps only families with more than one package, since a lone package is not a family
     families = [family for family in find_families([name for _, name in dependencies]) if len(family) > 1]
     related = "; ".join(f"{len(family)} related ({', '.join(sorted(family))})" for family in families)
     names = ", ".join(sorted(name for _, name in dependencies)[:MAX_LISTED_OFFENDERS])

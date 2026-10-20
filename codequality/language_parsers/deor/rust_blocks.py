@@ -25,6 +25,7 @@ def real_line(first_line, wrapped_line):
 
 def rust_only_source(source):
     """The file with every line that is not inside a `rust` block blanked, so line numbers still match."""
+    # two loops: every line of Rust code in every Rust statement, keyed by line number
     keep = {line.number: line.code for statement in rust_statements(source) for line in statement.rust_lines}
 
     return "\n".join(keep.get(number, "") for number in range(1, len(source.splitlines()) + 1))

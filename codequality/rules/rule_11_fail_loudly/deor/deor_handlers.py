@@ -3,8 +3,11 @@ import re
 from ....language_parsers.deor.tree import parse_deor, walk_statements
 from ....language_parsers.deor.words import blank_strings
 
+# a crash( call, but not one preceded by a word character or a dot, so x.crash( and no_crash( are skipped
 CRASH_CALL = re.compile(r"(?<![\w.])crash\(")
+# a print( or crash( call, with the same rule against a word character or dot before it
 LOUD_CALL = re.compile(r"(?<![\w.])(?:print|crash)\(")
+# the words 'is not valid' with any amount of whitespace between them
 NOT_VALID_CHECK = re.compile(r"\bis\s+not\s+valid\b")
 
 def is_loud(statement):

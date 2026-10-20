@@ -19,6 +19,7 @@ def grade_leftovers(total, places, noun):
     return Result.scored(1 - len(places) / total, message)
 
 def places_in(analyzed, field):
+    # two loops: one 'label:line' entry for every line of every file's findings
     return [f"{label}:{line}" for label, findings, _ in analyzed for line in getattr(findings, field)]
 
 @rule("RULE-12-UNUSED-IMPORTS", "Every import is used")

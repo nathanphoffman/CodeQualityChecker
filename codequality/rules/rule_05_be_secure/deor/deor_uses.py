@@ -20,6 +20,7 @@ def closing_bracket(text, open_index):
     return len(text)
 
 def names_in(text):
+    # every word that looks like a name (a letter or underscore, then word characters), with string contents blanked first
     return frozenset(word.lower() for word in re.findall(r"[A-Za-z_]\w*", blank_strings(text)))
 
 def deor_calls(source):
@@ -45,7 +46,9 @@ def deor_calls(source):
 
 def built_text(call):
     """The text pieces of the string literals inside an s_join(...) call, upper-case, when a variable is joined in too."""
+    # the text inside each double-quoted string; (?:\\.|[^"\\])* reads an escaped character or any character that isn't a quote or backslash
     pieces = re.findall(r'"((?:\\.|[^"\\])*)"', call)
+    # true when a name is left after removing the strings and the s_join helper names, meaning a variable is part of the call
     has_variable = bool(re.search(r"[A-Za-z_]\w*", re.sub(r'"(?:\\.|[^"\\])*"', "", call).replace("s_join_with", "").replace("s_join", "")))
 
     return " ".join(pieces).strip().upper() if has_variable else ""

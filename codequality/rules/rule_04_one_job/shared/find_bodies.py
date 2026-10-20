@@ -5,6 +5,7 @@ from ....language_parsers.tree_sitter.tree_functions import tree_bodies
 from .Function_Body import Function_Body
 
 def find_bodies(source, language):
+    # nested ternary used as a three-way choice: Python first, then Deor, then every other language
     found = python_bodies(source) if language == PYTHON else deor_bodies(source) if language == DEOR else tree_bodies(source, language)
 
     return [Function_Body(*fields) for fields in found]

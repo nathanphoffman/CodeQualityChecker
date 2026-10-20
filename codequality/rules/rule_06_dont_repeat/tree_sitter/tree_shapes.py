@@ -16,6 +16,7 @@ def label_of(node, language):
         return "id"
 
     operator = node.child_by_field_name(OPERATOR_FIELD)
+    # a name node keeps its own text; otherwise use the operator's text, or an empty string when there is no operator
     kept = node.text.decode() if node.type in KEPT_NAME_TYPES else (operator.text.decode() if operator else "")
 
     return f"{node.type}.{kept}" if kept else node.type
@@ -47,6 +48,7 @@ def block_shapes(block, language):
     return shapes
 
 def deor_function_shapes(source):
+    # a list of sequences of shapes inside a list of functions: one Function_Shape per function, one Statement_Shape per statement
     return [Function_Shape(name, line, [[Statement_Shape(*shape) for shape in sequence] for sequence in sequences])
             for name, line, sequences in deor_shapes(source)]
 

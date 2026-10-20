@@ -37,6 +37,7 @@ def count_rust_tests(source):
 def count_typescript_tests(source):
     calls = [use for use in find_uses(source, TYPESCRIPT) if use.name in TYPESCRIPT_TEST_CALLS]
 
+    # counts the calls whose text contains any of the callback markers
     return len([call for call in calls if any(marker in call.text for marker in CALLBACK_MARKERS)])
 
 def count_deor_tests(source):

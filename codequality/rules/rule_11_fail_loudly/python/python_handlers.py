@@ -24,6 +24,7 @@ def is_loud(handler):
     if not is_broad(handler) and returns_answer(handler):
         return True
 
+    # two loops: every syntax node inside every statement of the handler body
     nodes = [node for statement in handler.body for node in ast.walk(statement)]
     raises = any(isinstance(node, ast.Raise) for node in nodes)
     uses_error = handler.name is not None and any(isinstance(node, ast.Name) and node.id == handler.name for node in nodes)
