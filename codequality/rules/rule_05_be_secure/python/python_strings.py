@@ -7,8 +7,8 @@ VARIABLE_PARTS = (ast.Name, ast.Attribute, ast.Call, ast.Subscript)
 
 def literal_parts(node):
     """The text pieces of a string being built, in source order."""
-    constants = [n for n in ast.walk(node) if isinstance(n, ast.Constant) and isinstance(n.value, str)]
-    constants.sort(key=lambda n: (n.lineno, n.col_offset))
+    constants = [element for element in ast.walk(node) if isinstance(element, ast.Constant) and isinstance(element.value, str)]
+    constants.sort(key=lambda element: (element.lineno, element.col_offset))
 
     return " ".join(constant.value for constant in constants)
 
@@ -27,7 +27,7 @@ def is_built_from_parts(node):
         return any(isinstance(part, ast.FormattedValue) for part in node.values)
 
     if isinstance(node, ast.BinOp) and isinstance(node.op, BUILDING_OPERATORS):
-        return any(isinstance(n, VARIABLE_PARTS) for n in ast.walk(node))
+        return any(isinstance(child, VARIABLE_PARTS) for child in ast.walk(node))
 
     return is_format_call(node)
 

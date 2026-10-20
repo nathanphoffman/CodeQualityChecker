@@ -21,8 +21,8 @@ def to_json(project, results):
         ],
 
         "rules": [
-            {"id": r.id, "title": r.title, "severity": r.severity, "status": res.status.value,
-             SCORE_KEY: res.score, "message": res.message}
-            for r, res in results
+            {"id": rule.id, "title": rule.title, "severity": rule.severity, "status": result.status.value,
+             SCORE_KEY: result.score, "message": result.message}
+            for rule, result in results
         ],
     }, indent=2)

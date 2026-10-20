@@ -8,26 +8,26 @@ MAX_UNWRAPS_PER_FILE = 5  # this many unwrap()/expect() calls per file scores ze
 # --- core Rust ---------------------------------------------------------------
 
 @rule("RUST-001", "Cargo.lock is committed for binaries", language=RUST, severity=SEVERITY_INFO)
-def cargo_lock(p: Project) -> Result:
-    return Result.passed() if (p.root / "Cargo.lock").exists() else Result.failed("no Cargo.lock")
+def cargo_lock(project: Project) -> Result:
+    return Result.passed() if (project.root / "Cargo.lock").exists() else Result.failed("no Cargo.lock")
 
 @rule("RUST-002", "rustfmt / clippy configured", language=RUST, severity=SEVERITY_WARN, checkable="partial")
-def fmt_clippy(p: Project) -> Result:
-    found = sum((p.root / n).exists() for n in ("rustfmt.toml", ".rustfmt.toml", "clippy.toml", ".clippy.toml"))
+def fmt_clippy(project: Project) -> Result:
+    found = sum((project.root / name).exists() for name in ("rustfmt.toml", ".rustfmt.toml", "clippy.toml", ".clippy.toml"))
 
     return Result.scored(found / 2, f"{found}/2 config files found")
 
 @rule("RUST-003", "Few unwrap()/expect() calls in non-test code", language=RUST, severity=SEVERITY_WARN)
-def unwrap_usage(p: Project) -> Result:
-    files = [f for f in p.files(".rs") if "tests" not in f.parts]
+def unwrap_usage(project: Project) -> Result:
+    files = [source_file for source_file in project.files(".rs") if "tests" not in source_file.parts]
 
     if not files:
         return Result.passed("no source files")
 
     hits = 0
 
-    for f in files:
-        text = read_source(f)
+    for source_file in files:
+        text = read_source(source_file)
         hits += text.count(".unwrap(") + text.count(".expect(")
 
     per_file = hits / len(files)
@@ -37,13 +37,13 @@ def unwrap_usage(p: Project) -> Result:
 # --- frameworks (add rules per framework here) --------------------------------
 
 @rule("RUST-AXUM-001", "axum: placeholder", language=RUST, framework="axum", checkable=CHECK_MANUAL)
-def axum_placeholder(p: Project) -> Result:
+def axum_placeholder(project: Project) -> Result:
     return Result.manual()
 
 @rule("RUST-ACTIX-001", "actix: placeholder", language=RUST, framework="actix", checkable=CHECK_MANUAL)
-def actix_placeholder(p: Project) -> Result:
+def actix_placeholder(project: Project) -> Result:
     return Result.manual()
 
 @rule("RUST-TAURI-001", "tauri: placeholder", language=RUST, framework="tauri", checkable=CHECK_MANUAL)
-def tauri_placeholder(p: Project) -> Result:
+def tauri_placeholder(project: Project) -> Result:
     return Result.manual()

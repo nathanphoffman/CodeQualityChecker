@@ -23,13 +23,13 @@ def is_nested_comprehension(node):
     if not isinstance(node, COMPREHENSIONS):
         return False
 
-    return len(node.generators) > 1 or sum(isinstance(n, COMPREHENSIONS) for n in ast.walk(node)) > 1
+    return len(node.generators) > 1 or sum(isinstance(child, COMPREHENSIONS) for child in ast.walk(node)) > 1
 
 def is_pipeline(node):
     if called_name(node) not in PIPELINE_FUNCTIONS:
         return False
 
-    return sum(called_name(n) in PIPELINE_FUNCTIONS for n in ast.walk(node)) >= MIN_PIPELINE_CALLS
+    return sum(called_name(child) in PIPELINE_FUNCTIONS for child in ast.walk(node)) >= MIN_PIPELINE_CALLS
 
 CHECKS = [
     (is_regex_call, "regex"),

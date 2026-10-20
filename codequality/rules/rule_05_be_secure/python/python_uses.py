@@ -18,8 +18,8 @@ def dotted_name(node):
     return ".".join(reversed(parts))
 
 def names_in(node):
-    names = [n.id for n in ast.walk(node) if isinstance(n, ast.Name)]
-    names += [n.attr for n in ast.walk(node) if isinstance(n, ast.Attribute)]
+    names = [child.id for child in ast.walk(node) if isinstance(child, ast.Name)]
+    names += [child.attr for child in ast.walk(node) if isinstance(child, ast.Attribute)]
 
     return frozenset(name.lower() for name in names)
 

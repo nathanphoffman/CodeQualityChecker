@@ -28,7 +28,7 @@ def items_per_folder(project):
     counts = {}
 
     for folder, subfolders, names in os.walk(project.root):
-        subfolders[:] = [s for s in subfolders if not Path(folder, s).name.startswith(".") and not project.is_ignored(Path(folder, s))]
-        counts[project.label_for(folder)] = len([n for n in subfolders + names if not n.startswith(".") and not project.is_ignored(Path(folder, n))])
+        subfolders[:] = [subfolder for subfolder in subfolders if not Path(folder, subfolder).name.startswith(".") and not project.is_ignored(Path(folder, subfolder))]
+        counts[project.label_for(folder)] = len([name for name in subfolders + names if not name.startswith(".") and not project.is_ignored(Path(folder, name))])
 
     return counts

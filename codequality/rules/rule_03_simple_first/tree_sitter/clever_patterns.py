@@ -41,9 +41,9 @@ def pattern_hits(source, text, language):
 
     for kind, pattern in TEXT_PATTERNS[language].items():
         # every place this kind's pattern from TEXT_PATTERNS matches, as (kind, line)
-        hits += [(kind, line_number_at(text, m.start())) for m in re.finditer(pattern, text)]
+        hits += [(kind, line_number_at(text, match.start())) for match in re.finditer(pattern, text)]
 
     if language == TYPESCRIPT:
-        hits += [("regex", line_number_at(source, m.start())) for m in TS_REGEX_LITERAL.finditer(source)]
+        hits += [("regex", line_number_at(source, match.start())) for match in TS_REGEX_LITERAL.finditer(source)]
 
     return hits

@@ -45,24 +45,24 @@ def _detect_rust(project: Project) -> None:
             project.frameworks.add(name)
 
 def _detect_ts(project: Project) -> None:
-    pkg = project.root / "package.json"
+    package_json = project.root / "package.json"
 
-    if not pkg.exists() and not (project.root / TSCONFIG_FILE).exists():
+    if not package_json.exists() and not (project.root / TSCONFIG_FILE).exists():
         return
 
     if (project.root / TSCONFIG_FILE).exists() or project.files(*TYPESCRIPT_SUFFIXES):
         project.languages.add(TYPESCRIPT)
 
-    if pkg.exists():
+    if package_json.exists():
         try:
-            data = json.loads(read_source(pkg))
+            data = json.loads(read_source(package_json))
         except json.JSONDecodeError as error:
-            warnings.warn(f"skipped framework detection: {pkg} is not valid JSON ({error})")
+            warnings.warn(f"skipped framework detection: {package_json} is not valid JSON ({error})")
 
             return
 
         deps = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
 
-        for dep, name in TS_FRAMEWORKS.items():
-            if dep in deps:
+        for dependency, name in TS_FRAMEWORKS.items():
+            if dependency in deps:
                 project.frameworks.add(name)

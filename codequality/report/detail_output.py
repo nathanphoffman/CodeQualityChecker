@@ -8,7 +8,9 @@ SCALE_HELP = (
     "HOW TO READ THIS REPORT\n"
     "Every check gets a score from 0% to 100%. A check's group (one numbered rule from RULES.md) scores the average of its checks,\n"
     "weighted by severity, and the total score is the average of the groups. Grades: A 90+, B 80+, C 70+, D 60+, F below.\n"
-    "Checks marked 'manual' or 'skipped' are not scored. Only checks below 100% need work, and each one says how to improve it."
+    "Checks marked 'manual' or 'skipped' are not scored. Only checks below 100% need work, and each one says how to improve it.\n"
+    "The limits (like 6 per file) are targets, not exact demands. Going a little over costs a little, and the score only drops fast when\n"
+    "you are far over. Aim to be as close as is reasonable, and don't contort the code to hit an exact number. 6 is the ideal, 7 or 8 is fine."
 )
 
 def percent_text(result):

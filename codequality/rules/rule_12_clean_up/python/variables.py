@@ -25,7 +25,7 @@ def assigned_names(function):
         targets = node.targets if isinstance(node, ast.Assign) else [getattr(node, "target", None)]
 
         if isinstance(node, (ast.Assign, ast.NamedExpr)) or (isinstance(node, ast.AnnAssign) and node.value is not None):
-            assigned.update({t.id: node.lineno for t in targets if isinstance(t, ast.Name)})
+            assigned.update({target.id: node.lineno for target in targets if isinstance(target, ast.Name)})
         elif isinstance(node, ast.ExceptHandler) and node.name:
             assigned[node.name] = node.lineno
 

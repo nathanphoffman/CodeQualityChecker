@@ -36,7 +36,7 @@ def check_comments_say_why(project):
 
 def is_explained(function, comments):
     """A docstring, a comment inside the function, or a comment just above it."""
-    inside = [c for c in comments if c.last_line >= function.line_number - 1 and c.first_line <= function.last_line]
+    inside = [comment for comment in comments if comment.last_line >= function.line_number - 1 and comment.first_line <= function.last_line]
 
     return function.has_docstring or bool(inside)
 
@@ -49,13 +49,13 @@ def check_complex_code_commented(project):
 
     functions = items_in_project(project, partial(find_bodies, language=PYTHON), find_bodies)
 
-    complicated = [(label, f) for label, f in functions if f.branch_count + 1 >= MIN_COMPLEXITY_NEEDING_COMMENT]
+    complicated = [(label, function) for label, function in functions if function.branch_count + 1 >= MIN_COMPLEXITY_NEEDING_COMMENT]
 
     if not complicated:
         return Result.passed("no complicated functions found")
 
-    bare = [(label, f) for label, f in complicated if not is_explained(f, comments.get(label, []))]
-    listed = ", ".join(f"{label}:{f.line_number} {f.name}" for label, f in bare[:MAX_LISTED_OFFENDERS])
+    bare = [(label, function) for label, function in complicated if not is_explained(function, comments.get(label, []))]
+    listed = ", ".join(f"{label}:{function.line_number} {function.name}" for label, function in bare[:MAX_LISTED_OFFENDERS])
     message = f"{len(bare)} of {len(complicated)} complicated functions have no comment: {listed}" if bare else ""
 
     return Result.scored(1 - len(bare) / len(complicated), message)

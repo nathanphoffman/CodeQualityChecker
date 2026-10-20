@@ -8,7 +8,7 @@ def count_arguments(arguments):
     named = arguments.posonlyargs + arguments.args + arguments.kwonlyargs
     extras = [arguments.vararg, arguments.kwarg]
 
-    return len([a for a in named if a.arg not in RECEIVER_NAMES]) + len([e for e in extras if e])
+    return len([argument for argument in named if argument.arg not in RECEIVER_NAMES]) + len([extra for extra in extras if extra])
 
 def python_functions(source):
     """(name, argument_count, line_count, line_number) for every def."""

@@ -7,18 +7,18 @@ from .text_output import print_text  # noqa: F401
 def run(project: Project, rules: list[Rule]) -> list[tuple[Rule, Result]]:
     results = []
 
-    for r in rules:
-        if not r.applies_to(project):
+    for rule in rules:
+        if not rule.applies_to(project):
             continue
 
-        if r.checkable == CHECK_MANUAL:
-            results.append((r, Result.manual("needs human review")))
+        if rule.checkable == CHECK_MANUAL:
+            results.append((rule, Result.manual("needs human review")))
 
             continue
 
         try:
-            results.append((r, r.check(project)))
-        except Exception as e:  # a broken check shouldn't kill the whole run
-            results.append((r, Result(Status.SKIPPED, 0.0, f"check crashed: {e}")))
+            results.append((rule, rule.check(project)))
+        except Exception as error:  # a broken check shouldn't kill the whole run
+            results.append((rule, Result(Status.SKIPPED, 0.0, f"check crashed: {error}")))
 
     return results

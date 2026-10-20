@@ -44,7 +44,7 @@ def count_arguments(argument_text):
     cleaned = argument_text.replace("=>", "  ").replace("->", "  ")
     pieces = [piece.strip() for piece in split_top_level(cleaned)]
 
-    return len([p for p in pieces if p and not p.startswith(IGNORED_ARGUMENT_PREFIXES)])
+    return len([piece for piece in pieces if piece and not piece.startswith(IGNORED_ARGUMENT_PREFIXES)])
 
 def body_start(text, close_paren):
     """Index of the "{" opening the body, or None for bodiless declarations and expression arrows."""

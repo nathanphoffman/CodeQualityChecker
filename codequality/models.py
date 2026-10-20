@@ -89,7 +89,7 @@ class Project:
 
     def files(self, *suffixes: str) -> list[Path]:
         """Source files under root, skipping build/vendor dirs and gitignored files."""
-        found = self.remember(("files", suffixes), lambda: [p for p in self.root.rglob("*") if p.is_file() and p.suffix in suffixes and not self.is_ignored(p)])
+        found = self.remember(("files", suffixes), lambda: [path for path in self.root.rglob("*") if path.is_file() and path.suffix in suffixes and not self.is_ignored(path)])
 
         return list(found)
 

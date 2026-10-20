@@ -4,7 +4,7 @@ NO_EXPLANATION = ("(no description written for this check yet)", "Read the messa
 
 # Group key -> what the numbered rule in RULES.md asks for.
 GROUP_SUMMARIES = {
-    "RULE-01": "Everything should come in groups of about 6 or fewer: functions per file, items per folder, arguments per function. Functions aim for 6 lines, with 36 as the hard cap.",
+    "RULE-01": "Everything should come in groups of about 6 or fewer: functions per file, items per folder, arguments per function. Functions aim for 6 lines, with 36 as the hard cap. These are targets, not exact limits: slightly over costs little, so get as close as is reasonable.",
     "RULE-02": "Names should explain themselves. Longer and clearer beats short and vague, and unfamiliar acronyms are avoided.",
     "RULE-03": "Prefer the simple version of the code. Clever code (regex, long chains, nested ternaries) is allowed only when the simple version is much longer, and must have a comment explaining how it works.",
     "RULE-04": "A function does one job. It should not mix unrelated work or touch things outside its core concern.",
@@ -13,11 +13,11 @@ GROUP_SUMMARIES = {
     "RULE-07": "Numbers and repeated strings get named constants instead of being typed in directly.",
     "RULE-08": "Don't add a library for something a few lines of code can do.",
     "RULE-09": "Comments should be present but modest, and should explain why the code does something, not what it does.",
-    "RULE-10": "Write simple tests for the logic that matters, and skip trivial code.",
+    "RULE-10": "Write simple tests for the logic that matters, and skip trivial code. The ideal amount is a target, and being near it is fine.",
     "RULE-11": "Never hide errors, but don't over-report or over-throw either.",
     "RULE-12": "Remove dead code, unused imports and leftover variables.",
-    "RULE-13": "The whole project should stay small. Size is judged in powers of 6 lines.",
-    "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row, blank lines before control statements and definitions, and never two in a row.",
+    "RULE-13": "The whole project should stay small. Size is judged in powers of 6 lines, and a little over costs little.",
+    "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row (close to that is fine), blank lines before control statements and definitions, and never two in a row.",
 }
 
 # Rule id -> (what it checks, how to improve the score).

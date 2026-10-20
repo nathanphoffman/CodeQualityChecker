@@ -14,8 +14,8 @@ def check_duplicate_functions(project):
     if not entries:
         return Result.passed("no functions found")
 
-    listed = ", ".join(f"{where(c[0], c[1].line_number)} {c[1].name} (same as {where(o[0], o[1].line_number)})"
-                       for c, o in copies[:MAX_LISTED_OFFENDERS])
+    listed = ", ".join(f"{where(copy[0], copy[1].line_number)} {copy[1].name} (same as {where(original[0], original[1].line_number)})"
+                       for copy, original in copies[:MAX_LISTED_OFFENDERS])
 
     message = f"{len(copies)} of {len(entries)} functions copy another: {listed}" if copies else ""
 
@@ -27,7 +27,7 @@ def lines_of(label, run):
 @rule("RULE-06-DUPLICATE-BLOCKS", "No run of statements is copied elsewhere")
 def check_duplicate_blocks(project):
     entries = shapes_in_project(project)
-    copied_functions = {(c[0], c[1].line_number) for c, _ in repeated_functions(entries)}
+    copied_functions = {(copy[0], copy[1].line_number) for copy, _ in repeated_functions(entries)}
     judged = [entry for entry in entries if (entry[0], entry[1].line_number) not in copied_functions]
     all_lines = set()
 

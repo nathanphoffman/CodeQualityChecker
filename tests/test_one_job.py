@@ -57,6 +57,6 @@ def test_joining_word_in_name():
     assert has_joining_word(body)
 
 def test_complexity_counts_branches():
-    source = "def busy(x):\n" + "".join(f"    if x == {n}:\n        return {n}\n" for n in range(7))
+    source = "def busy(x):\n" + "".join(f"    if x == {number}:\n        return {number}\n" for number in range(7))
     (body,) = find_bodies(source, "python")
     assert is_too_complex(body)

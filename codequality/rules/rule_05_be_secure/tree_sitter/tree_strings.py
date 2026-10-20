@@ -6,7 +6,7 @@ STRING_TEXT_TYPES = {"string_fragment", "string_content"}
 
 def literal_text(node):
     """The text pieces of the string literals inside a node, in source order."""
-    pieces = sorted((n for n in walk(node) if n.type in STRING_TEXT_TYPES), key=lambda n: n.start_byte)
+    pieces = sorted((child for child in walk(node) if child.type in STRING_TEXT_TYPES), key=lambda child: child.start_byte)
 
     return " ".join(piece.text.decode() for piece in pieces)
 
