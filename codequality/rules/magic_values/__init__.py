@@ -3,9 +3,9 @@ from collections import Counter
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from .find_literals import literals_in_project
-from .limits import ALLOWED_NUMBERS, MIN_REPEATS_FOR_CONSTANT, MIN_STRING_LENGTH
-from .Literal_Use import KIND_NUMBER, KIND_STRING
+from .shared.find_literals import literals_in_project
+from .shared.limits import ALLOWED_NUMBERS, MIN_REPEATS_FOR_CONSTANT, MIN_STRING_LENGTH
+from .shared.Literal_Use import KIND_NUMBER, KIND_STRING
 
 @rule("RULE-07-MAGIC-NUMBERS", "Numbers are named constants")
 def check_magic_numbers(project):

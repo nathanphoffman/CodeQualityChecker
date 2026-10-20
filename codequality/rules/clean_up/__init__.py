@@ -2,10 +2,10 @@
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from ...source_code import items_in_project
-from ..comment_why.extract import python_comments, tree_comments
-from ..comment_why.judging.signals import is_commented_out_code
+from ..comment_why.shared.extract import python_comments, tree_comments
+from ..comment_why.shared.judging.signals import is_commented_out_code
 
-from .project_cleanup import analyze_project, unused_private_definitions
+from .shared.project_cleanup import analyze_project, unused_private_definitions
 
 def grade_leftovers(total, places, noun):
     """Score is the share of items that are clean. `places` are "file:line" strings, one per leftover."""

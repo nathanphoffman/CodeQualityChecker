@@ -1,4 +1,4 @@
-from codequality.rules.space_out.paragraphs import find_blank_runs, find_paragraphs, is_judged
+from codequality.rules.space_out.shared.paragraphs import find_blank_runs, find_paragraphs, is_judged
 
 SAMPLE = "import os\nimport sys\nimport json\nimport re\nimport ast\nimport abc\nimport io\n\n\n\ndef f():\n    a = 1\n    b = 2\n\n    # one\n    # two\n    # three\n    # four\n    # five\n    # six\n    # seven\n\n    return a + b\n"
 
@@ -13,7 +13,7 @@ def test_imports_and_comment_blocks_are_not_judged():
     assert (1, 7) not in judged and (15, 7) not in judged and (11, 3) in judged
 
 def test_python_blank_line_gaps():
-    from codequality.rules.space_out.python_spacing import python_gaps
+    from codequality.rules.space_out.python.python_spacing import python_gaps
 
     source = "def f(x):\n    y = 1\n    if x:\n        return y\n    # note\n    for i in x:\n        pass\n    total = [\n        1,\n    ]\n    z = 2\n    return z\n"
     gaps = python_gaps(source)
@@ -22,20 +22,20 @@ def test_python_blank_line_gaps():
     assert gaps.after_block_missing == [5, 8, 11]  # after the if block, after the for block, and after the multi-line list
 
 def test_python_gaps_are_zero_for_well_spaced_code():
-    from codequality.rules.space_out.python_spacing import python_gaps
+    from codequality.rules.space_out.python.python_spacing import python_gaps
 
     source = "def f(x):\n    y = 1\n\n    if x:\n        return y\n\n    return 2\n"
     gaps = python_gaps(source)
     assert gaps.before_control_missing == [] and gaps.after_block_missing == []
 
 def test_blank_lines_inside_strings_are_not_double_blank_lines():
-    from codequality.rules.space_out.python_spacing import python_string_lines
+    from codequality.rules.space_out.python.python_spacing import python_string_lines
 
     lines = "x = '''a\n\n\nb'''\n\n\ny = 1\n".splitlines()
     assert find_blank_runs(lines, python_string_lines("\n".join(lines))) == [(5, 2)]
 
 def test_text_gaps_for_typescript_and_rust():
-    from codequality.rules.space_out.text_spacing import text_gaps
+    from codequality.rules.space_out.tree_sitter.text_spacing import text_gaps
 
     typescript = "function f(x) {\n  const y = 1;\n  if (x) {\n    return y;\n  }\n  return 2;\n}\n"
     gaps = text_gaps(typescript, "typescript")

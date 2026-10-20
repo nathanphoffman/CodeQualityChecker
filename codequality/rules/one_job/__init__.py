@@ -1,11 +1,11 @@
 """Rule 4: One job per function. Judged by what a function's statements share, how it is named, and its branching."""
 from ...registry import rule
-from ..clear_names.judge_names import WORD_PATTERN
-from .cohesion import count_job_groups
-from .find_bodies import bodies_in_project
-from .grading import grade_bodies
+from ..clear_names.shared.judge_names import WORD_PATTERN
+from .shared.cohesion import count_job_groups
+from .shared.find_bodies import bodies_in_project
+from .shared.grading import grade_bodies
 
-from .limits import JOINING_WORDS, MAX_COMPLEXITY, MAX_JOB_GROUPS, MIN_STATEMENTS_TO_CHECK
+from .shared.limits import JOINING_WORDS, MAX_COMPLEXITY, MAX_JOB_GROUPS, MIN_STATEMENTS_TO_CHECK
 
 def has_separate_jobs(body):
     """True when the statements split into groups that share no local variables."""

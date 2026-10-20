@@ -1,6 +1,6 @@
 from codequality.rules.one_job import has_joining_word, has_separate_jobs, is_too_complex
-from codequality.rules.one_job.cohesion import count_job_groups
-from codequality.rules.one_job.find_bodies import find_bodies
+from codequality.rules.one_job.shared.cohesion import count_job_groups
+from codequality.rules.one_job.shared.find_bodies import find_bodies
 
 TWO_JOBS = {
     "python": """def process(order, report):

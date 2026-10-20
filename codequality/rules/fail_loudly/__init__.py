@@ -2,16 +2,16 @@
 from ...models import MAX_LISTED_OFFENDERS, SEVERITY_ERROR, Result
 from ...registry import rule
 from ...source_code import items_in_project
-from ..comment_why.amount_checks import amount_score, describe_amount
-from ..comment_why.limits import POWER_BASE
+from ..comment_why.shared.amount_checks import amount_score, describe_amount
+from ..comment_why.shared.limits import POWER_BASE
 
 from ..few_dependencies import count_code_lines
-from .hiding_constructs import hiding_constructs
-from .limits import (FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK, MAX_LINES_PER_ERROR_CHECK, MIN_LINES_PER_ERROR_CHECK,
+from .shared.hiding_constructs import hiding_constructs
+from .shared.limits import (FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK, MAX_LINES_PER_ERROR_CHECK, MIN_LINES_PER_ERROR_CHECK,
                      NARROW_SILENT_WEIGHT)
 
-from .python_handlers import python_handlers
-from .tree_handlers import tree_handlers
+from .python.python_handlers import python_handlers
+from .tree_sitter.tree_handlers import tree_handlers
 
 def silent_cost(handler):
     """How badly a silent handler counts: 1 for one that catches anything, less for one that catches a single kind."""

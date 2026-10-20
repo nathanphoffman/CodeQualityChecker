@@ -6,7 +6,7 @@ from ...language_parsers.deor.tree import parse_deor
 from ...source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from ...language_parsers.tree_sitter.tree_walk import squashed, walk
-from ..be_secure.uses import find_uses
+from ..be_secure.shared.uses import find_uses
 
 TYPESCRIPT_TEST_CALLS = {"it", "test", "it.only", "test.only"}
 CALLBACK_MARKERS = ("=>", "function")  # a real test passes its body as a function: test("name", () => ...)

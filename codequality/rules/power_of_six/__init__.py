@@ -1,7 +1,7 @@
 """Rule 1: Power of 6s. Everything should have 6 or fewer; functions aim for 6 lines, hard cap 36."""
 from ...registry import rule
-from .measure import functions_per_file, items_per_folder, per_function
-from .scoring import function_length_credit, grade, strict_credit
+from .shared.measure import functions_per_file, items_per_folder, per_function
+from .shared.scoring import function_length_credit, grade, strict_credit
 
 @rule("RULE-01-FUNCTIONS-PER-FILE", "At most 6 functions per file")
 def check_functions_per_file(project):

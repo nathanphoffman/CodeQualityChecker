@@ -1,7 +1,7 @@
 """Rule 2: Clear names. Longer and clearer beats short and vague; no acronyms an intern wouldn't know."""
 from ...registry import rule
-from .find_names import names_in_project
-from .judge_names import grade_names, has_unknown_acronym, is_too_short
+from .shared.find_names import names_in_project
+from .shared.judge_names import grade_names, has_unknown_acronym, is_too_short
 
 @rule("RULE-02-NAME-LENGTH", "Names are long enough to explain themselves")
 def check_name_length(project):

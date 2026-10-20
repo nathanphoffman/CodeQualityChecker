@@ -3,8 +3,8 @@ from collections import Counter
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from .find_clever import scan_project
-from .limits import CLEVER_LINE_WEIGHT
+from .shared.find_clever import scan_project
+from .shared.limits import CLEVER_LINE_WEIGHT
 
 def describe_unexplained(unexplained):
     listed = ", ".join(f"{hit.label} {hit.kind}" for hit in unexplained[:MAX_LISTED_OFFENDERS])

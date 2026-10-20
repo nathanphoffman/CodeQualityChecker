@@ -1,7 +1,7 @@
 """Rule 6: Don't repeat yourself. Finds copy-pasted functions and blocks, even when variables were renamed."""
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from .find_duplicates import repeated_blocks, repeated_functions, shapes_in_project
+from .shared.find_duplicates import repeated_blocks, repeated_functions, shapes_in_project
 
 def where(label, first_line):
     return f"{label}:{first_line}"

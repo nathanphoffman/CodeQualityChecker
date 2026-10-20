@@ -1,7 +1,7 @@
 """Rule 10: Test what matters. Judged by how many tests there are for the amount of code."""
 from ...models import Result
 from ...registry import rule
-from ..comment_why.amount_checks import STANDS_IN_FOR_CHECKS, amount_score, describe_amount, edge_range
+from ..comment_why.shared.amount_checks import STANDS_IN_FOR_CHECKS, amount_score, describe_amount, edge_range
 from ..few_dependencies import count_code_lines
 from .count_tests import count_tests_in_project
 

@@ -2,9 +2,9 @@
 from functools import partial
 
 from ...registry import rule
-from .call_checks import CALL_CHECKS
-from .judge_uses import grade_findings, run_call_check
-from .secrets import hardcoded_secrets, judge_secret_files
+from .shared.call_checks import CALL_CHECKS
+from .shared.judge_uses import grade_findings, run_call_check
+from .shared.secrets import hardcoded_secrets, judge_secret_files
 from ...models import SEVERITY_ERROR
 
 for check in CALL_CHECKS:

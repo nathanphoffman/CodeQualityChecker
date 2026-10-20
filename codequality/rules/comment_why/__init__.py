@@ -4,11 +4,11 @@ from functools import partial
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
 from ...source_code import PYTHON, items_in_project
-from ..one_job.find_bodies import find_bodies
-from . import amount_checks  # noqa: F401  (importing registers the rules)
-from .extract import python_comments, tree_comments
-from .judging.judge_comment import why_confidence
-from .limits import LIKELY_WHAT_BELOW, MIN_COMPLEXITY_NEEDING_COMMENT
+from ..one_job.shared.find_bodies import find_bodies
+from .shared import amount_checks  # noqa: F401  (importing registers the rules)
+from .shared.extract import python_comments, tree_comments
+from .shared.judging.judge_comment import why_confidence
+from .shared.limits import LIKELY_WHAT_BELOW, MIN_COMPLEXITY_NEEDING_COMMENT
 
 SNIPPET_LENGTH = 40
 

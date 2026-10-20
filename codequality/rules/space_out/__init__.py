@@ -3,15 +3,15 @@ after multi-line statements, and never two blank lines in a row."""
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from .deor_spacing import deor_gaps
+from .deor.deor_spacing import deor_gaps
 from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
-from ..power_of_six.limits import MAX_ITEMS
-from ..power_of_six.scoring import function_length_credit
-from .limits import MAX_BLANK_LINES_IN_A_ROW
-from .Spacing_Gaps import Spacing_Gaps
-from .paragraphs import find_blank_runs, find_paragraphs, is_judged
-from .python_spacing import python_gaps, python_string_lines
-from .text_spacing import text_gaps
+from ..power_of_six.shared.limits import MAX_ITEMS
+from ..power_of_six.shared.scoring import function_length_credit
+from .shared.limits import MAX_BLANK_LINES_IN_A_ROW
+from .shared.Spacing_Gaps import Spacing_Gaps
+from .shared.paragraphs import find_blank_runs, find_paragraphs, is_judged
+from .python.python_spacing import python_gaps, python_string_lines
+from .tree_sitter.text_spacing import text_gaps
 
 def source_files(project):
     """[(file label, language, source)] for every Python, Rust and TypeScript file, tests included."""
