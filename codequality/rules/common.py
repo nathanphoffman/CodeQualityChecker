@@ -1,8 +1,8 @@
 from ..models import Project, Result, SEVERITY_INFO, SEVERITY_WARN
 from ..registry import rule
 from ..source_code import TYPESCRIPT_SUFFIXES
-from .few_dependencies import count_code_lines
-from .test_what_matters.limits import MAX_LINES_WITHOUT_TESTS
+from .rule_08_few_dependencies import count_code_lines
+from .rule_10_test_what_matters.limits import MAX_LINES_WITHOUT_TESTS
 
 @rule("COMMON-001", "Project has a README", severity=SEVERITY_INFO)
 def readme(p: Project) -> Result:

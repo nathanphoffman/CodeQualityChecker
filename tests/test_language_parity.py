@@ -1,6 +1,6 @@
-from codequality.rules.be_secure.shared.secrets import secret_line_numbers
-from codequality.rules.clear_names.shared.find_names import find_names
-from codequality.rules.space_out.tree_sitter.text_spacing import text_gaps
+from codequality.rules.rule_05_be_secure.shared.secrets import secret_line_numbers
+from codequality.rules.rule_02_clear_names.shared.find_names import find_names
+from codequality.rules.rule_14_space_out.tree_sitter.text_spacing import text_gaps
 
 def test_parameters_count_as_names_in_every_language():
     assert {"a", "b"} <= set(find_names("def f(a, b):\n    return a\n", "python"))
@@ -53,7 +53,7 @@ def test_gitignored_files_are_skipped(tmp_path):
     assert [path.name for path in detect(tmp_path).files(".ts")] == ["kept.ts"]
 
 def test_going_over_six_slides_the_credit_down():
-    from codequality.rules.power_of_six.shared.scoring import function_length_credit, strict_credit
+    from codequality.rules.rule_01_power_of_six.shared.scoring import function_length_credit, strict_credit
 
     assert strict_credit(6) == 1.0 and 0.97 < strict_credit(7) < strict_credit(6)
     assert strict_credit(7) > strict_credit(8) > strict_credit(12) > strict_credit(36) > strict_credit(100)

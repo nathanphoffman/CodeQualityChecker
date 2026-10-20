@@ -3,8 +3,8 @@ from pathlib import Path
 from codequality import report
 from codequality.detect import detect
 from codequality.registry import all_rules
-from codequality.rules.fail_loudly.python.python_handlers import python_handlers
-from codequality.rules.fail_loudly.tree_sitter.tree_handlers import tree_handlers
+from codequality.rules.rule_11_fail_loudly.python.python_handlers import python_handlers
+from codequality.rules.rule_11_fail_loudly.tree_sitter.tree_handlers import tree_handlers
 
 SILENT_PYTHON = '''
 try:
@@ -75,8 +75,8 @@ def test_error_check_amount_has_a_wide_flat_top(tmp_path: Path):
     assert results["RULE-11-ERROR-CHECK-AMOUNT"].score == 1.0
 
 def test_full_credit_range_is_one_check_per_216_to_1296_lines():
-    from codequality.rules.comment_why.shared.amount_checks import amount_score
-    from codequality.rules.fail_loudly.shared.limits import FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK
+    from codequality.rules.rule_09_comment_why.shared.amount_checks import amount_score
+    from codequality.rules.rule_11_fail_loudly.shared.limits import FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK
 
     lines = 6 ** 5  # 7776 lines
     expected = lines / LINES_PER_ERROR_CHECK

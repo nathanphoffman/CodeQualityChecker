@@ -3,8 +3,8 @@ from pathlib import Path
 from codequality import report
 from codequality.detect import detect
 from codequality.registry import all_rules
-from codequality.rules.clean_up.python import analyze_python
-from codequality.rules.clean_up.tree_sitter import analyze_tree
+from codequality.rules.rule_12_clean_up.python import analyze_python
+from codequality.rules.rule_12_clean_up.tree_sitter import analyze_tree
 
 MESSY_PYTHON = '''import os
 import sys  # noqa: F401

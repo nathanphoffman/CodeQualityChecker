@@ -1,4 +1,4 @@
-from codequality.rules.project_size import size_score
+from codequality.rules.rule_13_project_size import size_score
 
 def test_the_curve_hits_its_anchor_points():
     assert size_score(3) == size_score(4) == 1.0

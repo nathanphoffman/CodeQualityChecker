@@ -44,7 +44,7 @@ def test_related_package_names_count_as_one_family(tmp_path: Path):
     assert result.message.startswith("4 dependencies counted as 2.7")
 
 def test_names_sharing_only_a_generic_word_are_not_related():
-    from codequality.rules.few_dependencies.group_dependencies import are_related
+    from codequality.rules.rule_08_few_dependencies.group_dependencies import are_related
 
     assert are_related("serde", "serde_json") and are_related("pytest", "pytest-cov")
     assert not are_related("python-dateutil", "python-dotenv")

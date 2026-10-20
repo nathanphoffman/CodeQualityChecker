@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from codequality.rules.comment_why.shared.extract import python_comments, tree_comments
-from codequality.rules.comment_why.shared.judging.judge_comment import why_confidence
+from codequality.rules.rule_09_comment_why.shared.extract import python_comments, tree_comments
+from codequality.rules.rule_09_comment_why.shared.judging.judge_comment import why_confidence
 
 CASES = [
     # (source, expected: "what" if confidence is low, "why" if high)
@@ -46,7 +46,7 @@ def test_comment_above_a_multi_line_statement_covers_clever_code_inside_it():
     assert not python_comments("# just a note\nx = 1\n")[0].explains_clever
 
 def test_amount_score_is_a_peak():
-    from codequality.rules.comment_why.shared.amount_checks import amount_score
+    from codequality.rules.rule_09_comment_why.shared.amount_checks import amount_score
 
     ideal = 6 ** 1.5
     assert amount_score(10, 10) == 1.0
@@ -73,7 +73,7 @@ def test_the_amount_check_counts_twice_as_much_as_a_warning():
     assert weights["RULE-09-COMMENT-AMOUNT"] == 2 * weights["RULE-09-COMMENTS-SAY-WHY"]
 
 def test_comments_on_clever_code_do_not_count_toward_the_amount(tmp_path: Path):
-    from codequality.rules.comment_why.shared.amount_checks import count_plain_comments
+    from codequality.rules.rule_09_comment_why.shared.amount_checks import count_plain_comments
     from codequality.detect import detect
 
     (tmp_path / "a.py").write_text("import re\n# how this works\nPATTERN = re.compile('x')\n# plain note\ny = 1\n")
