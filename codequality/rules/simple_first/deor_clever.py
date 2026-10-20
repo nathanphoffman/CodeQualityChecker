@@ -1,4 +1,4 @@
-from ..structure.tree import parse_deor, walk_statements
+from ...language_parsers.deor.tree import parse_deor, walk_statements
 
 def deor_unsafe_macros(source):
     """[("unsafe_macro", line)] for every unsafe_macro: its variables leak into the code that runs it, which takes explaining."""

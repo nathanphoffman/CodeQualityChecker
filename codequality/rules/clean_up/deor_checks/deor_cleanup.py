@@ -1,8 +1,8 @@
 import re
 from collections import Counter
 
-from ..structure.declarations import FUNCTION_KINDS, declarations_in, declared_variables, used_names
-from ..structure.tree import parse_deor, walk_statements
+from ....language_parsers.deor.declarations import FUNCTION_KINDS, declarations_in, declared_variables, used_names
+from ....language_parsers.deor.tree import parse_deor, walk_statements
 
 PRIVATE_PREFIX = "_"
 TERMINATORS = {"return", "break", "continue"}

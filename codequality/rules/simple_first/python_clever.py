@@ -1,6 +1,6 @@
 import ast
 
-from .parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 
 REGEX_FUNCTIONS = {"compile", "match", "search", "sub", "subn", "findall", "finditer", "fullmatch", "split"}
 PIPELINE_FUNCTIONS = {"map", "filter", "reduce", "sorted", "zip", "reversed"}

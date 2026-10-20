@@ -1,6 +1,6 @@
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import walk
 from .Code_Use import Code_Use
-from ....tree_sitter_support.syntax_shapes import OPERATOR_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import OPERATOR_FIELD
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content"}
 

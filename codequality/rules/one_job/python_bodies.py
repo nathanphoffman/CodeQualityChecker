@@ -1,7 +1,7 @@
 import ast
 
-from .parse_python import parse_python
-from .python_functions import RECEIVER_NAMES
+from ...language_parsers.python.parse_python import parse_python
+from ..power_of_six.python_functions import RECEIVER_NAMES
 
 BRANCH_NODES = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.ExceptHandler, ast.IfExp, ast.match_case, ast.comprehension)
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)

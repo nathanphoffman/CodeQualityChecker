@@ -1,7 +1,7 @@
 import re
 
-from ..structure.tree import parse_deor, walk_statements
-from ..structure.words import blank_strings
+from ....language_parsers.deor.tree import parse_deor, walk_statements
+from ....language_parsers.deor.words import blank_strings
 
 RUST_COMMENT = "//"
 

@@ -1,6 +1,6 @@
 from ....source_code import RUST
-from ....tree_sitter_support.syntax_shapes import FUNCTION_TYPES
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
+from ....language_parsers.tree_sitter.tree_walk import walk
 from ..limits import PRIVATE_PREFIX
 from .names import name_counts
 

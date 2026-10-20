@@ -1,6 +1,6 @@
 import ast
 
-from .parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 
 RECEIVER_NAMES = {"self", "cls"}
 

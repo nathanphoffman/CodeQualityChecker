@@ -117,7 +117,7 @@ def test_deor_cleanup_finds_unread_variables_and_unreachable_code():
     assert findings.unreachable == [20]
 
 def test_deor_spacing_wants_blank_lines_before_control_and_after_blocks():
-    from codequality.deor_support.quality.deor_spacing import deor_gaps
+    from codequality.rules.space_out.deor_spacing import deor_gaps
 
     source = "fn void run()\n    int one = 1\n    if one is 1\n        print(one)\n    print(one)\n\n    return\n"
     control_total, control_missing, block_total, block_missing = deor_gaps(source)

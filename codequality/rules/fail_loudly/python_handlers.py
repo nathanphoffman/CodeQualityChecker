@@ -1,6 +1,6 @@
 import ast
 
-from ...python_support.parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 from ..be_secure.uses.python_uses import dotted_name
 from .Error_Handler import Error_Handler
 from .limits import BROAD_EXCEPTIONS, LOUD_NAME_ENDINGS, LOUD_RECEIVERS

@@ -1,7 +1,7 @@
-from ...deor_support.judging.deor_bodies import deor_bodies
-from ...python_support.python_bodies import python_bodies
+from .deor_bodies import deor_bodies
+from .python_bodies import python_bodies
 from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
-from ...tree_sitter_support.tree_functions import tree_bodies
+from ...language_parsers.tree_sitter.tree_functions import tree_bodies
 from .Function_Body import Function_Body
 
 def find_bodies(source, language):

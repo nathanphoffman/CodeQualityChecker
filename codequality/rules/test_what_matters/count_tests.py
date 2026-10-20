@@ -1,11 +1,11 @@
 import ast
 
-from ...python_support.parse_python import parse_python
-from ...deor_support.structure.declarations import declarations_in
-from ...deor_support.structure.tree import parse_deor
+from ...language_parsers.python.parse_python import parse_python
+from ...language_parsers.deor.declarations import declarations_in
+from ...language_parsers.deor.tree import parse_deor
 from ...source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
-from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.tree_walk import squashed, walk
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.tree_walk import squashed, walk
 from ..be_secure.uses import find_uses
 
 TYPESCRIPT_TEST_CALLS = {"it", "test", "it.only", "test.only"}

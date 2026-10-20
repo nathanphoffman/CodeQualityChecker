@@ -1,8 +1,8 @@
 import re
 
-from ..structure.declarations import FUNCTION_KINDS, declarations_in
-from ..structure.tree import parse_deor
-from ..structure.words import KEYWORDS, PRIMITIVE_TYPES, TOKEN_PATTERN
+from ...language_parsers.deor.declarations import FUNCTION_KINDS, declarations_in
+from ...language_parsers.deor.tree import parse_deor
+from ...language_parsers.deor.words import KEYWORDS, PRIMITIVE_TYPES, TOKEN_PATTERN
 
 NODES_PER_TOKEN = 2  # a statement of n tokens is about 2n syntax nodes in the other languages, which is what the size limits are tuned for
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*$")

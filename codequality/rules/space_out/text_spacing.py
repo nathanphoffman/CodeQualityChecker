@@ -1,8 +1,8 @@
 import re
 
 from ...source_code import RUST
-from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.tree_walk import walk
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.tree_walk import walk
 from ..comment_why.extract.line_helpers import COMMENT_MARKERS
 from .Spacing_Gaps import Spacing_Gaps
 

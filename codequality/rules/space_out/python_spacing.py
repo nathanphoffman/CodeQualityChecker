@@ -2,7 +2,7 @@ import ast
 import io
 import tokenize
 
-from ...python_support.parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 from .Spacing_Gaps import Spacing_Gaps
 
 CONTROL_STATEMENTS = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.Try, ast.With, ast.AsyncWith, ast.Match, ast.Return,

@@ -1,6 +1,6 @@
 import ast
 
-from ....python_support.parse_python import parse_python
+from ....language_parsers.python.parse_python import parse_python
 from .Code_Use import Code_Use
 from .python_strings import string_use
 

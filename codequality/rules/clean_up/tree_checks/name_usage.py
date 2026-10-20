@@ -1,5 +1,5 @@
 from ....source_code import RUST
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import walk
 from ...test_what_matters.count_tests import has_test_attribute
 from ..Cleanup_Findings import Name_Usage
 from ..limits import RUST_ENTRY_POINT

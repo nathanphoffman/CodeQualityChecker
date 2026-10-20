@@ -1,6 +1,6 @@
-from ...deor_support.quality.deor_clever import deor_unsafe_macros
-from ...deor_support.structure.rust_blocks import rust_only_source
-from ...python_support.python_clever import python_clever
+from .deor_clever import deor_unsafe_macros
+from ...language_parsers.deor.rust_blocks import rust_only_source
+from .python_clever import python_clever
 from ...source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, read_source
 from .Clever_Hit import Clever_Hit
 from .clever_patterns import pattern_hits

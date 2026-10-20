@@ -1,6 +1,6 @@
 from collections import Counter
 
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import walk
 
 NAME_NODE_TYPES = {"identifier", "type_identifier", "field_identifier", "property_identifier",
                    "shorthand_property_identifier", "shorthand_field_identifier"}

@@ -1,10 +1,10 @@
 import ast
 
-from ....python_support.parse_python import parse_python
-from ....deor_support.quality.deor_comments import deor_ends
+from ....language_parsers.python.parse_python import parse_python
+from .deor_comments import deor_ends
 from ....source_code import DEOR, PYTHON
-from ....tree_sitter_support.parse_tree import parse_tree
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.parse_tree import parse_tree
+from ....language_parsers.tree_sitter.tree_walk import walk
 
 def python_ends(source):
     """{line a statement starts on: last line of the longest statement starting there}. Decorators start a function."""

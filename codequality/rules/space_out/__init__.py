@@ -3,7 +3,7 @@ after multi-line statements, and never two blank lines in a row."""
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from ...deor_support.quality.deor_spacing import deor_gaps
+from .deor_spacing import deor_gaps
 from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ..power_of_six.limits import MAX_ITEMS
 from ..power_of_six.scoring import function_length_credit

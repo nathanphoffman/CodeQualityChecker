@@ -1,8 +1,8 @@
 import ast
 
-from ....deor_support.quality.deor_comments import looks_like_deor
+from ..extract.deor_comments import looks_like_deor
 from ....source_code import DEOR, PYTHON
-from ....tree_sitter_support.parse_tree import has_clean_parse
+from ....language_parsers.tree_sitter.parse_tree import has_clean_parse
 from ...clear_names.judge_names import WORD_PATTERN
 from ..limits import CODE_SYMBOLS, STOP_WORDS, WHY_PHRASES
 

@@ -1,7 +1,7 @@
 import re
 
-from ..structure.tree import parse_deor, walk_statements
-from ..structure.words import NUMBER_PATTERN, STRING_PATTERN, blank_strings
+from ...language_parsers.deor.tree import parse_deor, walk_statements
+from ...language_parsers.deor.words import NUMBER_PATTERN, STRING_PATTERN, blank_strings
 
 CONSTANT_KEYWORD = "const"
 IMPORT_KEYWORD = "import"

@@ -1,9 +1,9 @@
-from ...deor_support.judging.deor_shapes import deor_shapes
+from .deor_shapes import deor_shapes
 from ...source_code import DEOR
-from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
-from ...tree_sitter_support.tree_functions import function_name, statements_of
-from ...tree_sitter_support.tree_walk import walk
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
+from ...language_parsers.tree_sitter.tree_functions import function_name, statements_of
+from ...language_parsers.tree_sitter.tree_walk import walk
 from .Function_Shape import Function_Shape, Statement_Shape
 
 BLOCK_TYPES = {"block", "statement_block"}

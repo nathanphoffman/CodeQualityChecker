@@ -1,5 +1,5 @@
-from ....tree_sitter_support.tree_functions import statements_of
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_functions import statements_of
+from ....language_parsers.tree_sitter.tree_walk import walk
 
 BLOCK_TYPES = {"block", "statement_block"}
 TERMINATOR_TYPES = {"return_statement", "throw_statement", "break_statement", "continue_statement"}

@@ -1,6 +1,6 @@
 import ast
 
-from ...python_support.parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 from .Function_Shape import Function_Shape, Statement_Shape
 
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)

@@ -1,6 +1,6 @@
-from ..structure.declarations import declaration_of, declared_variables
-from ..structure.tree import parse_deor, walk_statements
-from ..structure.words import identifiers
+from ...language_parsers.deor.declarations import declaration_of, declared_variables
+from ...language_parsers.deor.tree import parse_deor, walk_statements
+from ...language_parsers.deor.words import identifiers
 
 FIELD_PARENTS = {"struct"}
 VARIANT_PARENTS = {"enum"}

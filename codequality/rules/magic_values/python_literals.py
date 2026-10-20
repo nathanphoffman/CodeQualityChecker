@@ -1,6 +1,6 @@
 import ast
 
-from ...python_support.parse_python import parse_python
+from ...language_parsers.python.parse_python import parse_python
 from .Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 
 def is_constant_definition(node):

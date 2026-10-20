@@ -1,5 +1,5 @@
 from ....source_code import RUST
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import walk
 from ..limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
 

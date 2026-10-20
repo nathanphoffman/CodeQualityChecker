@@ -1,8 +1,8 @@
-from ...deor_support.judging.deor_literals import deor_literals
+from .deor_literals import deor_literals
 from ...source_code import DEOR
-from ...tree_sitter_support.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from .Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
-from ...tree_sitter_support.syntax_shapes import NAME_FIELD
+from ...language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
 NUMBER_TYPES = {"number", "integer_literal", "float_literal"}
 STRING_TYPES = {"string", "string_literal"}

@@ -1,10 +1,10 @@
 import re
 
-from ...deor_support.judging.deor_names import deor_names
-from ...python_support.python_names import python_names
+from .deor_names import deor_names
+from .python_names import python_names
 from ...source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
-from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.tree_walk import identifiers_in, walk
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.tree_walk import identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".

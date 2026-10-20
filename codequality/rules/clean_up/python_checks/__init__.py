@@ -1,4 +1,4 @@
-from ....python_support.parse_python import parse_python
+from ....language_parsers.python.parse_python import parse_python
 from ..Cleanup_Findings import Cleanup_Findings
 from .imports import python_imports
 from .name_usage import python_name_usage

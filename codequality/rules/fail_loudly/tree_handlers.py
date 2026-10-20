@@ -1,9 +1,9 @@
-from ...deor_support.quality.deor_handlers import deor_handlers
-from ...deor_support.structure.rust_blocks import real_line, rust_blocks
+from .deor_handlers import deor_handlers
+from ...language_parsers.deor.rust_blocks import real_line, rust_blocks
 from ...source_code import DEOR, RUST, TYPESCRIPT
-from ...tree_sitter_support.parse_tree import parse_tree
-from ...tree_sitter_support.tree_walk import identifiers_in, squashed, walk
-from ...tree_sitter_support.use_names import dotted
+from ...language_parsers.tree_sitter.parse_tree import parse_tree
+from ...language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
+from ...language_parsers.tree_sitter.use_names import dotted
 from .Error_Handler import Error_Handler
 from .limits import SILENT_CALLBACK_BODIES
 from .python_handlers import is_loud_name

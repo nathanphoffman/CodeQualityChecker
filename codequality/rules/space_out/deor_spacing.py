@@ -1,4 +1,4 @@
-from ..structure.tree import parse_deor, walk_statements
+from ...language_parsers.deor.tree import parse_deor, walk_statements
 
 CONTROL_KEYWORDS = {"if", "for", "return", "break", "continue", "fn", "macro", "unsafe_macro", "struct", "enum", "type",
                     "shape", "block", "rust"}

@@ -1,7 +1,7 @@
 import ast
 
-from .parse_python import parse_python
-from .python_functions import RECEIVER_NAMES
+from ...language_parsers.python.parse_python import parse_python
+from ..power_of_six.python_functions import RECEIVER_NAMES
 
 def names_declared_by(node):
     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):

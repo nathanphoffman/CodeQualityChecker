@@ -1,7 +1,7 @@
 import re
 
-from ..structure.tree import parse_deor, walk_statements
-from ..structure.words import blank_strings
+from ....language_parsers.deor.tree import parse_deor, walk_statements
+from ....language_parsers.deor.words import blank_strings
 
 # Clever on purpose: a call is a name followed straight away by "(". Words like `if (x)` and `return (a, b)` are not calls.
 CALL_START = re.compile(r"(?<![\w.])(?P<name>[A-Za-z_]\w*)\(")

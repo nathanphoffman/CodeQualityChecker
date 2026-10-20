@@ -1,9 +1,9 @@
 import re
 
-from ...deor_support.structure.declarations import FUNCTION_KINDS, declarations_in
-from ...deor_support.structure.tree import parse_deor
+from ...language_parsers.deor.declarations import FUNCTION_KINDS, declarations_in
+from ...language_parsers.deor.tree import parse_deor
 from .Function_Info import Function_Info
-from ...python_support.python_functions import python_functions
+from .python_functions import python_functions
 from ...source_code import DEOR, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
 from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES
 

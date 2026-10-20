@@ -2,10 +2,10 @@ import io
 import tokenize
 import warnings
 
-from ....deor_support.quality.deor_comments import deor_raw_comments
+from .deor_comments import deor_raw_comments
 from ....source_code import DEOR
-from ....tree_sitter_support.parse_tree import parse_tree
-from ....tree_sitter_support.tree_walk import walk
+from ....language_parsers.tree_sitter.parse_tree import parse_tree
+from ....language_parsers.tree_sitter.tree_walk import walk
 
 COMMENT_TYPES = {"comment", "line_comment", "block_comment"}
 
