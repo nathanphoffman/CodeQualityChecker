@@ -86,7 +86,7 @@ CHECK_EXPLANATIONS = {
                                "Add comments where the reason for the code isn't obvious, or remove comments that add nothing if there are too many."),
     "RULE-10-TEST-AMOUNT": ("Compares the number of tests to the lines of code. The ideal is about one test per 88 lines. Projects under 1296 lines don't need tests.",
                             "Add simple tests for the logic that matters most. If you have far more tests than needed, the extra ones likely cover trivial code."),
-    "RULE-11-LOUD-ERRORS": ("Finds places where an error is caught and then ignored: not re-raised, not logged, not printed. Catching a specific expected error counts as half as bad.",
+    "RULE-11-LOUD-ERRORS": ("Finds places where an error is caught and then ignored: not re-raised, not logged, not printed. Catching a specific expected error counts as half as bad. In Deor, `is not valid` and `is valid ... else` checks count as catches: the failure path (under the check, or under its `else`) must print, crash or return.",
                             "Log the error, re-raise it, or handle it for real. If ignoring it is truly right, catch only the specific error and say why in a comment."),
     "RULE-11-ERROR-CHECK-AMOUNT": ("Compares the number of error checks (try/catch and similar) to the lines of code. The ideal is between one per 216 and one per 1296 lines.",
                                    "Add error handling around things that can fail (files, network, parsing), or remove handlers that guard code that can't fail."),
