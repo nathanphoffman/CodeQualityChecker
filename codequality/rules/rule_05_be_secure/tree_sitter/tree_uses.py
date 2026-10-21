@@ -2,7 +2,7 @@ from dataclasses import replace
 
 from ..deor.deor_uses import deor_calls
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import DEOR, RUST
+from ....source_code import RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import names_in, squashed, walk
 from ....language_parsers.tree_sitter.use_names import use_name
@@ -25,9 +25,6 @@ def deor_uses(source):
     return uses
 
 def tree_uses(source, language):
-    if language == DEOR:
-        return deor_uses(source)
-
     lines = source.splitlines()
     uses = []
 

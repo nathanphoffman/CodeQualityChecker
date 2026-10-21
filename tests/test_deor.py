@@ -96,9 +96,9 @@ def test_deor_literals_skip_imports_rust_blocks_and_constants():
     assert not any(kind == "string" and value == "lib/string.deor" for kind, value, _ in found)
 
 def test_deor_uses_find_calls_built_sql_and_rust_blocks_at_their_lines():
-    from codequality.rules.rule_05_be_secure.tree_sitter.tree_uses import tree_uses
+    from codequality.rules.rule_05_be_secure.shared.uses import find_uses
 
-    uses = {(use.name, use.line_number) for use in tree_uses(FULL, "deor")}
+    uses = {(use.name, use.line_number) for use in find_uses(FULL, "deor")}
     assert ("crash", 24) in uses and ("dynamic_string", 23) in uses and ("unsafe", 30) in uses
 
 def test_deor_error_handlers_crashes_checks_and_rust_blocks():
