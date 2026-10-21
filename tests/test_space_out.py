@@ -53,3 +53,11 @@ def test_own_line_comments_need_a_blank_line_above():
 
     typescript = "function f() {\n  // first in its block\n  const a = 1;\n  // needs a gap\n  const b = 2;\n\n  // has a gap\n  return a + b;\n}\n"
     assert text_gaps(typescript, "typescript").before_control_missing == [4]
+
+def test_fix_spacing_adds_and_removes_blank_lines():
+    from codequality.fix_spacing import fix_source
+    from codequality.source_code import PYTHON
+
+    fixed = fix_source("x = 1\nif x:\n    y = 2\n\n\n    z = 3\n", PYTHON)
+
+    assert fixed == "x = 1\n\nif x:\n    y = 2\n\n    z = 3\n"

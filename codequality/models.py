@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import subprocess
 from enum import Enum
+from fnmatch import fnmatch
 from functools import lru_cache
 from pathlib import Path
 from typing import Callable
@@ -67,6 +68,7 @@ class Project:
     root: Path
     languages: set[str] = field(default_factory=set)  # "rust", "typescript"
     frameworks: set[str] = field(default_factory=set)  # "axum", "react", ...
+    exclude: list[str] = field(default_factory=list)  # wildcard patterns, e.g. "*out.rs*", matched against names and relative paths
     _remembered: dict = field(default_factory=dict, repr=False)  # answers to slow questions, so each is worked out once per run
 
     def label_for(self, path) -> str:
@@ -81,9 +83,12 @@ class Project:
         return self._remembered[key]
 
     def is_ignored(self, path) -> bool:
-        """True for build/vendor folders and anything .gitignore hides, or sits inside something it hides."""
+        """True for build/vendor folders, anything .gitignore hides (or sits inside something it hides), and anything matching an --exclude pattern."""
         parts = Path(path).relative_to(self.root).parts
         hidden = git_ignored_paths(self.root)
+
+        if parts and any(fnmatch(parts[-1], pattern) or fnmatch("/".join(parts), pattern) for pattern in self.exclude):
+            return True
 
         return bool(IGNORED_FOLDERS & set(parts)) or any("/".join(parts[:end]) in hidden for end in range(1, len(parts) + 1))
 

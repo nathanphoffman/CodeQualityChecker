@@ -11,8 +11,8 @@ from .source_code import DEOR, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRI
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
 
-def detect(root: Path) -> Project:
-    project = Project(root=root)
+def detect(root: Path, exclude: list[str] | None = None) -> Project:
+    project = Project(root=root, exclude=exclude or [])
     _detect_python(project)
     _detect_rust(project)
     _detect_ts(project)

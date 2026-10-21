@@ -18,13 +18,18 @@ def source_files(project):
 
     return [(project.label_for(path), SUFFIX_LANGUAGE[path.suffix], read_source(path)) for path in project.files(*SUFFIX_LANGUAGE)]
 
+def file_gaps(language, source):
+    """The Spacing_Gaps for one file, read by the parser for its language."""
+
+    # nested ternary used as a three-way choice: Python first, then Deor, then every other language
+    return python_gaps(source) if language == PYTHON else Spacing_Gaps(*deor_gaps(source)) if language == DEOR else text_gaps(source, language)
+
 def grade_gaps(project, total_field, missing_field, noun):
     """Score is the share of places that have their blank line. `noun` finishes the sentence "N of M ... are missing one"."""
     total, places = 0, []
 
     for label, language, source in source_files(project):
-        # nested ternary used as a three-way choice: Python first, then Deor, then every other language
-        gaps = python_gaps(source) if language == PYTHON else Spacing_Gaps(*deor_gaps(source)) if language == DEOR else text_gaps(source, language)
+        gaps = file_gaps(language, source)
         total += getattr(gaps, total_field)
         places += [f"{label}:{line}" for line in getattr(gaps, missing_field)]
 
