@@ -2,6 +2,7 @@ from ....language_parsers.deor.tree import parse_deor, walk_statements
 
 CONTROL_KEYWORDS = {"if", "for", "return", "break", "continue", "fn", "macro", "unsafe_macro", "struct", "enum", "type",
                     "shape", "block", "rust"}
+
 CONTINUATIONS = ("else",)
 
 def sibling_lists(roots):
@@ -26,6 +27,7 @@ def deor_gaps(source):
 
     Same two checks as the other languages: a blank line above control flow and definitions, and a blank line after
     a statement that spans several lines or has a block under it. `else` and `else if` continue the `if` above them."""
+
     lines = parse_deor(source).lines
     control_total = block_total = 0
     control_missing, block_missing = [], []

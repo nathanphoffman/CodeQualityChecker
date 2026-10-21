@@ -30,4 +30,5 @@ def test_deor_functions_and_nested_macros_all_count_as_levels(tmp_path: Path):
     source = ("fn void helper()\n    print(1)\n\nmacro middle\n    helper()\n\nfn void entry()\n    macro_run middle\n\n"
               "macro outer\n    macro inner\n        macro deepest\n            print(2)\n\n        macro_run deepest\n\n    macro_run inner\n\n"
               "fn void second()\n    macro_run outer\n")
+
     assert depths_of(tmp_path, "app.deor", source) == [3, 4]

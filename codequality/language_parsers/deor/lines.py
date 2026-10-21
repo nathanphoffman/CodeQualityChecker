@@ -41,6 +41,7 @@ def read_lines(source):
 
         if rust_indent is not None:
             lines.append(Deor_Line(number, indent, stripped, None, True))
+
             continue
 
         code, comment = split_comment(stripped)

@@ -1,5 +1,6 @@
 COMMENT_MARKERS = ("#", "//", "/*", "*")
 MARKER_CHARACTERS = "/*#!"
+CODE_BEFORE_INDEX = 3  # position of the "code before the comment" text in a raw comment tuple
 
 def clean_text(raw):
     """A comment without its markers: // # /* */ and the * down the side of a block comment."""
@@ -23,7 +24,7 @@ def merge_runs(raw):
     merged = []
 
     for first, last, text, code_before in sorted(raw):
-        if merged and not code_before and not merged[-1][3] and first == merged[-1][1] + 1:
+        if merged and not code_before and not merged[-1][CODE_BEFORE_INDEX] and first == merged[-1][1] + 1:
             merged[-1] = (merged[-1][0], last, merged[-1][2] + "\n" + text, "")
         else:
             merged.append((first, last, text, code_before))

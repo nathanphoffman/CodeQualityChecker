@@ -1,5 +1,5 @@
 from ....source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
-from ..deor.deor_calls import deor_calls
+from ..deor.deor_function_calls import deor_function_calls
 from ..python.python_calls import python_calls
 from ..tree_sitter.text_calls import text_calls
 from .longest_chain import longest_chains
@@ -8,7 +8,7 @@ def calls_in_source(source, language):
     if language == PYTHON:
         return python_calls(source)
 
-    return deor_calls(source) if language == DEOR else text_calls(source, language)
+    return deor_function_calls(source) if language == DEOR else text_calls(source, language)
 
 def build_graph(project):
     """({function name: names it calls that this project defines}, {function name: "file:line" of its first definition})."""

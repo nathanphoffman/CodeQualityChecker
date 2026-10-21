@@ -1,6 +1,5 @@
 from ....language_parsers.deor.declarations import FUNCTION_KINDS, declarations_in, used_names, variables_in
 from ....language_parsers.deor.tree import parse_deor, walk_statements
-from ....language_parsers.deor.words import identifiers
 
 BRANCH_STATEMENTS = {"if", "for"}
 BRANCH_WORDS = {"and", "or"}

@@ -8,7 +8,7 @@ from ..shared.find_functions import find_functions
 RUN_PATTERN = re.compile(r"\b(?:unsafe_)?macro_run\s+([A-Za-z_]\w*)")
 HASH_COMMENT = re.compile(r"#[^\n]*")  # Deor comments start with "#" as well as "//"
 
-def deor_calls(source):
+def deor_function_calls(source):
     """[(name, line_number, called_names)] for every Deor function and macro. A macro is named `macro name`, so the first word goes."""
     text = HASH_COMMENT.sub("", blank_out_text(source))
 

@@ -31,6 +31,7 @@ def deor_raw_comments(source):
     for line in parse_deor(source).lines:
         if line.comment is not None:
             found.append((line.number, line.number, "#" + line.comment, line.code))
+
             continue
 
         start = blank_strings(line.code).find(RUST_COMMENT) if line.in_rust else -1

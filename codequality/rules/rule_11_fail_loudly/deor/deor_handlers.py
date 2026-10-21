@@ -23,6 +23,7 @@ def deor_handlers(source):
     """(line_number, is_catch, is_loud, is_broad) for each crash and each `is not valid` check.
 
     Deor has no exceptions. A crash is the same as a raise, and a check for a value that is not valid is the closest thing to a catch."""
+
     found = []
 
     for statement in walk_statements(parse_deor(source).roots):

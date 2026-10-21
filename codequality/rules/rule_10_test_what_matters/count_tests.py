@@ -43,6 +43,7 @@ def count_typescript_tests(source):
 def count_deor_tests(source):
     """Functions named test..., plus one for a file that states what it expects (# expect:, # expect-error: ...), which is how
     the Deor test runner reads a test example."""
+
     parsed = parse_deor(source)
     functions = [item for item in declarations_in(parsed.roots, ("fn",)) if item.name.startswith(PYTHON_TEST_PREFIX)]
     states_expectation = any(line.comment is not None and line.comment.strip().startswith(DEOR_EXPECTATION) for line in parsed.lines)
