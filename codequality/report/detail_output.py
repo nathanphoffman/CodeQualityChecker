@@ -1,4 +1,4 @@
-from ..explanations import CHECK_EXPLANATIONS, GROUP_SUMMARIES, NO_EXPLANATION
+from ..explanations import CHECK_EXPLANATIONS, GROUP_SUMMARIES, LANGUAGE_NOTES, NO_EXPLANATION
 from ..models import Status
 from .grouping import PERCENT, group_results, letter, overall_score
 from .text_output import BOLD, DIM, RESET, print_banner, print_total, print_project_header
@@ -40,10 +40,22 @@ def print_full_check(rule, result):
     print(f"{INDENT}Found: {result.message or 'nothing more specific was recorded'}")
     print(f"{INDENT}How to fix: {fix}\n")
 
-def print_full_group(group):
+def print_language_notes(group_key, languages):
+    """What this rule means in each language the project uses, for readers who don't know the language's terms."""
+    notes = LANGUAGE_NOTES.get(group_key, {})
+    shown = sorted(languages & notes.keys())
+
+    for language in shown:
+        print(f"{DIM}{INDENT}In {language.capitalize()}: {notes[language]}{RESET}")
+
+    if shown:
+        print()
+
+def print_full_group(group, languages):
     percent = None if group.score is None else group.score * PERCENT
     print_banner(group.title.upper(), "needs human review" if percent is None else f"{percent:.0f}%  {letter(percent)}", percent or 0)
     print(f"{DIM}{GROUP_SUMMARIES.get(group.key, '')}{RESET}\n")
+    print_language_notes(group.key, languages)
 
     for rule, result in group.entries:
         print_full_check(rule, result)
@@ -55,6 +67,6 @@ def print_full(project, results):
     print_total(score)
 
     for group in group_results(results):
-        print_full_group(group)
+        print_full_group(group, project.languages)
 
     print_total(score)

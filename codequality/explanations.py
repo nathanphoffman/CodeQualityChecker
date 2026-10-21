@@ -20,6 +20,43 @@ GROUP_SUMMARIES = {
     "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row (close to that is fine), blank lines before control statements, definitions and line comments, and never two in a row.",
 }
 
+# Group key -> language -> how that rule shows up in that language, shown only for the languages found in the project.
+LANGUAGE_NOTES = {
+    "RULE-01": {
+        "python": "`self` and `cls` are not counted as arguments.",
+        "rust": "`self`, `&self` and `&mut self` are not counted as arguments.",
+        "typescript": "`this` is not counted as an argument. Arrow functions stored in a variable count as functions.",
+        "deor": "A `macro` (and `unsafe_macro`) counts as a function: its lines and parameters are measured the same way. `macro_run name` counts as a call when measuring call depth, so fn -> macro is 2 levels and fn -> macro -> fn is 3.",
+    },
+    "RULE-03": {
+        "python": "Clever means regex calls, nested comprehensions, `:=`, chained ternaries and long chains of map/filter-style calls.",
+        "rust": "Clever means regex, long iterator chains (map, filter, fold...) and nested closures.",
+        "typescript": "Clever means regex, long array chains (map, filter, reduce...), nested closures and chained ternaries.",
+        "deor": "Deor has no clever constructs of its own, so only the Rust inside `rust` blocks is checked. `unsafe_macro` is just a macro whose variables leak into the code that runs it, and is not treated as clever.",
+    },
+    "RULE-05": {
+        "deor": "Deor is judged by its library functions: random (`m_rand_int`, `m_rand_float`, `m_rand_bool`), file paths (`f_read`, `f_write`, `f_append`, `f_exists`, `f_lines`, `f_delete`) and `print` for logging secrets. Rust inside `rust` blocks gets the Rust checks.",
+    },
+    "RULE-10": {
+        "python": "A test is a function whose name starts with `test`.",
+        "rust": "A test is a function with a `#[test]` (or `#[tokio::test]`) attribute.",
+        "typescript": "A test is an `it(...)` or `test(...)` call that is given a function.",
+        "deor": "A test is a function whose name starts with `test`, plus one for a file that states what it expects with `# expect:` or `# expect-error:` comments.",
+    },
+    "RULE-11": {
+        "python": "Errors are raised with `raise` and handled with `try`/`except`. A handler is loud when it re-raises, uses the caught error, or logs/prints. Catching `Exception` and staying silent is the worst case. `contextlib.suppress` and `errors='ignore'` also hide errors.",
+        "rust": "Errors are `Result` values. `?` and `Err(...)` count as error checks. A `match` arm on `Err(...)` is a catch and must do something: an empty `{}` is silent. `let _ = might_fail();` throws a result away and counts as swallowed.",
+        "typescript": "Errors are raised with `throw` and handled with `try`/`catch` or `.catch(...)`. A catch is loud when it throws, logs, or uses the error. `.catch(() => {})` is silent.",
+        "deor": "Deor has no exceptions. It registers error handling with validator types (`type Name(int val)` plus a rule that decides what is valid) and the checks on them, plus `crash(...)`. Counted as error checks: `crash(...)`, `if x is not valid` (the failure path is under the check) and `if x is valid ... else` (the failure path is the `else`). A failure path is loud when it prints, crashes or returns. An `if x is valid` with no `else` counts as a check but is never marked swallowed. `type` declarations and `avow` (forced unwrap) are not counted by themselves.",
+    },
+    "RULE-14": {
+        "python": "Comments start with `#`.",
+        "rust": "Comments start with `//` or `/*`. Attributes like `#[derive]` are code, not comments.",
+        "typescript": "Comments start with `//` or `/*`.",
+        "deor": "Comments start with `#` or `//`.",
+    },
+}
+
 # Rule id -> (what it checks, how to improve the score).
 CHECK_EXPLANATIONS = {
     "RULE-01-FUNCTIONS-PER-FILE": ("Counts the functions in each file. 6 or fewer is full credit; the score drops slowly up to about 15 and sharply after that.",
