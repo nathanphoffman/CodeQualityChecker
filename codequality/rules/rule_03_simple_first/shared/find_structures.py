@@ -5,6 +5,7 @@ from .limits import CHAIN_METHODS, MAX_CHAIN_LENGTH, MAX_TERNARIES_PER_STATEMENT
 
 CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()")  # a ".", the method name, optional ::<generics>, then the "(" of its call
 CHAIN_GAP = re.compile(r"[\s?]*")  # whitespace and Rust's "?" between chained calls
+
 # Rust closures start after "(", "," "=" or "move" as |args|. TypeScript arrows start at "=>".
 CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>")}  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match

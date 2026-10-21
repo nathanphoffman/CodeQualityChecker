@@ -23,7 +23,7 @@
 13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
 14. 14. Space it out. Blank lines separate ideas like paragraphs.
    - Max 6 lines in a row without a blank line.
-   - A blank line before control statements, returns, and function/macro definitions, unless first in a block.
+   - A blank line before control statements, returns, line comments, and function/macro definitions, unless first in a block.
    - A blank line after function/macro definitions, closing brackets or multi-line statements, unless followed by another closing bracket, else, catch, or finally.
    - Never have two blank lines in a row.
 

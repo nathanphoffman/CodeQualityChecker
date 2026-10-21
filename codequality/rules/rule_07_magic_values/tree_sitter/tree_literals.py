@@ -6,8 +6,10 @@ from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
 NUMBER_TYPES = {"number", "integer_literal", "float_literal"}
 STRING_TYPES = {"string", "string_literal"}
+
 # Code that already names or defines its values: Rust consts, statics, enum values and attributes.
 NAMED_TYPES = {"const_item", "static_item", "enum_variant", "attribute_item", "enum_assignment"}
+
 # Strings that are module paths or types, not values: imports, and `"a" | "b"` types.
 NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", "literal_type", "jsx_attribute"}
 

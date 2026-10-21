@@ -27,6 +27,7 @@ GROUP_TITLES = {
 UNGRADED = (Status.MANUAL, Status.SKIPPED)
 GRADE_CUTOFFS = ((90, "A"), (80, "B"), (70, "C"), (60, "D"))
 PERCENT = 100.0
+
 # Inside a 10-point band, the bottom three points (_0 to _2) get a minus and the top two (_8 and _9, and 100) get a plus.
 MINUS_BELOW_POINT, PLUS_FROM_POINT = 3, 8
 

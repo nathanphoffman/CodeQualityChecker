@@ -4,6 +4,7 @@ from ....source_code import RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ...rule_09_comment_why.shared.extract.line_helpers import COMMENT_MARKERS
+from ..shared.comment_gaps import comment_block_gaps
 from ..shared.Spacing_Gaps import Spacing_Gaps
 
 # Words that start a control statement or a definition. Python's classes are Rust's structs, enums, traits and impls.
@@ -21,6 +22,9 @@ NOT_A_VALUE = {"expression_statement", "let_declaration", "empty_statement", "at
 MODIFIERS = {"pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
 OPENERS = ("{", "(", "[", ":")
 CLOSERS = ("}", ")", "]")
+
+# Comment starts in these languages. `#` is left out because Rust attributes like #[derive] begin with it.
+COMMENT_STARTS = ("//", "/*", "*")
 CONTINUATIONS = ("else", "catch", "finally", ".", "while")
 
 def leading_word(text):
@@ -67,10 +71,26 @@ def next_code(lines, index):
 
     return ""
 
+def comment_gaps(lines):
+    """Comments on their own line follow the same rule as control statements: a blank line above, unless first in a block."""
+    comment_lines, blank_lines, finished_lines = set(), set(), set()
+
+    for number, line in enumerate(lines, start=1):
+        text = line.strip()
+
+        if text.startswith(COMMENT_STARTS) and (not text.startswith("*") or number - 1 in comment_lines):
+            comment_lines.add(number)
+        elif not text:
+            blank_lines.add(number)
+        elif text.endswith((";", "}")):
+            finished_lines.add(number)
+
+    return comment_block_gaps(comment_lines, blank_lines, finished_lines)
+
 def text_gaps(source, language):
     """A Spacing_Gaps for a Rust or TypeScript file, read as text: braces and keywords instead of a syntax tree."""
     lines, control_missing, block_missing = source.splitlines(), [], []
-    control_total = block_total = 0
+    control_seen, block_total = set(), 0
     tails = rust_tail_lines(source) if language == RUST else set()
 
     for index, line in enumerate(lines):
@@ -80,7 +100,7 @@ def text_gaps(source, language):
             above_index, above = line_above(lines, index)
 
             if not above.endswith(OPENERS):  # otherwise it is first in its block
-                control_total += 1
+                control_seen.add(above_index + 1)
                 control_missing += [above_index + 1] if above else []
 
         if text.startswith(CLOSERS) and not text.endswith(OPENERS + (",",)):
@@ -90,4 +110,7 @@ def text_gaps(source, language):
                 block_total += 1
                 block_missing += [index + 2] if lines[index + 1].strip() else []
 
-    return Spacing_Gaps(control_total, sorted(set(control_missing)), block_total, sorted(set(block_missing)))
+    comment_seen, comment_missing = comment_gaps(lines)
+    control_seen |= comment_seen
+
+    return Spacing_Gaps(len(control_seen), sorted(set(control_missing + comment_missing)), block_total, sorted(set(block_missing)))

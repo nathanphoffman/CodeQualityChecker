@@ -12,10 +12,13 @@ MACRO_PREFIX = "macro "  # a macro is shown as "macro name" so it is not mistake
 #   macro: "macro" or "unsafe_macro", then the name
 #   type:  "type", the name, then the validator's parameter between the brackets
 FUNCTION_HEADER = re.compile(r"^fn\s+\S+\s+(?P<name>\w+)\s*\((?P<parameters>.*)\)$")
+
 # `macro name` or `unsafe_macro name`, capturing the name
 MACRO_HEADER = re.compile(r"^(?:unsafe_macro|macro)\s+(?P<name>\w+)$")
+
 # `type name(parameters)`, capturing the name and the parameters between the brackets
 TYPE_HEADER = re.compile(r"^type\s+(?P<name>\w+)\s*\((?P<parameters>.*)\)$")
+
 # `struct`, `enum` or `shape` followed by the name
 NAMED_HEADER = re.compile(r"^(?:struct|enum|shape)\s+(?P<name>\w+)")
 
@@ -25,10 +28,13 @@ NAMED_HEADER = re.compile(r"^(?:struct|enum|shape)\s+(?P<name>\w+)")
 #   group: "(a, b) in" or "move (a, b) in", which pulls fields out of a struct
 #   loop:  "for name in" or "for move (name in", but not "for in range" or "for if"
 TYPED_DECLARATION = re.compile(r"^(?:const\s+)?(?P<type>[A-Za-z_]\w*)\s+(?P<name>[A-Za-z_]\w*)\s*(?:=|$)")
+
 # a name followed by `as`
 AS_BINDING = re.compile(r"^(?P<name>[A-Za-z_]\w*)\s+as\b")
+
 # `(a, b) in` or `move (a, b) in`, capturing the names between the brackets
 GROUP_BINDING = re.compile(r"^(?:move\s*)?\((?P<names>[^)]*)\)\s+in\b")
+
 # `for name in` or `for move (name in`, capturing the name
 LOOP_VARIABLE = re.compile(r"^for\s+(?:move\s*\(\s*)?(?P<name>[A-Za-z_]\w*)\s+in\b")
 
@@ -108,6 +114,7 @@ def used_names(statement):
 
     for inner in walk_statements([statement]):
         mentioned += identifiers(inner.text)
+
         # two loops: every name in every line of Rust code in the statement
         mentioned += [name for line in inner.rust_lines for name in identifiers(line.code)]
 

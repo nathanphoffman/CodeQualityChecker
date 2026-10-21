@@ -13,12 +13,14 @@ CONTROL_KEYWORDS = {"if", "else", "for", "return", "break", "continue", "block",
 
 # a double-quoted string; (?:\\.|[^"\\])* reads an escaped character or any character that isn't a quote or backslash
 STRING_PATTERN = re.compile(r'"(?:\\.|[^"\\])*"')
+
 # a number: digits and underscores, optionally a dot and more digits, not part of a longer word or name
 NUMBER_PATTERN = re.compile(r"(?<![\w.])\d[\d_]*(?:\.\d[\d_]*)?")
 
 # Clever on purpose: one token of a statement, for comparing the shapes of statements.
 #   a string, a number, a word, or any other single character (an operator or a bracket)
 TOKEN_PATTERN = re.compile(r'"(?:\\.|[^"\\])*"|(?<![\w.])\d[\d_]*(?:\.\d[\d_]*)?|[A-Za-z_]\w*|\S')
+
 # a name: a letter or underscore, then word characters, not part of a longer word or after a dot
 IDENTIFIER_PATTERN = re.compile(r"(?<![\w.])[A-Za-z_]\w*")
 

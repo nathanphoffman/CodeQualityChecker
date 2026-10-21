@@ -12,6 +12,7 @@ NEXT_PUBLIC_SECRET = re.compile(r"NEXT_PUBLIC_\w*(?:SECRET|PASSWORD|PRIVATE|TOKE
 
 # Clever on purpose: `<img ` and `<a href="/...` (a plain internal link) against `<Image ` and `<Link `.
 PLAIN_IMAGE_OR_LINK = re.compile(r"<img\b|<a\s[^>]*href=[\"']/")
+
 # the start of an <Image or <Link tag; \b stops it matching longer names like <ImageGallery
 NEXT_IMAGE_OR_LINK = re.compile(r"<Image\b|<Link\b")
 

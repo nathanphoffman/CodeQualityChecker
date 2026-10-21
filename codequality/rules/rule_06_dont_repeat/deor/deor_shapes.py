@@ -5,8 +5,10 @@ from ....language_parsers.deor.tree import parse_deor
 from ....language_parsers.deor.words import KEYWORDS, PRIMITIVE_TYPES, TOKEN_PATTERN
 
 NODES_PER_TOKEN = 2  # a statement of n tokens is about 2n syntax nodes in the other languages, which is what the size limits are tuned for
+
 # a name: a letter or underscore, then word characters, up to the end of the token
 IDENTIFIER = re.compile(r"[A-Za-z_]\w*$")
+
 # any single digit, so a number is recognised wherever it appears
 NUMBER = re.compile(r"\d")
 
@@ -24,6 +26,7 @@ def shape_token(token):
 def shape_of(statement):
     """(text, size) for a statement, its header tokens first and then everything indented under it."""
     tokens = [shape_token(token) for token in TOKEN_PATTERN.findall(statement.text)]
+
     # two loops: every token of every line of Rust code in the statement
     rust = [shape_token(token) for line in statement.rust_lines for token in TOKEN_PATTERN.findall(line.code)]
     children = [shape_of(child) for child in statement.children if child.keyword not in FUNCTION_KINDS]

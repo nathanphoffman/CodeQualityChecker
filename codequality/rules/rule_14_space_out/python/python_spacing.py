@@ -3,6 +3,7 @@ import io
 import tokenize
 
 from ....language_parsers.python.parse_python import parse_python
+from ..shared.comment_gaps import comment_block_gaps
 from ..shared.Spacing_Gaps import Spacing_Gaps
 
 CONTROL_STATEMENTS = (ast.If, ast.For, ast.AsyncFor, ast.While, ast.Try, ast.With, ast.AsyncWith, ast.Match, ast.Return,
@@ -25,6 +26,19 @@ def first_line(statement):
     """Where a statement starts, counting its decorators."""
 
     return min([decorator.lineno for decorator in getattr(statement, "decorator_list", [])] + [statement.lineno])
+
+def own_line_comments(source):
+    """Line numbers of comments that are the only thing on their line."""
+
+    return {token.start[0] for token in tokenize.generate_tokens(io.StringIO(source).readline)
+            if token.type == tokenize.COMMENT and token.line.strip().startswith("#")}
+
+def comment_gaps(source, tree, lines):
+    """Comments on their own line follow the same rule as control statements: a blank line above, unless first in a block."""
+    blank_lines = {number for number, line in enumerate(lines, start=1) if not line.strip()}
+    finished_lines = {node.end_lineno for node in ast.walk(tree) if isinstance(node, ast.stmt)}
+
+    return comment_block_gaps(own_line_comments(source), blank_lines, finished_lines)
 
 def attached_start(lines, start):
     """Comments directly above a statement belong to it, so a blank line goes above the comments."""
@@ -58,9 +72,10 @@ def span(item):
 def python_gaps(source):
     """A Spacing_Gaps for one Python file."""
     lines, control_missing, block_missing = source.splitlines(), [], []
-    control_total = block_total = 0
+    control_seen, block_total = set(), 0
+    tree = parse_python(source)
 
-    for group in statement_groups(parse_python(source)):
+    for group in statement_groups(tree):
         for previous, item in zip(group, group[1:]):
             start, (previous_first, previous_last) = attached_start(lines, span(item)[0]), span(previous)
 
@@ -70,11 +85,14 @@ def python_gaps(source):
             blank_above = not lines[start - 2].strip()
 
             if isinstance(item, CONTROL_STATEMENTS + (ast.match_case,)):
-                control_total += 1
+                control_seen.add(start)
                 control_missing += [] if blank_above else [start]
 
             if previous_last > previous_first or isinstance(previous, DEFINITIONS):  # multi-line, or a definition of any length
                 block_total += 1
                 block_missing += [] if blank_above else [start]
 
-    return Spacing_Gaps(control_total, sorted(set(control_missing)), block_total, sorted(set(block_missing)))
+    comment_seen, comment_missing = comment_gaps(source, tree, lines)
+    control_seen |= comment_seen
+
+    return Spacing_Gaps(len(control_seen), sorted(set(control_missing + comment_missing)), block_total, sorted(set(block_missing)))

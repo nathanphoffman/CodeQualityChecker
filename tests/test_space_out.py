@@ -43,3 +43,13 @@ def test_text_gaps_for_typescript_and_rust():
     assert gaps.after_block_missing == [6]  # the closing brace of the if is followed by a statement
     rust = "fn f() {\n    let a = 1;\n\n    loop {\n        break;\n    }\n\n    match a {\n        1 => (),\n        _ => (),\n    }\n}\n"
     assert text_gaps(rust, "rust").before_control_missing == [] and text_gaps(rust, "rust").after_block_missing == []
+
+def test_own_line_comments_need_a_blank_line_above():
+    from codequality.rules.rule_14_space_out.python.python_spacing import python_gaps
+    from codequality.rules.rule_14_space_out.tree_sitter.text_spacing import text_gaps
+
+    python = "def f(x):\n    # first in its block\n    y = 1\n    # needs a gap\n    z = [\n        1,\n        # inside a statement\n        2,\n    ]\n\n    # has a gap\n    return y + z\n"
+    assert python_gaps(python).before_control_missing == [4]
+
+    typescript = "function f() {\n  // first in its block\n  const a = 1;\n  // needs a gap\n  const b = 2;\n\n  // has a gap\n  return a + b;\n}\n"
+    assert text_gaps(typescript, "typescript").before_control_missing == [4]

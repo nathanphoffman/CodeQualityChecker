@@ -17,7 +17,7 @@ GROUP_SUMMARIES = {
     "RULE-11": "Never hide errors, but don't over-report or over-throw either.",
     "RULE-12": "Remove dead code, unused imports and leftover variables.",
     "RULE-13": "The whole project should stay small. Size is judged in powers of 6 lines, and a little over costs little.",
-    "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row (close to that is fine), blank lines before control statements and definitions, and never two in a row.",
+    "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row (close to that is fine), blank lines before control statements, definitions and line comments, and never two in a row.",
 }
 
 # Rule id -> (what it checks, how to improve the score).
@@ -99,7 +99,7 @@ CHECK_EXPLANATIONS = {
                              "Delete code you don't need, remove dead features, or split the project into separate smaller projects."),
     "RULE-14-SHORT-PARAGRAPHS": ("Finds runs of code lines with no blank line in them. Up to 6 in a row is full credit, up to 36 is partial.",
                                  "Add blank lines between the separate ideas in the run."),
-    "RULE-14-BLANK-BEFORE-CONTROL": ("Checks for a blank line before control statements (if, for, while), returns and function definitions, unless first in a block.",
+    "RULE-14-BLANK-BEFORE-CONTROL": ("Checks for a blank line before control statements (if, for, while), returns, function definitions and comments on their own line, unless first in a block. A run of comment lines counts once, at its first line, and comments inside a multi-line statement are left alone.",
                                      "Add a blank line above each one."),
     "RULE-14-BLANK-AFTER-BLOCKS": ("Checks for a blank line after multi-line statements and closing brackets, unless followed by another closing bracket, else, catch or finally.",
                                    "Add a blank line after each one."),

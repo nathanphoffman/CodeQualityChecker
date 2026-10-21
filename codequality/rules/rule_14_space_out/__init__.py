@@ -52,7 +52,7 @@ def check_short_paragraphs(project):
 
     return Result.scored(sum(function_length_credit(length) for _, _, length in judged) / len(judged), message)
 
-@rule("RULE-14-BLANK-BEFORE-CONTROL", "A blank line before control statements, returns and definitions")
+@rule("RULE-14-BLANK-BEFORE-CONTROL", "A blank line before control statements, returns, definitions and line comments")
 def check_blank_before_control(project):
     return grade_gaps(project, "before_control_total", "before_control_missing", "control statements, returns and definitions")
 
