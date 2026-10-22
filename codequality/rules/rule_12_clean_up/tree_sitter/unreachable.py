@@ -1,8 +1,8 @@
 from ....language_parsers.tree_sitter.tree_functions import statements_of
 from ....language_parsers.tree_sitter.tree_walk import walk
 
-BLOCK_TYPES = {"block", "statement_block"}
-TERMINATOR_TYPES = {"return_statement", "throw_statement", "break_statement", "continue_statement", "yield_statement"}
+BLOCK_TYPES = {"block", "statement_block", "compound_statement"}
+TERMINATOR_TYPES = {"return_statement", "throw_statement", "break_statement", "continue_statement", "yield_statement", "goto_statement"}
 HARE_CONTINUE = b"continue"
 RUST_TERMINATOR_EXPRESSIONS = {"return_expression", "break_expression", "continue_expression"}
 

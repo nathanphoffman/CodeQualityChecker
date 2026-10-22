@@ -1,9 +1,9 @@
 from .parse_tree import parse_tree
 from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
-from .tree_walk import bound_node, identifiers_in, walk
+from .tree_walk import bound_node, declarator_name, identifiers_in, walk
 
 def function_name(function):
-    name = function.child_by_field_name(NAME_FIELD)
+    name = function.child_by_field_name(NAME_FIELD) or declarator_name(function.child_by_field_name("declarator"))
 
     if name is None and function.parent.type == "variable_declarator":
         name = function.parent.child_by_field_name(NAME_FIELD)
@@ -32,7 +32,13 @@ def branch_count(function, language):
     return count
 
 def statements_of(body):
-    return [child for child in body.named_children if "comment" not in child.type]
+    """The statements in a block. Go wraps them in a statement_list node, which is looked through."""
+    statements = []
+
+    for child in body.named_children:
+        statements += child.named_children if child.type == "statement_list" else [child]
+
+    return [statement for statement in statements if "comment" not in statement.type]
 
 def tree_bodies(source, language):
     """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
@@ -41,7 +47,7 @@ def tree_bodies(source, language):
     for function in walk(parse_tree(source, language)):
         body = function.child_by_field_name(BODY_FIELD)
 
-        if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block")):
+        if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block", "compound_statement")):
             continue
 
         locals_ = local_names(function, language)

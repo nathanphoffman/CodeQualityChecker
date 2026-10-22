@@ -1,6 +1,6 @@
 from ..models import Project, Result, SEVERITY_INFO, SEVERITY_WARN
 from ..registry import rule
-from ..source_code import TYPESCRIPT_SUFFIXES
+from ..source_code import GO_TEST_SUFFIX, TYPESCRIPT_SUFFIXES
 from .rule_08_few_dependencies import count_code_lines
 from .rule_10_test_what_matters.limits import MAX_LINES_WITHOUT_TESTS
 
@@ -25,6 +25,9 @@ def has_tests(project: Project) -> Result:
         return Result.passed()
 
     if any(".test." in source_file.name or ".spec." in source_file.name for source_file in project.files(*TYPESCRIPT_SUFFIXES)):
+        return Result.passed()
+
+    if any(source_file.name.endswith(GO_TEST_SUFFIX) for source_file in project.files(".go")):
         return Result.passed()
 
     return Result.failed("no tests directory or test files found")

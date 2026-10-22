@@ -1,10 +1,11 @@
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Code_Use import Code_Use
 from ....language_parsers.tree_sitter.syntax_shapes import OPERATOR_FIELD
-from ....language_parsers.tree_sitter.use_names import dotted
+from ....language_parsers.tree_sitter.use_names import called_name, dotted
 
-STRING_TEXT_TYPES = {"string_fragment", "string_content"}
-HARE_STRING_BUILDERS = {"fmt.asprintf", "fmt.bsprintf", "strings.concat", "strings.join"}
+STRING_TEXT_TYPES = {"string_fragment", "string_content", "interpreted_string_literal_content", "raw_string_literal_content"}
+# calls that put values into a string: Hare, C and Go
+STRING_BUILDERS = {"fmt.asprintf", "fmt.bsprintf", "strings.concat", "strings.join", "sprintf", "snprintf", "asprintf", "strcat", "fmt.Sprintf"}
 
 def literal_text(node):
     """The text pieces of the string literals inside a node, in source order."""
@@ -13,7 +14,7 @@ def literal_text(node):
     return " ".join(piece.text.decode() for piece in pieces)
 
 def is_built_from_parts(node):
-    """Template strings with ${}, "a" + b, Rust format!, and Hare's fmt::asprintf and strings::concat."""
+    """Template strings with ${}, "a" + b, Rust format!, and calls like Hare's strings::concat, C's sprintf and Go's fmt.Sprintf."""
 
     if node.type == "template_string":
         return any(child.type == "template_substitution" for child in node.children)
@@ -21,8 +22,8 @@ def is_built_from_parts(node):
     if node.type == "binary_expression":
         return node.child_by_field_name(OPERATOR_FIELD).text == b"+"
 
-    if node.type == "call_expression" and node.child_by_field_name("callee") is not None:
-        return dotted(node.child_by_field_name("callee").text.decode()) in HARE_STRING_BUILDERS
+    if node.type == "call_expression":
+        return dotted(called_name(node).text.decode()) in STRING_BUILDERS
 
     macro = node.child_by_field_name("macro")
 

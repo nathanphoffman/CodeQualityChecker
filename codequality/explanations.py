@@ -27,6 +27,8 @@ LANGUAGE_NOTES = {
         "rust": "`self`, `&self` and `&mut self` are not counted as arguments.",
         "typescript": "`this` is not counted as an argument. Arrow functions stored in a variable count as functions.",
         "hare": "Hare has no `self`, so every parameter counts as an argument.",
+        "c": "`f(void)` has no arguments. Functions are found by a name followed by `(` at the start of a line, so prototypes in headers are skipped.",
+        "go": "A receiver like `(s *Server)` is not counted as an argument. Function literals are not counted as functions.",
         "deor": "A `macro` (and `unsafe_macro`) counts as a function: its lines and parameters are measured the same way. `macro_run name` counts as a call when measuring call depth, so fn -> macro is 2 levels and fn -> macro -> fn is 3.",
     },
     "RULE-03": {
@@ -34,6 +36,8 @@ LANGUAGE_NOTES = {
         "rust": "Clever means regex, long iterator chains (map, filter, fold...) and nested closures.",
         "typescript": "Clever means regex, long array chains (map, filter, reduce...), nested closures and chained ternaries.",
         "hare": "Hare has no regex, closures or method chains, so only bit tricks (`<<`, `>>`, `^`) are counted.",
+        "c": "Clever means `#define` macros that take arguments, `goto`, chained ternaries and bit tricks (`<<`, `>>`, `^`).",
+        "go": "Clever means regexp, `reflect`, `unsafe`, `goto`, nested function literals and bit tricks (`<<`, `>>`, `^`).",
         "deor": "Deor has no clever constructs of its own, so only the Rust inside `rust` blocks is checked. `unsafe_macro` is just a macro whose variables leak into the code that runs it, and is not treated as clever.",
     },
     "RULE-05": {
@@ -44,12 +48,16 @@ LANGUAGE_NOTES = {
         "rust": "A test is a function with a `#[test]` (or `#[tokio::test]`) attribute.",
         "typescript": "A test is an `it(...)` or `test(...)` call that is given a function.",
         "hare": "A test is a function with the `@test` attribute.",
+        "c": "C has no test marker, so a test is a function whose name starts with `test`.",
+        "go": "A test is a function whose name starts with `Test`. Files ending in `_test.go` count as tests and are left out of the other rules.",
         "deor": "A test is a function whose name starts with `test`, plus one for a file that states what it expects with `# expect:` or `# expect-error:` comments.",
     },
     "RULE-11": {
         "python": "Errors are raised with `raise` and handled with `try`/`except`. A handler is loud when it re-raises, uses the caught error, or logs/prints. Catching `Exception` and staying silent is the worst case. `contextlib.suppress` and `errors='ignore'` also hide errors.",
         "rust": "Errors are `Result` values. `?` and `Err(...)` count as error checks. A `match` arm on `Err(...)` is a catch and must do something: an empty `{}` is silent. `let _ = might_fail();` throws a result away and counts as swallowed.",
         "typescript": "Errors are raised with `throw` and handled with `try`/`catch` or `.catch(...)`. A catch is loud when it throws, logs, or uses the error. `.catch(() => {})` is silent.",
+        "c": "Errors are return values. A check for `NULL`, a negative result or `errno` is a catch and must do something: an empty `{}` is silent. `abort()` and `exit()` count as raising.",
+        "go": "Errors are values. `if err != nil` is a catch: an empty block is silent, while returning, calling something or panicking is loud. `_ = f()` throws a result away. `panic`, `errors.New` and `fmt.Errorf` count as raising.",
         "hare": "Errors are values in a tagged union. `!` (crash on error) and `?` (pass it up) count as error checks. A `match` case on an error type is a catch and must do something: a case that only yields `void` is silent.",
         "deor": "Deor has no exceptions. It registers error handling with validator types (`type Name(int val)` plus a rule that decides what is valid) and the checks on them, plus `crash(...)`. Counted as error checks: `crash(...)`, `if x is not valid` (the failure path is under the check) and `if x is valid ... else` (the failure path is the `else`). A failure path is loud when it prints, crashes or returns. An `if x is valid` with no `else` counts as a check but is never marked swallowed. `type` declarations and `avow` (forced unwrap) are not counted by themselves.",
     },
@@ -58,6 +66,8 @@ LANGUAGE_NOTES = {
         "rust": "Comments start with `//` or `/*`. Attributes like `#[derive]` are code, not comments.",
         "typescript": "Comments start with `//` or `/*`.",
         "hare": "Comments start with `//`. `@test` and other attributes are part of the function line.",
+        "c": "Comments start with `//` or `/*`. `#include` and `#define` lines are code, not comments.",
+        "go": "Comments start with `//` or `/*`.",
         "deor": "Comments start with `#` or `//`.",
     },
 }

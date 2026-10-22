@@ -1,9 +1,9 @@
 from ..deor.deor_handlers import deor_handlers
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import DEOR, HARE, RUST, TYPESCRIPT
+from ....source_code import C_LANG, DEOR, GO, HARE, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
-from ....language_parsers.tree_sitter.use_names import dotted
+from ....language_parsers.tree_sitter.use_names import called_name, dotted
 from ..shared.Error_Handler import Error_Handler
 from ..shared.limits import SILENT_CALLBACK_BODIES
 from ..python.python_handlers import is_loud_name
@@ -11,6 +11,11 @@ from ..python.python_handlers import is_loud_name
 ERR_CONSTRUCTOR = "Err"
 HARE_ERROR_TYPE = "error"
 HARE_SPEAKING_NODES = {"call_expression", "return_statement", "error_assertion_expression", "try_expression"}
+SPEAKING_NODES = {"call_expression", "return_statement", "goto_statement"}  # C and Go: a failed check that calls, returns or jumps does something
+GO_RAISING_CALLS = {"panic", "errors.New", "fmt.Errorf"}
+C_STOPPING_CALLS = {"abort", "exit"}
+C_FAILURE_WORDS = ("NULL", "<0", "==-1", "errno")  # in a condition with its spaces removed
+GO_ERROR_WORD = "err"
 SILENT_RUST_BODIES = {"block", "unit_expression"}  # `{}` and `()`
 
 def line_of(node):
@@ -102,6 +107,51 @@ def hare_handlers(root):
 
     return found
 
+def go_error_check(node):
+    """An Error_Handler for `if err != nil { ... }`, or None for any other `if`."""
+    condition = node.child_by_field_name("condition")
+
+    if condition is None or condition.type != "binary_expression" or condition.child_by_field_name("operator").text != b"!=":
+        return None
+
+    if condition.child_by_field_name("right").text != b"nil" or GO_ERROR_WORD not in condition.child_by_field_name("left").text.decode().lower():
+        return None
+
+    speaks = any(inner.type in SPEAKING_NODES for inner in walk(node.child_by_field_name("consequence")))
+
+    return Error_Handler(line_of(node), True, speaks, True)
+
+def go_handlers(root):
+    """`if err != nil` is a catch. `_ = f()` throws a result away, and panic or a new error raises one."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "if_statement":
+            check = go_error_check(node)
+
+            found += [check] if check else []
+        elif node.type == "assignment_statement" and set(squashed(node.child_by_field_name("left").text.decode())) <= {"_", ","}:
+            found.append(Error_Handler(line_of(node), True, False, True))
+        elif node.type == "call_expression" and dotted(called_name(node).text.decode()) in GO_RAISING_CALLS:
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
+def c_handlers(root):
+    """C reports failure through return values: a check for NULL, a negative result or errno is a catch."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "if_statement":
+            condition = squashed(node.child_by_field_name("condition").text.decode())
+            speaks = any(inner.type in SPEAKING_NODES for inner in walk(node.child_by_field_name("consequence")))
+
+            found += [Error_Handler(line_of(node), True, speaks, True)] if any(word in condition for word in C_FAILURE_WORDS) else []
+        elif node.type == "call_expression" and called_name(node).text.decode() in C_STOPPING_CALLS:
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
 def deor_error_handlers(source):
     """Deor crashes and failed-validity checks, plus the handlers in its `rust` blocks (read as Rust, lines moved back)."""
     found = [Error_Handler(*fields) for fields in deor_handlers(source)]
@@ -118,6 +168,6 @@ def tree_handlers(source, language):
 
     root = parse_tree(source, language)
 
-    handlers = {RUST: rust_handlers, HARE: hare_handlers}
+    handlers = {RUST: rust_handlers, HARE: hare_handlers, C_LANG: c_handlers, GO: go_handlers}
 
     return handlers.get(language, typescript_handlers)(root)

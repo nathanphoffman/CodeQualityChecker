@@ -8,6 +8,8 @@ dependencies = [
     "tree-sitter-rust>=0.24,<0.25",
     "tree-sitter-typescript>=0.23,<0.24",
     "tree-sitter-hare",  # vendored: the grammar has no PyPI release
+    "tree-sitter-c>=0.24,<0.25",
+    "tree-sitter-go>=0.25,<0.26",
 ]
 
 [tool.setuptools.packages.find]

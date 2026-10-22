@@ -1,6 +1,6 @@
 import re
 
-from ....source_code import RUST
+from ....source_code import C_LANG, RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ...rule_09_comment_why.shared.extract.line_helpers import COMMENT_MARKERS
@@ -9,7 +9,7 @@ from ..shared.Spacing_Gaps import Spacing_Gaps
 
 # Words that start a control statement or a definition. Python's classes are Rust's structs, enums, traits and impls.
 CONTROL_WORDS = {"if", "for", "while", "switch", "match", "try", "return", "break", "continue", "throw", "loop", "do", "case",
-                 "default", "yield", "fn", "function", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules"}
+                 "default", "yield", "fn", "function", "func", "select", "defer", "go", "goto", "typedef", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules"}
 
 # Clever on purpose: finds a function stored in a variable, like `const f = (a, b): number =>` or `export const f = async x =>`.
 #   an optional "export", then const, let or var, then the name
@@ -56,6 +56,11 @@ def rust_tail_lines(source):
 
     return lines
 
+def c_function_lines(source):
+    """Lines where a C function starts. C writes `int name(...)` with no keyword, so the text patterns can't tell it from a call."""
+
+    return {node.start_point.row + 1 for node in walk(parse_tree(source, C_LANG)) if node.type == "function_definition"}
+
 def line_above(lines, index):
     """The text of the line above this one, after skipping the comments attached to it. Also where to put a blank line."""
 
@@ -91,7 +96,7 @@ def text_gaps(source, language):
     """A Spacing_Gaps for a Rust or TypeScript file, read as text: braces and keywords instead of a syntax tree."""
     lines, control_missing, block_missing = source.splitlines(), [], []
     control_seen, block_total = set(), 0
-    tails = rust_tail_lines(source) if language == RUST else set()
+    tails = {RUST: rust_tail_lines, C_LANG: c_function_lines}.get(language, lambda _: set())(source)
 
     for index, line in enumerate(lines):
         text = line.strip()

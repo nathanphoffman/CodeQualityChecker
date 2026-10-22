@@ -5,7 +5,7 @@ from ....language_parsers.deor.tree import parse_deor
 from .Function_Info import Function_Info
 from ..python.python_functions import python_functions
 from ....source_code import DEOR, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
-from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES
+from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES, VOID_PARAMETERS
 
 OPENERS = "([{<"
 CLOSERS = ")]}>"
@@ -14,11 +14,15 @@ CLOSERS = ")]}>"
 # Each pattern captures the function name and the "(" that opens its arguments.
 #   rust: `fn name<T>(`
 #   hare: `fn name(`
+#   go: `func name(` and methods like `func (s *Server) name(`
+#   c: a name followed by "(" at the start of a line, with an optional return type in front (prototypes have no body, so they are dropped)
 #   typescript: `function name(`, `name = (` / `name: Type = async (` for arrows,
 #   and an indented `name(` for class methods (control keywords are filtered out later).
 START_PATTERNS = {
     "rust": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()")],  # "fn", a name, optional <generics>, then the "(" opening the arguments
 
+    "go": [re.compile(r"\bfunc\s+(?:\([^)]*\)\s*)?(?P<name>\w+)\s*(?:\[[^\]]*\]\s*)?(?P<paren>\()")],  # "func", an optional (receiver), a name, optional [type parameters], then the "(" opening the arguments
+    "c": [re.compile(r"^(?:[A-Za-z_][\w \t\*]*?[ \t\*])?(?P<name>[A-Za-z_]\w*)[ \t]*(?P<paren>\()", re.M)],  # an optional return type, a name, then "(" with nothing indented before it
     "hare": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?P<paren>\()")],  # "fn", a name, then the "(" opening the arguments
 
     "typescript": [
@@ -47,7 +51,7 @@ def count_arguments(argument_text):
     cleaned = argument_text.replace("=>", "  ").replace("->", "  ")
     pieces = [piece.strip() for piece in split_top_level(cleaned)]
 
-    return len([piece for piece in pieces if piece and not piece.startswith(IGNORED_ARGUMENT_PREFIXES)])
+    return len([piece for piece in pieces if piece and piece != VOID_PARAMETERS and not piece.startswith(IGNORED_ARGUMENT_PREFIXES)])
 
 def body_start(text, close_paren):
     """Index of the "{" opening the body, or None for bodiless declarations and expression arrows."""

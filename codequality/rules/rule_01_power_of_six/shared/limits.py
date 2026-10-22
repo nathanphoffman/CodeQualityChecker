@@ -24,4 +24,5 @@ FALLOFF_PER_STEP = 0.1
 CONTROL_KEYWORDS = {"if", "for", "while", "switch", "catch", "return", "match", "loop", "else", "with"}
 
 # Receivers don't count as arguments.
+VOID_PARAMETERS = "void"  # C writes `f(void)` for a function with no arguments
 IGNORED_ARGUMENT_PREFIXES = ("self", "&self", "&mut self", "mut self", "this:")

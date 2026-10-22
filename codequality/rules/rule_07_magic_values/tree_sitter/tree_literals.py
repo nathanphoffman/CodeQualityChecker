@@ -4,17 +4,21 @@ from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ..shared.Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
-NUMBER_TYPES = {"number", "float", "integer_literal", "float_literal"}
-STRING_TYPES = {"string", "string_literal"}
+NUMBER_TYPES = {"number", "float", "integer_literal", "float_literal", "number_literal", "int_literal", "imaginary_literal"}
+STRING_TYPES = {"string", "string_literal", "interpreted_string_literal", "raw_string_literal"}
 
 # Code that already names or defines its values: Rust consts, statics, enum values and attributes, and Hare defs.
 NAMED_TYPES = {"const_item", "static_item", "enum_variant", "attribute_item", "enum_assignment",
-               "constant_declaration", "enum_field", "declaration_attribute", "function_attribute"}  # the last four are Hare
+               "constant_declaration", "enum_field", "declaration_attribute", "function_attribute",  # Hare
+               "preproc_def", "preproc_function_def", "enumerator",  # C
+               "const_spec"}  # Go
 
 # Strings that are module paths or types, not values: imports, and `"a" | "b"` types.
-NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", "literal_type", "jsx_attribute"}
+NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", "literal_type", "jsx_attribute",
+                     "preproc_include", "import_spec", "field_declaration"}  # #include paths, Go imports and Go struct tags
 
-RUST_NUMBER_SUFFIXES = ("usize", "isize", "u128", "i128", "u16", "u32", "u64", "i16", "i32", "i64", "f32", "f64", "u8", "i8", "z", "u", "i")  # "z", "u" and "i" are Hare
+NUMBER_SUFFIXES = ("usize", "isize", "u128", "i128", "u16", "u32", "u64", "i16", "i32", "i64", "f32", "f64", "u8", "i8", "z", "u", "i",  # Hare
+                   "ull", "llu", "ul", "lu", "ll", "l", "f")  # C
 
 def number_value(text):
     """The number written in the source, or None when it can't be read. Handles 1_000, 0xFF, 2u32 and 10n."""
@@ -23,7 +27,7 @@ def number_value(text):
     if not cleaned.startswith("0x"):
         cleaned = cleaned.removesuffix("n")
 
-        for suffix in RUST_NUMBER_SUFFIXES:
+        for suffix in NUMBER_SUFFIXES:
             cleaned = cleaned.removesuffix(suffix)
 
     try:

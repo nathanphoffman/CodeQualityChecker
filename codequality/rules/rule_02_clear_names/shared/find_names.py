@@ -5,7 +5,7 @@ from ..python.python_names import python_names
 from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD
-from ....language_parsers.tree_sitter.tree_walk import bound_node, identifiers_in, walk
+from ....language_parsers.tree_sitter.tree_walk import bound_node, declarator_name, identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".
@@ -54,6 +54,37 @@ def parameter_names(source, language):
 
     return names
 
+# C and Go are read entirely from the syntax tree: node type -> the field holding the names it declares.
+# Go lists several names in one field (`a, b := ...`), and C declarators wrap the name (`*name`, `name[8]`).
+DECLARATION_FIELDS = {
+    "c": {"function_definition": "declarator", "declaration": "declarator", "init_declarator": "declarator",
+          "parameter_declaration": "declarator", "field_declaration": "declarator", "type_definition": "declarator",
+          "enumerator": "name", "struct_specifier": "name", "enum_specifier": "name", "union_specifier": "name",
+          "preproc_def": "name", "preproc_function_def": "name"},
+    "go": {"function_declaration": "name", "method_declaration": "name", "var_spec": "name", "const_spec": "name",
+           "type_spec": "name", "parameter_declaration": "name", "field_declaration": "name", "short_var_declaration": "left",
+           "range_clause": "left"},
+}
+
+def declared_in(node):
+    if node.type == "expression_list":
+        return [part.text.decode() for part in node.named_children if part.type == "identifier"]
+
+    found = declarator_name(node)
+
+    return [found.text.decode()] if found else []
+
+def declared_names(source, language):
+    names = []
+
+    for node in walk(parse_tree(source, language)):
+        field = DECLARATION_FIELDS[language].get(node.type)
+
+        for declared in node.children_by_field_name(field) if field else []:
+            names += declared_in(declared)
+
+    return names
+
 def find_names(source, language):
     # Python isn't in NAME_PATTERNS: its parser finds names exactly, so no patterns are needed.
     if language == PYTHON:
@@ -61,6 +92,9 @@ def find_names(source, language):
 
     if language == DEOR:
         return deor_names(source)
+
+    if language in DECLARATION_FIELDS:
+        return [name for name in declared_names(source, language) if name != "_"]
 
     text = blank_out_text(source)
     names = []

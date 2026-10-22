@@ -6,7 +6,7 @@ from ....language_parsers.tree_sitter.tree_functions import function_name, state
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Function_Shape import Function_Shape, Statement_Shape
 
-BLOCK_TYPES = {"block", "statement_block"}
+BLOCK_TYPES = {"block", "statement_block", "compound_statement"}
 KEPT_NAME_TYPES = {"field_identifier", "property_identifier"}  # method and field names stay, like in Python
 
 def label_of(node, language):

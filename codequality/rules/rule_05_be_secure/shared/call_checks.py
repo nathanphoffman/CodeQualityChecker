@@ -61,6 +61,7 @@ SHELLS = ('"sh"', '"bash"', '"zsh"', '"cmd"', '"powershell"')
 CALL_CHECKS = [
     Call_Check("RULE-05-SQL-STRINGS", "SQL is not built by joining strings", "error", {
         "python": SQL_METHODS, "rust": SQL_METHODS, "typescript": SQL_METHODS, "hare": SQL_METHODS,
+        "c": SQL_METHODS, "go": SQL_METHODS,
     }),
 
     Call_Check("RULE-05-RUN-STRINGS", "No eval or shell commands built from strings", "error", {
@@ -72,6 +73,8 @@ CALL_CHECKS = [
 
         "rust": (Entry("libc.system"),) + tuple(Entry("Command.new", (shell,)) for shell in SHELLS),
         "hare": tuple(Entry(f"exec.{name}", (shell,)) for name in ("cmd", "cmdv") for shell in SHELLS),
+        "c": (Entry("system"), Entry("popen")),
+        "go": tuple(Entry(f"exec.{name}", (shell,)) for name in ("Command", "CommandContext") for shell in SHELLS),
     }),
 
     Call_Check("RULE-05-UNSAFE-LOADING", "No loading of untrusted data that can run code", "error", {
@@ -82,6 +85,8 @@ CALL_CHECKS = [
 
         "rust": (),
         "hare": (),
+        "c": (),
+        "go": (),
     }),
 
     Call_Check("RULE-05-WEAK-HASH", "No MD5 or SHA1 hashing", "warn", {
@@ -89,6 +94,8 @@ CALL_CHECKS = [
         "typescript": hash_calls(("createHash", "crypto.createHash"), ("md5", "sha1")),
         "rust": (Entry("Md5.new"), Entry("md5.compute"), Entry("Sha1.new"), Entry("Sha1.digest")),
         "hare": (Entry("md5.md5"), Entry("sha1.sha1")),
+        "c": tuple(Entry(name) for name in ("MD5", "MD5_Init", "SHA1", "SHA1_Init", "EVP_md5", "EVP_sha1")),
+        "go": (Entry("md5.New"), Entry("md5.Sum"), Entry("sha1.New"), Entry("sha1.Sum")),
     }),
 
     Call_Check("RULE-05-WEAK-RANDOM", "Secrets are not made with ordinary random numbers", "warn", {
@@ -96,6 +103,8 @@ CALL_CHECKS = [
         "typescript": (Entry("Math.random"),),
         "rust": (Entry("rand.random"), Entry("rand.thread_rng"), Entry("thread_rng")),
         "hare": tuple(Entry(f"random.{name}") for name in ("init", "u32", "u64", "u32n", "u64n")),
+        "c": tuple(Entry(name) for name in ("rand", "srand", "random", "srandom", "drand48")),
+        "go": tuple(Entry(f"rand.{name}") for name in ("Int", "Intn", "Int63", "Int31", "Float64", "Seed")),
     }, line_words=SECRET_WORDS),
 
     Call_Check("RULE-05-SAFETY-OFF", "No turned-off certificate checks or left-on debug mode", "error", {
@@ -107,6 +116,8 @@ CALL_CHECKS = [
         "rust": (Entry(ANY_NAME, ("danger_accept_invalid_certs(true)",)),
                  Entry(ANY_NAME, ("danger_accept_invalid_hostnames(true)",))),
         "hare": (),
+        "c": (Entry("curl_easy_setopt", ("CURLOPT_SSL_VERIFYPEER,0",)), Entry("SSL_CTX_set_verify", ("SSL_VERIFY_NONE",))),
+        "go": (),
     }),
 
     Call_Check("RULE-05-RISKY-OUTPUT", "Little output that skips escaping, and little unsafe", "info", {
@@ -115,6 +126,8 @@ CALL_CHECKS = [
                        Entry("jsx.dangerouslySetInnerHTML"), Entry(ANY_NAME, (".insertAdjacentHTML(",))),
         "rust": (Entry("unsafe"),),
         "hare": (),
+        "c": tuple(Entry(name) for name in ("gets", "strcpy", "strcat", "sprintf", "vsprintf")),
+        "go": (Entry("unsafe.Pointer"), Entry("template.HTML"), Entry("template.JS")),
     }),
 
     Call_Check("RULE-05-USER-PATHS", "File paths are not built from user input", "info", {
@@ -125,6 +138,8 @@ CALL_CHECKS = [
         "rust": (Entry("Path.new"), Entry("PathBuf.from"), Entry("File.open"), Entry("File.create"),
                  Entry("fs.read_to_string"), Entry("fs.read")),
         "hare": tuple(Entry(f"os.{name}") for name in ("open", "create", "mkdir", "remove", "rename")),
+        "c": tuple(Entry(name) for name in ("fopen", "open", "opendir", "remove", "unlink", "rename")),
+        "go": tuple(Entry(f"os.{name}") for name in ("Open", "OpenFile", "ReadFile", "WriteFile", "Create", "Remove")) + (Entry("filepath.Join"),),
     }, names_words=INPUT_WORDS),
 
     Call_Check("RULE-05-SECRET-LOGGING", "Secrets are not printed or logged", "info", {
@@ -132,6 +147,8 @@ CALL_CHECKS = [
         "typescript": log_calls(("console", "logger"), LOG_METHODS),
         "rust": tuple(Entry(name) for name in ("println", "eprintln", "print", "eprint", "dbg", "info", "warn", "error", "debug", "trace")),
         "hare": tuple(Entry(f"fmt.{name}") for name in ("print", "println", "printf", "printfln", "error", "errorln", "errorf", "errorfln")),
+        "c": tuple(Entry(name) for name in ("printf", "fprintf", "puts", "syslog")),
+        "go": tuple(Entry(f"{package}.{name}") for package in ("fmt", "log") for name in ("Print", "Println", "Printf", "Fatal", "Fatalf", "Panic", "Panicf")),
     }, names_words=SECRET_WORDS),
 ]
 

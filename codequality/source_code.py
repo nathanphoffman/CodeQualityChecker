@@ -1,10 +1,12 @@
 import re
 import warnings
 
-PYTHON, RUST, TYPESCRIPT, DEOR, HARE = "python", "rust", "typescript", "deor", "hare"
+PYTHON, RUST, TYPESCRIPT, DEOR, HARE, C_LANG, GO = "python", "rust", "typescript", "deor", "hare", "c", "go"
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
-SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE}
+SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE, ".c": C_LANG, ".h": C_LANG,
+                   ".go": GO}
 TSCONFIG_FILE = "tsconfig.json"
+GO_TEST_SUFFIX = "_test.go"  # Go keeps its tests beside the code, in files named like this
 NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes that find functions and declarations
 
 # Tests may fake secrets, call unsafe things and repeat themselves on purpose, so some rules only judge real code.
@@ -40,7 +42,8 @@ def line_number_at(text, index):
 def non_test_files(project, suffixes):
     """Project files with these suffixes, outside test folders."""
 
-    return [path for path in project.files(*suffixes) if not TEST_FOLDERS & set(path.relative_to(project.root).parts)]
+    return [path for path in project.files(*suffixes)
+            if not TEST_FOLDERS & set(path.relative_to(project.root).parts) and not path.name.endswith(GO_TEST_SUFFIX)]
 
 def read_source(path):
     """The text of a file. A file that is not valid UTF-8 is skipped with a warning, not half-read."""

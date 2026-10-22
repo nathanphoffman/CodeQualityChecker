@@ -1,20 +1,32 @@
-from ....source_code import HARE, RUST
+from ....source_code import C_LANG, GO, HARE, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
-from ....language_parsers.tree_sitter.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import declarator_name, walk
 from ..shared.limits import PRIVATE_PREFIX
 from .names import name_counts
 
-def declared_variable(node, language):
-    """The name node of `let x = ...` (Rust and Hare) or `const x = ...` (TypeScript), or None for other nodes."""
+def with_value(node, field):
+    """The name field of a declaration that gives the variable a value, or None when it is left empty."""
 
-    if language == RUST and node.type == "let_declaration" and node.child_by_field_name("value") is not None:
-        name = node.child_by_field_name("pattern")
-    elif language == HARE and node.type == "let_declaration" and node.named_children:
-        name = node.named_children[0]
-    elif language not in (RUST, HARE) and node.type == "variable_declarator" and node.child_by_field_name("value") is not None:
-        name = node.child_by_field_name("name")
-    else:
-        return None
+    return node.child_by_field_name(field) if node.child_by_field_name("value") is not None else None
+
+def first_named(node):
+    return node.named_children[0] if node.named_children else None
+
+# Each language: the declaration node types that create a variable -> how to find the name node.
+# Hare and Go's `a, b := ...` only follow the first name; C looks inside wrappers like `*name`.
+VARIABLE_FINDERS = {
+    RUST: {"let_declaration": lambda node: with_value(node, "pattern")},
+    TYPESCRIPT: {"variable_declarator": lambda node: with_value(node, "name")},
+    HARE: {"let_declaration": first_named},
+    C_LANG: {"init_declarator": lambda node: declarator_name(node.child_by_field_name("declarator"))},
+    GO: {"short_var_declaration": lambda node: first_named(node.child_by_field_name("left")),
+         "var_spec": lambda node: with_value(node, "name")},
+}
+
+def declared_variable(node, language):
+    """The name node of `let x = ...` (Rust and Hare), `const x = ...` (TypeScript), `int x = ...` (C) or `x := ...` (Go), or None for other nodes."""
+    finder = VARIABLE_FINDERS[language].get(node.type)
+    name = finder(node) if finder else None
 
     return name if name is not None and name.type == "identifier" else None
 

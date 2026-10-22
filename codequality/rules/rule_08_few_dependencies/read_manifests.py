@@ -3,7 +3,7 @@ import tomllib
 
 from ...source_code import read_source
 
-PYTHON_PACKAGE, NPM_PACKAGE, RUST_CRATE = "pip", "npm", "cargo"
+PYTHON_PACKAGE, NPM_PACKAGE, RUST_CRATE, GO_MODULE = "pip", "npm", "cargo", "go"
 DEPENDENCIES = "dependencies"
 PYTHON_CORE_NAME = "python"  # Poetry lists the Python version among its dependencies
 
@@ -46,8 +46,28 @@ def table_dependencies(project, filename, load, ecosystem):
 
     return {(ecosystem, name) for name in load(read_source(path)).get(DEPENDENCIES, {})}
 
+def go_dependencies(project):
+    """Modules in go.mod's `require` lines, one-line or in a ( ) block. Ones marked `// indirect` are pulled in by others."""
+    path = project.root / "go.mod"
+    found, in_block = set(), False
+
+    if not path.exists():
+        return found
+
+    for line in read_source(path).splitlines():
+        text = line.strip()
+        in_block = in_block or text == "require ("
+
+        if text == ")":
+            in_block = False
+        elif in_block or text.startswith("require "):
+            fields = text.removeprefix("require ").split()
+            found |= {(GO_MODULE, fields[0])} if fields and "// indirect" not in text and fields[0] != "require" else set()
+
+    return found
+
 def project_dependencies(project):
     """{(where it comes from, name)} for every direct runtime dependency. Dev-only tools are not counted."""
     node = table_dependencies(project, "package.json", json.loads, NPM_PACKAGE)
 
-    return python_dependencies(project) | node | table_dependencies(project, "Cargo.toml", tomllib.loads, RUST_CRATE)
+    return python_dependencies(project) | node | table_dependencies(project, "Cargo.toml", tomllib.loads, RUST_CRATE) | go_dependencies(project)

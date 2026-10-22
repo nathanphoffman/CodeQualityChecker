@@ -8,7 +8,8 @@ from ....source_code import TYPESCRIPT, line_number_at
 #   iife:       a function defined and called at once. "(" must not follow a name, or it is just a call
 #               whose first argument is an arrow function
 #   bit_tricks: shifts and xor with spaces around them (unspaced ones are usually generics like Vec<Vec<u8>>)
-#   macro/transmute: Rust metaprogramming and type punning
+#   macro/transmute: Rust metaprogramming and type punning, and C macros that take arguments
+#   reflect/unsafe/goto: Go and C ways around the type system and the normal flow of the code
 TEXT_PATTERNS = {
     "rust": {
         "regex": r"\bRegex(?:Builder|Set)?::new\s*\(|\bregex!\s*\(",
@@ -20,6 +21,20 @@ TEXT_PATTERNS = {
     },
 
     "hare": {"bit_tricks": r"\s(?:<<|>>|\^)\s"},
+
+    "c": {
+        "macro": r"(?m)^[ \t]*#[ \t]*define[ \t]+\w+\(",  # a #define that takes arguments
+        "goto": r"\bgoto\b",
+        "bit_tricks": r"\s(?:<<|>>|\^)\s",
+    },
+
+    "go": {
+        "regex": r"\bregexp\.(?:MustCompile|Compile)\s*\(",
+        "reflect": r"\breflect\.\w+",
+        "unsafe": r"\bunsafe\.\w+",
+        "goto": r"\bgoto\b",
+        "bit_tricks": r"\s(?:<<|>>|\^|&\^)\s",
+    },
 
     "typescript": {
         "regex": r"\bnew\s+RegExp\s*\(",

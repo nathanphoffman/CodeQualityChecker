@@ -4,9 +4,9 @@ from .tree_walk import squashed
 NAMING_FIELDS = {"new_expression": "constructor", "macro_invocation": "macro"}
 
 def dotted(text):
-    """`a?.b` and `a::b` both become `a.b`, so one name works across languages."""
+    """`a?.b`, `a::b` and `a->b` all become `a.b`, so one name works across languages."""
 
-    return squashed(text).replace("?.", ".").replace("::", ".")
+    return squashed(text).replace("?.", ".").replace("::", ".").replace("->", ".")
 
 def assignment_name(node):
     """`element.innerHTML = x` is named `assign.innerHTML`. Plain variable assignments get no name."""

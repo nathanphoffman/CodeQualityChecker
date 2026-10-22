@@ -1,6 +1,6 @@
 from ....language_parsers.deor.rust_blocks import rust_only_source
 from ..python.python_clever import python_clever
-from ....source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, read_source
+from ....source_code import C_LANG, DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, read_source
 from .Clever_Hit import Clever_Hit
 from ..tree_sitter.clever_patterns import pattern_hits
 from .find_structures import long_chain_hits, nested_closure_hits, ternary_hits
@@ -27,7 +27,7 @@ def clever_constructs(source, language):
     text = blank_out_text(source)
     found = pattern_hits(source, text, language) + long_chain_hits(text, language) + nested_closure_hits(text, language)
 
-    return found + ternary_hits(text) if language == TYPESCRIPT else found
+    return found + ternary_hits(text) if language in (TYPESCRIPT, C_LANG) else found
 
 def find_clever(source, language, file_label):
     lines = source.splitlines() or [""]

@@ -6,7 +6,7 @@ import warnings
 from pathlib import Path
 
 from .models import Project
-from .source_code import DEOR, HARE, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
+from .source_code import C_LANG, DEOR, GO, HARE, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
 
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
@@ -31,6 +31,8 @@ def detect(root: Path, exclude: list[str] | None = None) -> Project:
     _detect_ts(project)
     _detect_deor(project)
     _detect_hare(project)
+    _detect_c(project)
+    _detect_go(project)
 
     return project
 
@@ -43,6 +45,14 @@ def _detect_python(project: Project) -> None:
 def _detect_deor(project: Project) -> None:
     if project.files(".deor"):
         project.languages.add(DEOR)
+
+def _detect_c(project: Project) -> None:
+    if project.files(".c", ".h"):
+        project.languages.add(C_LANG)
+
+def _detect_go(project: Project) -> None:
+    if (project.root / "go.mod").exists() or project.files(".go"):
+        project.languages.add(GO)
 
 def _detect_hare(project: Project) -> None:
     if project.files(".ha"):

@@ -24,6 +24,16 @@ def bound_node(node, field):
 
     return node.child_by_field_name(field)
 
+DECLARED_NAME_TYPES = {"identifier", "type_identifier", "field_identifier"}
+
+def declarator_name(node):
+    """The name at the bottom of a C declarator like `*name`, `name[8]` or `name(int a)`. Go names are already at the bottom."""
+
+    while node is not None and node.type not in DECLARED_NAME_TYPES:
+        node = node.child_by_field_name("declarator")
+
+    return node
+
 def squashed(text):
     """Source text with all whitespace removed, so `verify = False` and `verify=False` compare equal."""
 
