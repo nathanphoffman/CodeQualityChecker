@@ -8,7 +8,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
-IGNORED_FOLDERS = {"node_modules", "target", ".git", "dist", "build", ".next", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+IGNORED_FOLDERS = {"node_modules", "target", ".git", "dist", "build", ".next", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+                   "obj"}  # obj is where .NET puts generated code
 MAX_LISTED_OFFENDERS = 5
 SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO = "error", "warn", "info"
 SEVERITY_WEIGHTS = {SEVERITY_ERROR: 3, SEVERITY_WARN: 2, SEVERITY_INFO: 1}

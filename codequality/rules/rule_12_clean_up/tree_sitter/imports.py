@@ -1,6 +1,6 @@
 import re
 
-from ....source_code import GO, HARE, RUST
+from ....source_code import CSHARP, FORTRAN, GO, HARE, MOJO, RUST
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
@@ -64,9 +64,37 @@ def go_bound_names(spec):
 
     return [re.sub(r"\.v\d+$|-go$", "", last)]  # gopkg.in/yaml.v3 is used as yaml
 
+def mojo_bound_names(statement):
+    """Names from `import a.b`, `import a as b` and `from m import x, y as z`: the alias if there is one, else the first name."""
+    module = statement.child_by_field_name("module")
+    names = []
+
+    for child in [child for child in statement.named_children if child != module]:
+        alias = child.child_by_field_name("alias")
+        named = child.child_by_field_name("name") or child
+
+        if child.type == "aliased_import":
+            names.append((alias or named.named_children[0]).text.decode())
+        elif child.type == "dotted_name":
+            names.append(child.named_children[0].text.decode())
+
+    return names
+
+def csharp_bound_names(directive):
+    """Only `using Alias = Some.Namespace;` makes a name to look for. A plain `using System;` brings in types, not a name."""
+    alias = directive.child_by_field_name("name")
+
+    return [alias.text.decode()] if alias is not None else []
+
+def fortran_bound_names(statement):
+    """Names from `use m, only: a, b`. A `use m` with no list brings in everything, so there is no name to look for."""
+    items = [child for child in statement.children if child.type == "included_items"]
+
+    return [name.text.decode().lower() for item in items for name in item.named_children if name.type == "identifier"]
+
 def tree_imports(root, lines, language):
     """(imported names, line numbers of the unused ones)."""
-    used = counts_outside_imports(root)
+    used = counts_outside_imports(root, language)
     total, unused = 0, []
 
     for node in walk(root):
@@ -78,7 +106,8 @@ def tree_imports(root, lines, language):
         if any(child.type == PUBLIC_MARKER for child in node.children):
             continue
 
-        bound_names = {RUST: rust_bound_names, HARE: hare_bound_names, GO: go_bound_names}
+        bound_names = {RUST: rust_bound_names, HARE: hare_bound_names, GO: go_bound_names, MOJO: mojo_bound_names, FORTRAN: fortran_bound_names,
+                   CSHARP: csharp_bound_names}
         names = bound_names.get(language, typescript_bound_names)(node)
         total += len(names)
         unused += [line for name in names if used[name] <= 0]

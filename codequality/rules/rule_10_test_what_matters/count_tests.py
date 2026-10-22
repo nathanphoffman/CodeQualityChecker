@@ -3,7 +3,7 @@ import ast
 from ...language_parsers.python.parse_python import parse_python
 from ...language_parsers.deor.declarations import declarations_in
 from ...language_parsers.deor.tree import parse_deor
-from ...source_code import C_LANG, DEOR, GO, HARE, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
+from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from ...language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
 from ...language_parsers.tree_sitter.tree_functions import function_name
@@ -17,6 +17,7 @@ DEOR_EXPECTATION = "expect"  # a comment starting "expect:" or "expect-error:" i
 RUST_TEST_ATTRIBUTE_END = "test]"  # #[test] and #[tokio::test], but not #[cfg(test)]
 HARE_TEST_ATTRIBUTE = "@test"
 GO_TEST_PREFIX = "Test"  # func TestAdd(t *testing.T)
+CSHARP_TEST_ATTRIBUTES = {"Fact", "Theory", "Test", "TestCase", "TestMethod", "DataTestMethod"}  # xUnit, NUnit and MSTest
 
 def count_python_tests(source):
     functions = [node for node in ast.walk(parse_python(source)) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
@@ -48,10 +49,23 @@ def count_named_tests(source, language, prefix):
     """Functions whose name starts with this prefix: C has no test attribute, so `test_` is the usual habit, and Go's tools look for `Test`."""
     functions = [node for node in walk(parse_tree(source, language)) if node.type in FUNCTION_TYPES[language]]
 
-    return len([function for function in functions if function_name(function).startswith(prefix)])
+    return len([function for function in functions if function_name(function).startswith(prefix)])  # Fortran names are lower-cased
 
 def count_c_tests(source):
     return count_named_tests(source, C_LANG, PYTHON_TEST_PREFIX)
+
+def count_csharp_tests(source):
+    """Methods carrying a test attribute like [Fact] or [TestMethod]. `Attribute` on the end of a name is optional in C#."""
+    attributes = [node for node in walk(parse_tree(source, CSHARP)) if node.type == "attribute" and node.parent.parent.type == "method_declaration"]
+    names = [attribute.child_by_field_name("name").text.decode().split(".")[-1].removesuffix("Attribute") for attribute in attributes]
+
+    return len([name for name in names if name in CSHARP_TEST_ATTRIBUTES])
+
+def count_mojo_tests(source):
+    return count_named_tests(source, MOJO, PYTHON_TEST_PREFIX)
+
+def count_fortran_tests(source):
+    return count_named_tests(source, FORTRAN, PYTHON_TEST_PREFIX)
 
 def count_go_tests(source):
     return count_named_tests(source, GO, GO_TEST_PREFIX)
@@ -75,7 +89,8 @@ def count_deor_tests(source):
 def count_tests_in_project(project):
     """Tests in every source file, test folders included."""
     counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests,
-                HARE: count_hare_tests, C_LANG: count_c_tests, GO: count_go_tests}
+                HARE: count_hare_tests, C_LANG: count_c_tests, GO: count_go_tests,
+                MOJO: count_mojo_tests, FORTRAN: count_fortran_tests, CSHARP: count_csharp_tests}
     total = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

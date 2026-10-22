@@ -1,11 +1,16 @@
 import json
+import re
 import tomllib
 
 from ...source_code import read_source
 
-PYTHON_PACKAGE, NPM_PACKAGE, RUST_CRATE, GO_MODULE = "pip", "npm", "cargo", "go"
+PYTHON_PACKAGE, NPM_PACKAGE, RUST_CRATE, GO_MODULE, FPM_PACKAGE, PIXI_PACKAGE, NUGET_PACKAGE = "pip", "npm", "cargo", "go", "fpm", "pixi", "nuget"
 DEPENDENCIES = "dependencies"
 PYTHON_CORE_NAME = "python"  # Poetry lists the Python version among its dependencies
+MOJO_TOOLCHAIN = {"max", "mojo", "modular", "python"}  # pixi lists the compiler itself among its dependencies
+PACKAGE_REFERENCE = re.compile(r'<PackageReference\s+(?:[^>]*?\s)?Include="([^"]+)"')  # a NuGet dependency in a .csproj file
+NUGET_TEST_TOOLS = {"Microsoft.NET.Test.Sdk", "xunit", "xunit.runner.visualstudio", "xunit.analyzers", "NUnit", "NUnit3TestAdapter", "MSTest.TestAdapter",
+                    "MSTest.TestFramework", "coverlet.collector", "coverlet.msbuild"}  # only used to run tests, so not counted
 
 def package_name(requirement):
     """`tree-sitter>=0.25,<0.27` -> `tree-sitter`. Names compare equal however - _ and . are written."""
@@ -66,8 +71,20 @@ def go_dependencies(project):
 
     return found
 
+def nuget_dependencies(project):
+    """Packages named in every .csproj file, without the packages that only run the tests."""
+    found = set()
+
+    for path in project.files(".csproj"):
+        found |= {(NUGET_PACKAGE, name) for name in PACKAGE_REFERENCE.findall(read_source(path)) if name not in NUGET_TEST_TOOLS}
+
+    return found
+
 def project_dependencies(project):
     """{(where it comes from, name)} for every direct runtime dependency. Dev-only tools are not counted."""
     node = table_dependencies(project, "package.json", json.loads, NPM_PACKAGE)
 
-    return python_dependencies(project) | node | table_dependencies(project, "Cargo.toml", tomllib.loads, RUST_CRATE) | go_dependencies(project)
+    pixi = {entry for filename in ("pixi.toml", "mojoproject.toml") for entry in table_dependencies(project, filename, tomllib.loads, PIXI_PACKAGE)}
+
+    return (python_dependencies(project) | node | table_dependencies(project, "Cargo.toml", tomllib.loads, RUST_CRATE) | go_dependencies(project)
+            | table_dependencies(project, "fpm.toml", tomllib.loads, FPM_PACKAGE) | nuget_dependencies(project) | {entry for entry in pixi if entry[1] not in MOJO_TOOLCHAIN})

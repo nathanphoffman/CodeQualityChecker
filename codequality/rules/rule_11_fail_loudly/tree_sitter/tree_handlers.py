@@ -1,6 +1,6 @@
 from ..deor.deor_handlers import deor_handlers
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import C_LANG, DEOR, GO, HARE, RUST, TYPESCRIPT
+from ....source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
 from ....language_parsers.tree_sitter.use_names import called_name, dotted
@@ -16,6 +16,11 @@ GO_RAISING_CALLS = {"panic", "errors.New", "fmt.Errorf"}
 C_STOPPING_CALLS = {"abort", "exit"}
 C_FAILURE_WORDS = ("NULL", "<0", "==-1", "errno")  # in a condition with its spaces removed
 GO_ERROR_WORD = "err"
+FORTRAN_STATUS_WORDS = ("iostat", "stat", "ios", "ierr", "err", "status", "info")  # what a Fortran status variable is usually called
+FORTRAN_SPEAKING_NODES = {"stop_statement", "subroutine_call", "print_statement", "write_statement"}
+FORTRAN_RETURN = b"return"
+CSHARP_BROAD_EXCEPTIONS = {"Exception", "System.Exception", "SystemException"}
+CSHARP_THROWING_NODES = {"throw_statement", "throw_expression"}
 SILENT_RUST_BODIES = {"block", "unit_expression"}  # `{}` and `()`
 
 def line_of(node):
@@ -152,6 +157,80 @@ def c_handlers(root):
 
     return found
 
+def mojo_except_handler(clause):
+    """An Error_Handler for `except e:`. Mojo has no error types in the clause, so every one catches anything."""
+    block = clause.named_children[-1]
+    bound = clause.named_children[0] if len(clause.named_children) > 1 else None
+    uses_error = bound is not None and bound.text.decode() in identifiers_in(block, MOJO)
+    speaks = any(node.type == "raise_statement" or (node.type == "call" and is_loud_name(dotted(called_name(node).text.decode())))
+                 for node in walk(block))
+
+    return Error_Handler(line_of(clause), True, speaks or uses_error, True)
+
+def mojo_handlers(root):
+    """`except` clauses are catches, and `raise` raises."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "except_clause":
+            found.append(mojo_except_handler(node))
+        elif node.type == "raise_statement":
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
+def fortran_status_check(node):
+    """An Error_Handler for `if (ios /= 0) ...`: a check on a status variable like iostat= or stat=, or None for any other `if`."""
+    condition = squashed(node.named_children[0].text.decode()).lower() if node.named_children else ""
+
+    if not any(word in condition for word in FORTRAN_STATUS_WORDS):
+        return None
+
+    body = node.named_children[1:]
+    speaks = any(inner.type in FORTRAN_SPEAKING_NODES or (inner.type == "keyword_statement" and inner.text.lower().startswith(FORTRAN_RETURN))
+                 for statement in body for inner in walk(statement))
+
+    return Error_Handler(line_of(node), True, speaks, True)
+
+def fortran_handlers(root):
+    """`stop` and `error stop` end the program loudly. A check on a status variable is a catch."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "if_statement":
+            check = fortran_status_check(node)
+
+            found += [check] if check else []
+        elif node.type == "stop_statement":
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
+def csharp_catch(clause):
+    """An Error_Handler for a `catch`. One with no type, or catching Exception itself, catches anything."""
+    declaration = next((child for child in clause.children if child.type == "catch_declaration"), None)
+    caught_type = declaration.child_by_field_name("type") if declaration is not None else None
+    bound = declaration.child_by_field_name("name") if declaration is not None else None
+    body = clause.child_by_field_name("body")
+    uses_error = bound is not None and bound.text.decode() in identifiers_in(body, CSHARP)
+    # Console.WriteLine and _logger.LogError speak up: names are lower-cased and lose their leading underscore to match the shared list
+    speaks = any(node.type in CSHARP_THROWING_NODES or (node.type == "invocation_expression"
+                 and is_loud_name(dotted(called_name(node).text.decode()).lower().lstrip("_"))) for node in walk(body))
+
+    return Error_Handler(line_of(clause), True, speaks or uses_error, caught_type is None or caught_type.text.decode() in CSHARP_BROAD_EXCEPTIONS)
+
+def csharp_handlers(root):
+    """`catch` clauses are catches, and `throw` raises."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "catch_clause":
+            found.append(csharp_catch(node))
+        elif node.type in CSHARP_THROWING_NODES:
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
 def deor_error_handlers(source):
     """Deor crashes and failed-validity checks, plus the handlers in its `rust` blocks (read as Rust, lines moved back)."""
     found = [Error_Handler(*fields) for fields in deor_handlers(source)]
@@ -168,6 +247,7 @@ def tree_handlers(source, language):
 
     root = parse_tree(source, language)
 
-    handlers = {RUST: rust_handlers, HARE: hare_handlers, C_LANG: c_handlers, GO: go_handlers}
+    handlers = {RUST: rust_handlers, HARE: hare_handlers, C_LANG: c_handlers, GO: go_handlers, MOJO: mojo_handlers,
+                FORTRAN: fortran_handlers, CSHARP: csharp_handlers}
 
     return handlers.get(language, typescript_handlers)(root)

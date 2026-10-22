@@ -8,8 +8,11 @@ dependencies = [
     "tree-sitter-rust>=0.24,<0.25",
     "tree-sitter-typescript>=0.23,<0.24",
     "tree-sitter-hare",  # vendored: the grammar has no PyPI release
+    "tree-sitter-mojo",  # vendored: same reason
     "tree-sitter-c>=0.24,<0.25",
     "tree-sitter-go>=0.25,<0.26",
+    "tree-sitter-fortran>=0.6,<0.7",
+    "tree-sitter-c-sharp>=0.23,<0.24",
 ]
 
 [tool.setuptools.packages.find]
@@ -17,6 +20,7 @@ include = ["codequality*"]  # keeps the vendored grammar out of this package
 
 [tool.uv.sources]
 tree-sitter-hare = { path = "vendor/tree-sitter-hare" }
+tree-sitter-mojo = { path = "vendor/tree-sitter-mojo" }
 
 [dependency-groups]
 dev = ["pytest"]

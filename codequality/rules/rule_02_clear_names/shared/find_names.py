@@ -5,7 +5,7 @@ from ..python.python_names import python_names
 from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD
-from ....language_parsers.tree_sitter.tree_walk import bound_node, declarator_name, identifiers_in, walk
+from ....language_parsers.tree_sitter.tree_walk import bound_nodes, declarator_name, identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".
@@ -49,13 +49,14 @@ def parameter_names(source, language):
             continue
 
         field = PARAMETER_FIELDS[language][node.type]
-        declared = bound_node(node, field) if field else node
-        names += identifiers_in(declared, language) if declared else []
+
+        for declared in bound_nodes(node, field) if field else [node]:
+            names += identifiers_in(declared, language)
 
     return names
 
-# C and Go are read entirely from the syntax tree: node type -> the field holding the names it declares.
-# Go lists several names in one field (`a, b := ...`), and C declarators wrap the name (`*name`, `name[8]`).
+# C, Go, Mojo and Fortran are read entirely from the syntax tree: node type -> the field holding the names it declares.
+# Go lists several names in one field (`a, b := ...`), C and Fortran declarators wrap the name (`*name`, `name(10)`).
 DECLARATION_FIELDS = {
     "c": {"function_definition": "declarator", "declaration": "declarator", "init_declarator": "declarator",
           "parameter_declaration": "declarator", "field_declaration": "declarator", "type_definition": "declarator",
@@ -64,10 +65,17 @@ DECLARATION_FIELDS = {
     "go": {"function_declaration": "name", "method_declaration": "name", "var_spec": "name", "const_spec": "name",
            "type_spec": "name", "parameter_declaration": "name", "field_declaration": "name", "short_var_declaration": "left",
            "range_clause": "left"},
+    "mojo": {"function_definition": "name", "struct_definition": "name", "trait_definition": "name", "parameter": "name",
+             "assignment": "left", "for_statement": "left", "for_in_clause": "left", "aliased_import": "alias"},
+    "fortran": {"function_statement": "name", "subroutine_statement": "name", "variable_declaration": "declarator"},
+    "csharp": {"method_declaration": "name", "constructor_declaration": "name", "local_function_statement": "name",
+               "class_declaration": "name", "struct_declaration": "name", "interface_declaration": "name", "enum_declaration": "name",
+               "record_declaration": "name", "enum_member_declaration": "name", "property_declaration": "name", "parameter": "name",
+               "variable_declarator": "name", "foreach_statement": "left", "catch_declaration": "name"},
 }
 
 def declared_in(node):
-    if node.type == "expression_list":
+    if node.type in ("expression_list", "pattern"):
         return [part.text.decode() for part in node.named_children if part.type == "identifier"]
 
     found = declarator_name(node)
@@ -96,7 +104,7 @@ def find_names(source, language):
     if language in DECLARATION_FIELDS:
         return [name for name in declared_names(source, language) if name != "_"]
 
-    text = blank_out_text(source)
+    text = blank_out_text(source, language)
     names = []
 
     for pattern in NAME_PATTERNS[language]:

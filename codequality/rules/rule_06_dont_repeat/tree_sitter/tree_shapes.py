@@ -1,12 +1,12 @@
 from ..deor.deor_shapes import deor_shapes
 from ....source_code import DEOR
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
-from ....language_parsers.tree_sitter.tree_functions import function_name, statements_of
+from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
+from ....language_parsers.tree_sitter.tree_functions import function_body, function_name, statements_of
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Function_Shape import Function_Shape, Statement_Shape
 
-BLOCK_TYPES = {"block", "statement_block", "compound_statement"}
+BLOCK_TYPES = {"block", "statement_block", "compound_statement", "function", "subroutine", "program", "do_loop"}  # the last four are Fortran
 KEPT_NAME_TYPES = {"field_identifier", "property_identifier"}  # method and field names stay, like in Python
 
 def label_of(node, language):
@@ -30,7 +30,7 @@ def shape_of(node, language):
 
 def blocks_within(function, language):
     """The body block first, then every block nested in it. Nested functions are left to their own entry."""
-    blocks, pending = [], [function.child_by_field_name(BODY_FIELD)]
+    blocks, pending = [], [function_body(function, language)]
 
     while pending:
         node = pending.pop()
@@ -60,9 +60,9 @@ def tree_shapes(source, language):
     found = []
 
     for node in walk(parse_tree(source, language)):
-        body = node.child_by_field_name(BODY_FIELD)
+        body = function_body(node, language) if node.type in FUNCTION_TYPES[language] else None
 
-        if node.type in FUNCTION_TYPES[language] and body is not None and body.type in BLOCK_TYPES:
+        if body is not None and body.type in BLOCK_TYPES:
             sequences = [block_shapes(block, language) for block in blocks_within(node, language)]
             found.append(Function_Shape(function_name(node), node.start_point.row + 1, sequences))
 

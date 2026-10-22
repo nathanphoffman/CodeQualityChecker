@@ -1,14 +1,40 @@
 from .parse_tree import parse_tree
+from ...source_code import FORTRAN
 from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
-from .tree_walk import bound_node, declarator_name, identifiers_in, walk
+from .tree_walk import bound_nodes, declarator_name, identifiers_in, normalized, walk
+
+# Fortran has no block around a body: the statements sit directly inside the function, between its header and its end line,
+# mixed with declarations. These are the parts that are not statements of the body.
+FRAME_TYPES = {"function_statement", "subroutine_statement", "program_statement", "variable_declaration", "use_statement",
+               "implicit_statement", "do_statement", "internal_procedures", "contains_statement"}
+HEADER_TYPES = {"function_statement", "subroutine_statement", "program_statement"}
+BLOCK_ENDINGS = ("block", "_block", "compound_statement")
+
+def fortran_name(function):
+    """The name in a Fortran function, subroutine or program header."""
+
+    for header in [child for child in function.children if child.type in HEADER_TYPES]:
+        return header.child_by_field_name(NAME_FIELD) or next((child for child in header.named_children if child.type == "name"), None)
+
+    return None
+
+def function_body(function, language):
+    """The node holding a function's statements, or None when it has no block body."""
+
+    if language == FORTRAN:
+        return function
+
+    body = function.child_by_field_name(BODY_FIELD)
+
+    return body if body is not None and body.type.endswith(BLOCK_ENDINGS) else None
 
 def function_name(function):
-    name = function.child_by_field_name(NAME_FIELD) or declarator_name(function.child_by_field_name("declarator"))
+    name = function.child_by_field_name(NAME_FIELD) or declarator_name(function.child_by_field_name("declarator")) or fortran_name(function)
 
     if name is None and function.parent.type == "variable_declarator":
         name = function.parent.child_by_field_name(NAME_FIELD)
 
-    return name.text.decode() if name else "anonymous"
+    return normalized(name.text.decode(), FORTRAN if function.type in FUNCTION_TYPES[FORTRAN] else None) if name else "anonymous"
 
 def local_names(function, language):
     """Parameters plus everything declared inside the function."""
@@ -16,8 +42,9 @@ def local_names(function, language):
 
     for node in walk(function):
         field = BINDING_FIELDS[language].get(node.type)
-        bound = bound_node(node, field) if field else None
-        names |= identifiers_in(bound, language) if bound else set()
+
+        for bound in bound_nodes(node, field) if field else []:
+            names |= identifiers_in(bound, language)
 
     return names
 
@@ -38,16 +65,17 @@ def statements_of(body):
     for child in body.named_children:
         statements += child.named_children if child.type == "statement_list" else [child]
 
-    return [statement for statement in statements if "comment" not in statement.type]
+    return [statement for statement in statements
+            if "comment" not in statement.type and statement.type not in FRAME_TYPES and not statement.type.startswith("end_")]
 
 def tree_bodies(source, language):
     """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
     bodies = []
 
     for function in walk(parse_tree(source, language)):
-        body = function.child_by_field_name(BODY_FIELD)
+        body = function_body(function, language) if function.type in FUNCTION_TYPES[language] else None
 
-        if function.type not in FUNCTION_TYPES[language] or body is None or not body.type.endswith(("block", "_block", "compound_statement")):
+        if body is None:
             continue
 
         locals_ = local_names(function, language)

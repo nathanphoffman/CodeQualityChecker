@@ -6,7 +6,7 @@ import warnings
 from pathlib import Path
 
 from .models import Project
-from .source_code import C_LANG, DEOR, GO, HARE, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
+from .source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
 
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
@@ -33,6 +33,9 @@ def detect(root: Path, exclude: list[str] | None = None) -> Project:
     _detect_hare(project)
     _detect_c(project)
     _detect_go(project)
+    _detect_csharp(project)
+    _detect_mojo(project)
+    _detect_fortran(project)
 
     return project
 
@@ -53,6 +56,18 @@ def _detect_c(project: Project) -> None:
 def _detect_go(project: Project) -> None:
     if (project.root / "go.mod").exists() or project.files(".go"):
         project.languages.add(GO)
+
+def _detect_csharp(project: Project) -> None:
+    if project.files(".cs", ".csproj"):
+        project.languages.add(CSHARP)
+
+def _detect_mojo(project: Project) -> None:
+    if project.files(".mojo", ".🔥"):
+        project.languages.add(MOJO)
+
+def _detect_fortran(project: Project) -> None:
+    if project.files(".f90", ".F90", ".f95", ".f03", ".f08"):
+        project.languages.add(FORTRAN)
 
 def _detect_hare(project: Project) -> None:
     if project.files(".ha"):

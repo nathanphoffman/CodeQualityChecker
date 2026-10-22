@@ -15,7 +15,7 @@ Put a `.codequalityignore` in the project root: one wildcard per line, `#` for c
 
 ## How it works
 
-1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, Hare, Deor) and frameworks in the project.
+1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, C#, Mojo, Fortran, Hare, Deor) and frameworks in the project.
 2. Every rule that applies is run. Each returns a score from 0.0 to 1.0 plus a message.
 3. `report.py` prints per-rule grades and an overall weighted score.
 

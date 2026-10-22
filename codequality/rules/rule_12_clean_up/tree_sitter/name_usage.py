@@ -1,9 +1,9 @@
-from ....source_code import C_LANG, GO, HARE, RUST, TYPESCRIPT
+from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ...rule_10_test_what_matters.count_tests import has_test_attribute
 from ..shared.Cleanup_Findings import Name_Usage
-from ..shared.limits import GO_RUNTIME_FUNCTIONS, RUST_ENTRY_POINT
+from ..shared.limits import CSHARP_ENTRY_POINT, CSHARP_VISIBLE_MODIFIERS, GO_RUNTIME_FUNCTIONS, PRIVATE_PREFIX, RUST_ENTRY_POINT
 from .names import name_counts
 
 def is_private_rust(node):
@@ -38,12 +38,45 @@ def is_private_go(node):
 
     return name[0].islower() and name not in GO_RUNTIME_FUNCTIONS
 
-PRIVATE_CHECKS = {RUST: is_private_rust, HARE: is_private_hare, TYPESCRIPT: is_private_typescript, C_LANG: is_private_c, GO: is_private_go}
+def is_private_csharp(node):
+    """A method with no access modifier is private, and so is one marked `private`. Interface methods are public, and a method that
+    overrides or implements something is called through the base type."""
+
+    if node.type != "method_declaration" or node.parent.parent.type == "interface_declaration":
+        return False
+
+    modifiers = {child.text.decode() for child in node.children if child.type == "modifier"}
+
+    return not modifiers & CSHARP_VISIBLE_MODIFIERS and function_name(node) != CSHARP_ENTRY_POINT
+
+def is_private_mojo(node):
+    """A function whose name starts with one underscore. Names with two, like `__init__`, are called by the language."""
+    name = function_name(node) if node.type == "function_definition" else ""
+
+    return name.startswith(PRIVATE_PREFIX) and not name.startswith(PRIVATE_PREFIX * 2)
+
+def is_private_fortran(node):
+    """A procedure written after `contains` inside a program or another procedure can only be called from there."""
+
+    if node.type not in ("function", "subroutine"):
+        return False
+
+    ancestors = []
+    parent = node.parent
+
+    while parent is not None:
+        ancestors.append(parent.type)
+        parent = parent.parent
+
+    return bool(set(ancestors) & {"program", "function", "subroutine"})
+
+PRIVATE_CHECKS = {RUST: is_private_rust, HARE: is_private_hare, TYPESCRIPT: is_private_typescript, C_LANG: is_private_c, GO: is_private_go,
+                  MOJO: is_private_mojo, FORTRAN: is_private_fortran, CSHARP: is_private_csharp}
 
 def is_private_definition(node, language):
     """A Rust fn without `pub` (not main, not a test, not in a trait impl), a Hare fn without `export` (not main or an attribute
-    like @test), a C function marked `static`, a Go function with a lower-case name, or a TypeScript function that is not exported
-    or a method marked `private`."""
+    like @test), a C function marked `static`, a Go function with a lower-case name, a Mojo function starting with `_`, a Fortran
+    procedure inside a program or another procedure, a C# method that is not public, protected or internal, or a TypeScript function that is not exported or a method marked `private`."""
 
     return PRIVATE_CHECKS[language](node)
 
@@ -51,4 +84,4 @@ def tree_name_usage(root, language):
     private = [(function_name(node), node.start_point.row + 1)
                for node in walk(root) if node.parent is not None and is_private_definition(node, language)]
 
-    return Name_Usage(private, name_counts(root))
+    return Name_Usage(private, name_counts(root, language))

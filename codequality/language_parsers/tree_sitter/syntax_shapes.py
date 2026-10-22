@@ -3,6 +3,7 @@
 # Field names the grammars give to the parts of a node.
 NAME_FIELD, BODY_FIELD, OPERATOR_FIELD = "name", "body", "operator"
 FIRST_CHILD = "#first"  # stands in for a field name when the grammar gives the declared name no field (Hare)
+WHOLE_NODE = "#whole"  # the node itself holds the names, like Fortran's argument list
 
 FUNCTION_TYPES = {
     "rust": {"function_item"},
@@ -11,6 +12,9 @@ FUNCTION_TYPES = {
     "hare": {"function_declaration"},
     "c": {"function_definition"},
     "go": {"function_declaration", "method_declaration", "func_literal"},
+    "mojo": {"function_definition"},
+    "fortran": {"function", "subroutine", "program"},
+    "csharp": {"method_declaration", "constructor_declaration", "local_function_statement"},  # lambdas are not counted as functions
 }
 
 # Declarations that create local variables: node type -> the field holding the new names.
@@ -25,6 +29,9 @@ BINDING_FIELDS = {
     "hare": {"let_declaration": FIRST_CHILD, "parameter": FIRST_CHILD, "let_expression": FIRST_CHILD},
     "c": {"declaration": "declarator", "init_declarator": "declarator", "parameter_declaration": "declarator"},
     "go": {"short_var_declaration": "left", "var_spec": "name", "parameter_declaration": "name", "range_clause": "left"},
+    "mojo": {"parameter": "name", "assignment": "left", "for_statement": "left", "for_in_clause": "left", "except_clause": FIRST_CHILD},
+    "fortran": {"variable_declaration": "declarator", "parameters": WHOLE_NODE, "loop_control_expression": FIRST_CHILD},
+    "csharp": {"variable_declarator": "name", "parameter": "name", "foreach_statement": "left", "catch_declaration": "name"},
 }
 
 # Node types that are a variable name (field names and type names are different node types).
@@ -34,6 +41,9 @@ IDENTIFIER_TYPES = {
     "hare": {"identifier"},
     "c": {"identifier"},
     "go": {"identifier"},
+    "mojo": {"identifier"},
+    "fortran": {"identifier"},
+    "csharp": {"identifier"},
 }
 
 # Each of these adds one path through the function.
@@ -44,6 +54,14 @@ BRANCH_TYPES = {
     "hare": {"if_statement", "for_statement", "case"},
     "c": {"if_statement", "for_statement", "while_statement", "do_statement", "case_statement", "conditional_expression"},
     "go": {"if_statement", "for_statement", "expression_case", "default_case", "type_case", "communication_case"},
+    "mojo": {"if_statement", "elif_clause", "for_statement", "while_statement", "except_clause", "case_clause", "boolean_operator",
+             "conditional_expression"},
+    "fortran": {"if_statement", "elseif_clause", "do_loop", "case_statement", "where_statement"},
+    "csharp": {"if_statement", "for_statement", "foreach_statement", "while_statement", "do_statement", "switch_section", "catch_clause",
+               "conditional_expression", "switch_expression_arm"},
 }
 
 BRANCH_OPERATORS = {"&&", "||", "??"}
+
+# Fortran does not care about case: `Total` and `total` are the same variable.
+CASE_INSENSITIVE_LANGUAGES = {"fortran"}

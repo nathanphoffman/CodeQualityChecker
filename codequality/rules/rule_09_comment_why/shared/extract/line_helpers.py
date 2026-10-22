@@ -1,4 +1,4 @@
-COMMENT_MARKERS = ("#", "//", "/*", "*")
+COMMENT_MARKERS = ("#", "//", "/*", "*", "!")  # "!" starts a Fortran comment
 MARKER_CHARACTERS = "/*#!"
 CODE_BEFORE_INDEX = 3  # position of the "code before the comment" text in a raw comment tuple
 

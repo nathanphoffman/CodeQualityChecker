@@ -28,6 +28,27 @@ TEXT_PATTERNS = {
         "bit_tricks": r"\s(?:<<|>>|\^)\s",
     },
 
+    "csharp": {
+        "regex": r"\bnew\s+Regex\s*\(|\bRegex\.\w+\s*\(",
+        "reflection": r"\bActivator\.CreateInstance|\.GetMethod\s*\(|\.GetProperty\s*\(",
+        "unsafe": r"\bunsafe\b",
+        "goto": r"\bgoto\b",
+        "bit_tricks": r"\s(?:<<|>>>?|\^)\s",
+    },
+
+    "mojo": {
+        "walrus": r":=",
+        "mlir": r"\b__mlir_\w+",  # writing compiler-level code by hand
+        "bit_tricks": r"\s(?:<<|>>|\^)\s",
+    },
+
+    "fortran": {
+        "goto": r"(?i)\bgo\s*to\b",
+        "equivalence": r"(?i)\bequivalence\b",  # two names for the same memory
+        "common": r"(?i)\bcommon\s*/",  # shared global memory
+        "transfer": r"(?i)\btransfer\s*\(",  # reading memory as another type
+    },
+
     "go": {
         "regex": r"\bregexp\.(?:MustCompile|Compile)\s*\(",
         "reflect": r"\breflect\.\w+",

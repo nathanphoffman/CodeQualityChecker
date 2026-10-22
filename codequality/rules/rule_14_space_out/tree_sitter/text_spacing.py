@@ -1,15 +1,17 @@
 import re
 
-from ....source_code import C_LANG, RUST
+from ....source_code import C_LANG, CSHARP, FORTRAN, MOJO, RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.tree_walk import walk
+from ....language_parsers.tree_sitter.tree_walk import normalized, walk
 from ...rule_09_comment_why.shared.extract.line_helpers import COMMENT_MARKERS
 from ..shared.comment_gaps import comment_block_gaps
 from ..shared.Spacing_Gaps import Spacing_Gaps
+from .block_syntax import closes_block, comment_starts, continuations, finishes_statement, opens_block
 
 # Words that start a control statement or a definition. Python's classes are Rust's structs, enums, traits and impls.
 CONTROL_WORDS = {"if", "for", "while", "switch", "match", "try", "return", "break", "continue", "throw", "loop", "do", "case",
-                 "default", "yield", "fn", "function", "func", "select", "defer", "go", "goto", "typedef", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules"}
+                 "default", "yield", "fn", "function", "func", "select", "defer", "go", "goto", "typedef", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules",
+                 "def", "raise", "with", "foreach", "lock", "namespace"}  # def, raise and with are Mojo; foreach, lock and namespace are C#
 
 # Clever on purpose: finds a function stored in a variable, like `const f = (a, b): number =>` or `export const f = async x =>`.
 #   an optional "export", then const, let or var, then the name
@@ -19,13 +21,12 @@ ARROW_DEFINITION = re.compile(r"^(?:export\s+)?(?:const|let|var)\s+\w+[^=]*=\s*(
 # Node types that are statements, not the value a Rust block ends with.
 NOT_A_VALUE = {"expression_statement", "let_declaration", "empty_statement", "attribute_item", "inner_attribute_item"}
 
-MODIFIERS = {"@test", "@init", "@fini", "@noreturn", "pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
-OPENERS = ("{", "(", "[", ":")
-CLOSERS = ("}", ")", "]")
+# Fortran's words are matched in lower case. Its function and subroutine headers can start with a type, so they are found by search.
+FORTRAN_CONTROL_WORDS = {"if", "do", "select", "case", "return", "stop", "error", "exit", "cycle", "goto", "program", "module", "interface"}
+FORTRAN_PROCEDURE_HEADER = re.compile(r"^(?!end\b).*\b(?:function|subroutine)\b", re.I)
 
-# Comment starts in these languages. `#` is left out because Rust attributes like #[derive] begin with it.
-COMMENT_STARTS = ("//", "/*", "*")
-CONTINUATIONS = ("else", "catch", "finally", ".", "while")
+MODIFIERS = {"internal", "sealed", "override", "virtual", "readonly", "partial", "extern",  # C#
+             "@test", "@init", "@fini", "@noreturn", "pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
 
 def leading_word(text):
     word = ""
@@ -38,8 +39,14 @@ def leading_word(text):
 
     return word
 
-def starts_control(text):
+def starts_control(text, language=None):
     """True for lines like `if (x) {`, `return y;`, `pub async fn f() {`, `case 1:` and `const f = () => {`."""
+
+    if language == FORTRAN:
+        words = text.lower().split()
+
+        return (bool(words) and leading_word(words[0]) in FORTRAN_CONTROL_WORDS) or bool(FORTRAN_PROCEDURE_HEADER.match(text))
+
     words = [word for word in text.split() if word not in MODIFIERS]
 
     return (bool(words) and leading_word(words[0]) in CONTROL_WORDS) or bool(ARROW_DEFINITION.match(text))
@@ -56,15 +63,34 @@ def rust_tail_lines(source):
 
     return lines
 
-def c_function_lines(source):
-    """Lines where a C function starts. C writes `int name(...)` with no keyword, so the text patterns can't tell it from a call."""
+# C and C# write a function as `int Name(...)` with no keyword, so the text patterns can't tell it from a call: the syntax tree finds them.
+DECLARATION_NODES = {C_LANG: {"function_definition"}, CSHARP: {"method_declaration", "constructor_declaration", "local_function_statement"}}
 
-    return {node.start_point.row + 1 for node in walk(parse_tree(source, C_LANG)) if node.type == "function_definition"}
+def declaration_lines(source, language):
+    """Lines where a C or C# function starts (an attribute like [Fact] above it counts as part of it)."""
 
-def line_above(lines, index):
+    return {node.start_point.row + 1 for node in walk(parse_tree(source, language)) if node.type in DECLARATION_NODES[language]}
+
+def tail_lines(source, language):
+    """Lines the text patterns can't recognise as control statements but that need a blank line above them."""
+
+    if language == RUST:
+        return rust_tail_lines(source)
+
+    return declaration_lines(source, language) if language in DECLARATION_NODES else set()
+
+def is_attached(line, language):
+    """A comment, a Mojo decorator like `@fieldwise_init` or a C# attribute like `[Fact]` belongs to the line below it."""
+    text = line.strip()
+
+    is_attribute = (language == MOJO and text.startswith("@")) or (language == CSHARP and text.startswith("[") and text.endswith("]"))
+
+    return text.startswith(COMMENT_MARKERS) or is_attribute
+
+def line_above(lines, index, language=None):
     """The text of the line above this one, after skipping the comments attached to it. Also where to put a blank line."""
 
-    while index > 0 and lines[index - 1].strip().startswith(COMMENT_MARKERS):
+    while index > 0 and is_attached(lines[index - 1], language):
         index -= 1
 
     return index, (lines[index - 1].strip() if index else "{")
@@ -76,46 +102,46 @@ def next_code(lines, index):
 
     return ""
 
-def comment_gaps(lines):
+def comment_gaps(lines, language=None):
     """Comments on their own line follow the same rule as control statements: a blank line above, unless first in a block."""
     comment_lines, blank_lines, finished_lines = set(), set(), set()
 
     for number, line in enumerate(lines, start=1):
         text = line.strip()
 
-        if text.startswith(COMMENT_STARTS) and (not text.startswith("*") or number - 1 in comment_lines):
+        if text.startswith(comment_starts(language)) and (not text.startswith("*") or number - 1 in comment_lines):
             comment_lines.add(number)
         elif not text:
             blank_lines.add(number)
-        elif text.endswith((";", "}")):
+        elif finishes_statement(text, language):
             finished_lines.add(number)
 
     return comment_block_gaps(comment_lines, blank_lines, finished_lines)
 
 def text_gaps(source, language):
-    """A Spacing_Gaps for a Rust or TypeScript file, read as text: braces and keywords instead of a syntax tree."""
+    """A Spacing_Gaps for any language but Python and Deor, read as text: braces, indentation and keywords instead of a syntax tree."""
     lines, control_missing, block_missing = source.splitlines(), [], []
     control_seen, block_total = set(), 0
-    tails = {RUST: rust_tail_lines, C_LANG: c_function_lines}.get(language, lambda _: set())(source)
+    tails = tail_lines(source, language)
 
     for index, line in enumerate(lines):
         text = line.strip()
 
-        if starts_control(text) or index + 1 in tails:
-            above_index, above = line_above(lines, index)
+        if starts_control(text, language) or index + 1 in tails:
+            above_index, above = line_above(lines, index, language)
 
-            if not above.endswith(OPENERS):  # otherwise it is first in its block
+            if not opens_block(above, language):  # otherwise it is first in its block
                 control_seen.add(above_index + 1)
                 control_missing += [above_index + 1] if above else []
 
-        if text.startswith(CLOSERS) and not text.endswith(OPENERS + (",",)):
+        if closes_block(lines, index, language):
             following = next_code(lines, index)
 
-            if following and not following.startswith(CLOSERS + CONTINUATIONS):
+            if following and not normalized(following, language).startswith(continuations(language)):
                 block_total += 1
                 block_missing += [index + 2] if lines[index + 1].strip() else []
 
-    comment_seen, comment_missing = comment_gaps(lines)
+    comment_seen, comment_missing = comment_gaps(lines, language)
     control_seen |= comment_seen
 
     return Spacing_Gaps(len(control_seen), sorted(set(control_missing + comment_missing)), block_total, sorted(set(block_missing)))
