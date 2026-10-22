@@ -1,6 +1,6 @@
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Code_Use import Code_Use
-from ....language_parsers.tree_sitter.syntax_shapes import OPERATOR_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import CALL_EXPRESSION, OPERATOR_FIELD
 from ....language_parsers.tree_sitter.use_names import called_name, dotted
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content", "interpreted_string_literal_content", "raw_string_literal_content",
@@ -48,7 +48,7 @@ def is_built_from_parts(node):
     if node.type == "string" and node.child_count == 0:
         return node.text.decode().startswith(("f", "F")) and "{" in node.text.decode()  # a Mojo f-string
 
-    if node.type == "call_expression":
+    if node.type == CALL_EXPRESSION:
         return dotted(called_name(node).text.decode()) in STRING_BUILDERS
 
     macro = node.child_by_field_name("macro")

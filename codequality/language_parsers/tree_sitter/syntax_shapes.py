@@ -1,7 +1,8 @@
 # Node type names from the tree-sitter grammars, so the code that walks trees can stay language-neutral.
 
 # Field names the grammars give to the parts of a node.
-NAME_FIELD, BODY_FIELD, OPERATOR_FIELD = "name", "body", "operator"
+NAME_FIELD, BODY_FIELD, OPERATOR_FIELD, LEFT_FIELD, FUNCTION_FIELD = "name", "body", "operator", "left", "function"
+CALL_EXPRESSION = "call_expression"
 FIRST_CHILD = "#first"  # stands in for a field name when the grammar gives the declared name no field (Hare)
 WHOLE_NODE = "#whole"  # the node itself holds the names, like Fortran's argument list
 

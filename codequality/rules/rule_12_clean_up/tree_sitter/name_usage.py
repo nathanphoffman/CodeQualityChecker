@@ -5,6 +5,7 @@ from ...rule_10_test_what_matters.count_tests import has_test_attribute
 from ..shared.Cleanup_Findings import Name_Usage
 from ..shared.limits import CSHARP_ENTRY_POINT, CSHARP_VISIBLE_MODIFIERS, GO_RUNTIME_FUNCTIONS, PRIVATE_PREFIX, RUST_ENTRY_POINT
 from .names import name_counts
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD
 
 def is_private_rust(node):
     in_trait_impl = node.parent.parent is not None and node.parent.parent.child_by_field_name("trait") is not None
@@ -74,7 +75,7 @@ def is_private_fortran(node):
 def is_private_rexx(node):
     """A routine that starts with `procedure` keeps its variables to itself, which is how Rexx marks a helper. Other labels can be called from other programs."""
 
-    return node.type == "routine_definition" and any(statement.type == "procedure_statement" for statement in node.child_by_field_name("body").children)
+    return node.type == "routine_definition" and any(statement.type == "procedure_statement" for statement in node.child_by_field_name(BODY_FIELD).children)
 
 PRIVATE_CHECKS = {RUST: is_private_rust, HARE: is_private_hare, TYPESCRIPT: is_private_typescript, C_LANG: is_private_c, GO: is_private_go,
                   MOJO: is_private_mojo, FORTRAN: is_private_fortran, CSHARP: is_private_csharp, REXX: is_private_rexx}

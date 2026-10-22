@@ -4,7 +4,7 @@ from ..deor.deor_literals import deor_literals
 from ....source_code import DEOR
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ..shared.Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
-from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import LEFT_FIELD, NAME_FIELD
 
 NUMBER_TYPES = {"number", "float", "integer_literal", "float_literal", "number_literal", "int_literal", "imaginary_literal", "integer", "real_literal"}
 STRING_TYPES = {"string", "string_literal", "interpreted_string_literal", "raw_string_literal", "verbatim_string_literal"}
@@ -55,7 +55,7 @@ def is_constant_declarator(node):
     name = node.child_by_field_name(NAME_FIELD) if node.type == "variable_declarator" else None
 
     if node.type == "assignment":
-        name = node.child_by_field_name("left")
+        name = node.child_by_field_name(LEFT_FIELD)
     elif node.type == "variable_declaration":
         return any(child.type == "type_qualifier" and child.text.lower() == b"parameter" for child in node.children)
     elif node.type in ("field_declaration", "local_declaration_statement"):

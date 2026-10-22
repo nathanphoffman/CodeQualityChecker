@@ -24,14 +24,14 @@ class Node:
     is_named = True
     has_error = False
 
-    def __init__(self, type_, start, end, source_map, children=(), fields=None, text=None):
+    def __init__(self, type_, start, end, source_map, children=(), fields=None):
         self.type = type_
         self.start_byte, self.end_byte = start, end
         self.source_map = source_map
         self.children = list(children)
         self.fields = {name: list(nodes) for name, nodes in (fields or {}).items()}
         self.parent = None
-        self.override = text
+        self.override = None  # set for identifiers, which keep their text in lower case
 
         for child in self.children:
             child.parent = self

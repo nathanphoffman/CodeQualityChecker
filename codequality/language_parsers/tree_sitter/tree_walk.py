@@ -1,4 +1,4 @@
-from .syntax_shapes import CASE_INSENSITIVE_LANGUAGES, FIRST_CHILD, IDENTIFIER_TYPES, WHOLE_NODE
+from .syntax_shapes import CASE_INSENSITIVE_LANGUAGES, FIRST_CHILD, IDENTIFIER_TYPES, LEFT_FIELD, WHOLE_NODE
 
 NAME_TYPES = {"identifier", "property_identifier", "field_identifier", "shorthand_property_identifier"}
 
@@ -41,7 +41,7 @@ DECLARED_NAME_TYPES = {"identifier", "type_identifier", "field_identifier", "nam
 
 def inner_declarator(node):
     """What a wrapper like C's `*name`, `name[8]`, Fortran's `name = 5` or `name(10)` wraps."""
-    inner = node.child_by_field_name("declarator") or node.child_by_field_name("left")
+    inner = node.child_by_field_name("declarator") or node.child_by_field_name(LEFT_FIELD)
 
     return inner or (node.named_children[0] if node.type == "sized_declarator" and node.named_children else None)
 

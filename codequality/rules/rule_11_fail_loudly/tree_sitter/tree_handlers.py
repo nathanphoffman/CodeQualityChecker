@@ -8,6 +8,7 @@ from ....language_parsers.tree_sitter.use_names import called_name, dotted
 from ..shared.Error_Handler import Error_Handler
 from ..shared.limits import SILENT_CALLBACK_BODIES
 from ..python.python_handlers import is_loud_name
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, CALL_EXPRESSION, FUNCTION_FIELD, LEFT_FIELD, NAME_FIELD
 
 ERR_CONSTRUCTOR = "Err"
 HARE_ERROR_TYPE = "error"
@@ -53,16 +54,16 @@ def rust_handlers(root):
             found += [arm] if arm else []
         elif node.type == "let_declaration" and squashed(node.text.decode()).startswith("let_="):
             found.append(Error_Handler(line_of(node), True, False, True))  # `let _ = might_fail();` throws the result away
-        elif node.type == "try_expression" or (node.type == "call_expression" and node.child_by_field_name("function").text.decode() == ERR_CONSTRUCTOR):
+        elif node.type == "try_expression" or (node.type == CALL_EXPRESSION and node.child_by_field_name(FUNCTION_FIELD).text.decode() == ERR_CONSTRUCTOR):
             found.append(Error_Handler(line_of(node), False, True, False))
 
     return found
 
 def catch_clause_is_loud(clause):
-    body = clause.child_by_field_name("body")
+    body = clause.child_by_field_name(BODY_FIELD)
     parameter = clause.child_by_field_name("parameter")
     throws = any(node.type == "throw_statement" for node in walk(body))
-    speaks = any(node.type == "call_expression" and is_loud_name(dotted(node.child_by_field_name("function").text.decode())) for node in walk(body))
+    speaks = any(node.type == CALL_EXPRESSION and is_loud_name(dotted(node.child_by_field_name(FUNCTION_FIELD).text.decode())) for node in walk(body))
 
     return throws or speaks or (parameter is not None and parameter.text.decode() in identifiers_in(body, TYPESCRIPT))
 
@@ -80,7 +81,7 @@ def typescript_handlers(root):
             found.append(Error_Handler(line_of(node), True, catch_clause_is_loud(node), True))
         elif node.type == "throw_statement":
             found.append(Error_Handler(line_of(node), False, True, False))
-        elif node.type == "call_expression" and node.child_by_field_name("function").text.decode().endswith(".catch"):
+        elif node.type == CALL_EXPRESSION and node.child_by_field_name(FUNCTION_FIELD).text.decode().endswith(".catch"):
             found.append(Error_Handler(line_of(node), True, not promise_catch_is_silent(node), True))
 
     return found
@@ -125,7 +126,7 @@ def go_error_check(node):
     if condition is None or condition.type != "binary_expression" or condition.child_by_field_name("operator").text != b"!=":
         return None
 
-    if condition.child_by_field_name("right").text != b"nil" or GO_ERROR_WORD not in condition.child_by_field_name("left").text.decode().lower():
+    if condition.child_by_field_name("right").text != b"nil" or GO_ERROR_WORD not in condition.child_by_field_name(LEFT_FIELD).text.decode().lower():
         return None
 
     speaks = any(inner.type in SPEAKING_NODES for inner in walk(node.child_by_field_name("consequence")))
@@ -141,9 +142,9 @@ def go_handlers(root):
             check = go_error_check(node)
 
             found += [check] if check else []
-        elif node.type == "assignment_statement" and set(squashed(node.child_by_field_name("left").text.decode())) <= {"_", ","}:
+        elif node.type == "assignment_statement" and set(squashed(node.child_by_field_name(LEFT_FIELD).text.decode())) <= {"_", ","}:
             found.append(Error_Handler(line_of(node), True, False, True))
-        elif node.type == "call_expression" and dotted(called_name(node).text.decode()) in GO_RAISING_CALLS:
+        elif node.type == CALL_EXPRESSION and dotted(called_name(node).text.decode()) in GO_RAISING_CALLS:
             found.append(Error_Handler(line_of(node), False, True, False))
 
     return found
@@ -158,7 +159,7 @@ def c_handlers(root):
             speaks = any(inner.type in SPEAKING_NODES for inner in walk(node.child_by_field_name("consequence")))
 
             found += [Error_Handler(line_of(node), True, speaks, True)] if any(word in condition for word in C_FAILURE_WORDS) else []
-        elif node.type == "call_expression" and called_name(node).text.decode() in C_STOPPING_CALLS:
+        elif node.type == CALL_EXPRESSION and called_name(node).text.decode() in C_STOPPING_CALLS:
             found.append(Error_Handler(line_of(node), False, True, False))
 
     return found
@@ -218,8 +219,8 @@ def csharp_catch(clause):
     """An Error_Handler for a `catch`. One with no type, or catching Exception itself, catches anything."""
     declaration = next((child for child in clause.children if child.type == "catch_declaration"), None)
     caught_type = declaration.child_by_field_name("type") if declaration is not None else None
-    bound = declaration.child_by_field_name("name") if declaration is not None else None
-    body = clause.child_by_field_name("body")
+    bound = declaration.child_by_field_name(NAME_FIELD) if declaration is not None else None
+    body = clause.child_by_field_name(BODY_FIELD)
     uses_error = bound is not None and bound.text.decode() in identifiers_in(body, CSHARP)
 
     # Console.WriteLine and _logger.LogError speak up: names are lower-cased and lose their leading underscore to match the shared list

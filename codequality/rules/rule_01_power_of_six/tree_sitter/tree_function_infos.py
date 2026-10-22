@@ -1,5 +1,5 @@
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
+from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, NAME_FIELD
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Function_Info import Function_Info
@@ -23,7 +23,7 @@ def argument_count(function):
     """Mojo lists `parameter` nodes under `parameters`; Fortran lists the bare argument names there."""
     parameters = parameters_of(function)
     arguments = [] if parameters is None else [node for node in parameters.named_children if node.type in ARGUMENT_TYPES]
-    names = [argument.child_by_field_name("name") or argument for argument in arguments]
+    names = [argument.child_by_field_name(NAME_FIELD) or argument for argument in arguments]
 
     return len([name for name in names if name.text.decode() not in RECEIVER_NAMES])
 

@@ -4,6 +4,7 @@ from ....source_code import CSHARP, FORTRAN, GO, HARE, MOJO, RUST
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
+from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
 PATH_BEFORE_VERSION = -2  # in example.com/lib/v2 the version is last and the library name comes just before it
 PUBLIC_MARKER = "visibility_modifier"  # `pub use` re-exports on purpose
@@ -14,7 +15,7 @@ def typescript_bound_names(statement):
 
     for node in walk(statement):
         if node.type == "import_specifier":
-            names.append((node.child_by_field_name("alias") or node.child_by_field_name("name")).text.decode())
+            names.append((node.child_by_field_name("alias") or node.child_by_field_name(NAME_FIELD)).text.decode())
         elif node.type in ("import_clause", "namespace_import"):
             names += [child.text.decode() for child in node.children if child.type == "identifier"]
 
@@ -35,7 +36,7 @@ def rust_bound_names(declaration):
         elif parent.type == "scoped_identifier":
             is_path_of_longer = parent.parent.type in ("scoped_identifier", "scoped_use_list", "use_as_clause") and parent.parent.child_by_field_name("path") == parent
 
-            names += [node.text.decode()] if node == parent.child_by_field_name("name") and not is_path_of_longer else []
+            names += [node.text.decode()] if node == parent.child_by_field_name(NAME_FIELD) and not is_path_of_longer else []
         elif parent.type in ("use_list", "use_declaration"):
             names.append(node.text.decode())
 
@@ -56,7 +57,7 @@ def hare_bound_names(statement):
 
 def go_bound_names(spec):
     """The name a Go import is used by: its alias, or the last part of its path. `_` and `.` imports bind nothing to look for."""
-    alias = spec.child_by_field_name("name")
+    alias = spec.child_by_field_name(NAME_FIELD)
 
     if alias is not None:
         return [] if alias.text in (b"_", b".") else [alias.text.decode()]
@@ -73,7 +74,7 @@ def mojo_bound_names(statement):
 
     for child in [child for child in statement.named_children if child != module]:
         alias = child.child_by_field_name("alias")
-        named = child.child_by_field_name("name") or child
+        named = child.child_by_field_name(NAME_FIELD) or child
 
         if child.type == "aliased_import":
             names.append((alias or named.named_children[0]).text.decode())
@@ -84,7 +85,7 @@ def mojo_bound_names(statement):
 
 def csharp_bound_names(directive):
     """Only `using Alias = Some.Namespace;` makes a name to look for. A plain `using System;` brings in types, not a name."""
-    alias = directive.child_by_field_name("name")
+    alias = directive.child_by_field_name(NAME_FIELD)
 
     return [alias.text.decode()] if alias is not None else []
 
