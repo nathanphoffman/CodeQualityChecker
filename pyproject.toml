@@ -10,6 +10,9 @@ dependencies = [
     "tree-sitter-hare",  # vendored: the grammar has no PyPI release
 ]
 
+[tool.setuptools.packages.find]
+include = ["codequality*"]  # keeps the vendored grammar out of this package
+
 [tool.uv.sources]
 tree-sitter-hare = { path = "vendor/tree-sitter-hare" }
 
