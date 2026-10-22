@@ -33,3 +33,10 @@ def test_hare_cleanup_finds_unused_imports_variables_and_dead_code():
     assert findings.unused_imports == [2]
     assert findings.unused_variables == [5]
     assert findings.unreachable == [7]
+
+def test_codequalityignore_skips_folders_and_everything_inside(tmp_path):
+    (tmp_path / "vendor" / "deep").mkdir(parents=True)
+    (tmp_path / "vendor" / "deep" / "copied.ha").write_text("fn f() void = {};\n")
+    (tmp_path / "main.ha").write_text("fn g() void = {};\n")
+    (tmp_path / ".codequalityignore").write_text("# not ours\nvendor/\n")
+    assert [path.name for path in detect(tmp_path).files(".ha")] == ["main.ha"]

@@ -11,8 +11,21 @@ from .source_code import DEOR, HARE, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TY
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
 
+IGNORE_FILE = ".codequalityignore"
+
+def ignore_patterns(root: Path) -> list[str]:
+    """One wildcard per line of the project's .codequalityignore. Blank lines and # comments are skipped, and a trailing / is dropped."""
+    path = root / IGNORE_FILE
+
+    if not path.exists():
+        return []
+
+    lines = [line.strip() for line in read_source(path).splitlines()]
+
+    return [line.rstrip("/") for line in lines if line and not line.startswith("#")]
+
 def detect(root: Path, exclude: list[str] | None = None) -> Project:
-    project = Project(root=root, exclude=exclude or [])
+    project = Project(root=root, exclude=(exclude or []) + ignore_patterns(root))
     _detect_python(project)
     _detect_rust(project)
     _detect_ts(project)

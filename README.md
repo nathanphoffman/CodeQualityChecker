@@ -8,6 +8,11 @@ Your coding rules in `RULES.md`, plus a script that grades any project against t
     python -m codequality /path/to/project --json
     python -m codequality /path/to/project --min-score 80   # exit 1 if below
 
+## Ignoring files
+
+Put a `.codequalityignore` in the project root: one wildcard per line, `#` for comments, and a folder name skips everything inside it.
+`--exclude PATTERN` does the same from the command line. `.gitignore` is respected too.
+
 ## How it works
 
 1. `detect.py` figures out the languages (Python, Rust, TypeScript, Hare, Deor) and frameworks in the project.

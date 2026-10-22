@@ -83,11 +83,11 @@ class Project:
         return self._remembered[key]
 
     def is_ignored(self, path) -> bool:
-        """True for build/vendor folders, anything .gitignore hides (or sits inside something it hides), and anything matching an --exclude pattern."""
+        """True for build/vendor folders, anything .gitignore hides (or sits inside something it hides), and anything (or anything inside a folder) matching an --exclude pattern or a line of .codequalityignore."""
         parts = Path(path).relative_to(self.root).parts
         hidden = git_ignored_paths(self.root)
 
-        if parts and any(fnmatch(parts[-1], pattern) or fnmatch("/".join(parts), pattern) for pattern in self.exclude):
+        if any(fnmatch(part, pattern) or fnmatch("/".join(parts[:end]), pattern) for end, part in enumerate(parts, start=1) for pattern in self.exclude):
             return True
 
         return bool(IGNORED_FOLDERS & set(parts)) or any("/".join(parts[:end]) in hidden for end in range(1, len(parts) + 1))
