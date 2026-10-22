@@ -1,8 +1,10 @@
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Code_Use import Code_Use
 from ....language_parsers.tree_sitter.syntax_shapes import OPERATOR_FIELD
+from ....language_parsers.tree_sitter.use_names import dotted
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content"}
+HARE_STRING_BUILDERS = {"fmt.asprintf", "fmt.bsprintf", "strings.concat", "strings.join"}
 
 def literal_text(node):
     """The text pieces of the string literals inside a node, in source order."""
@@ -11,13 +13,16 @@ def literal_text(node):
     return " ".join(piece.text.decode() for piece in pieces)
 
 def is_built_from_parts(node):
-    """Template strings with ${}, "a" + b, and Rust format!."""
+    """Template strings with ${}, "a" + b, Rust format!, and Hare's fmt::asprintf and strings::concat."""
 
     if node.type == "template_string":
         return any(child.type == "template_substitution" for child in node.children)
 
     if node.type == "binary_expression":
         return node.child_by_field_name(OPERATOR_FIELD).text == b"+"
+
+    if node.type == "call_expression" and node.child_by_field_name("callee") is not None:
+        return dotted(node.child_by_field_name("callee").text.decode()) in HARE_STRING_BUILDERS
 
     macro = node.child_by_field_name("macro")
 

@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=62"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tree-sitter-hare"
+description = "Hare grammar for tree-sitter, built from github.com/tree-sitter-grammars/tree-sitter-hare (commit eed7ddf)"
+version = "0.0.1"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+[tool.setuptools]
+packages = ["tree_sitter_hare"]

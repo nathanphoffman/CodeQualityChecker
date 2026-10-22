@@ -19,6 +19,8 @@ TEXT_PATTERNS = {
         "bit_tricks": r"\s(?:<<|>>|\^)\s",
     },
 
+    "hare": {"bit_tricks": r"\s(?:<<|>>|\^)\s"},
+
     "typescript": {
         "regex": r"\bnew\s+RegExp\s*\(",
         "reduce": r"\.\s*reduce(?:Right)?\s*\(",

@@ -4,12 +4,13 @@ MAX_CHAIN_LENGTH = 3
 MAX_TERNARIES_PER_STATEMENT = 1
 
 # A comment on the same line, or starting the line above.
-SAME_LINE_COMMENTS = {"python": ("#",), "rust": ("//", "/*"), "typescript": ("//", "/*"), "deor": ("#", "//")}
-LINE_ABOVE_COMMENTS = {"python": ("#",), "rust": ("//", "/*", "*"), "typescript": ("//", "/*", "*"), "deor": ("#", "//")}
+SAME_LINE_COMMENTS = {"python": ("#",), "rust": ("//", "/*"), "typescript": ("//", "/*"), "hare": ("//",), "deor": ("#", "//")}
+LINE_ABOVE_COMMENTS = {"python": ("#",), "rust": ("//", "/*", "*"), "typescript": ("//", "/*", "*"), "hare": ("//",), "deor": ("#", "//")}
 
 # Methods that take a function; three or more in one chain is a pipeline that's hard to read.
 CHAIN_METHODS = {
     "rust": {"map", "filter", "filter_map", "flat_map", "flatten", "fold", "scan", "and_then",
              "map_err", "unwrap_or_else", "zip", "take_while", "skip_while", "find_map"},
     "typescript": {"map", "filter", "reduce", "reduceRight", "flatMap", "then", "catch", "finally"},
+    "hare": set(),  # Hare has no method chains
 }

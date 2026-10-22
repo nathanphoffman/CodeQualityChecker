@@ -66,7 +66,7 @@ class Result:
 @dataclass
 class Project:
     root: Path
-    languages: set[str] = field(default_factory=set)  # "rust", "typescript"
+    languages: set[str] = field(default_factory=set)  # "rust", "typescript", "hare"
     frameworks: set[str] = field(default_factory=set)  # "axum", "react", ...
     exclude: list[str] = field(default_factory=list)  # wildcard patterns, e.g. "*out.rs*", matched against names and relative paths
     _remembered: dict = field(default_factory=dict, repr=False)  # answers to slow questions, so each is worked out once per run

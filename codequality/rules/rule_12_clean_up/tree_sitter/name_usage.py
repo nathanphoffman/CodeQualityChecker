@@ -1,4 +1,4 @@
-from ....source_code import RUST
+from ....source_code import HARE, RUST
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ...rule_10_test_what_matters.count_tests import has_test_attribute
 from ..shared.Cleanup_Findings import Name_Usage
@@ -6,8 +6,8 @@ from ..shared.limits import RUST_ENTRY_POINT
 from .names import name_counts
 
 def is_private_definition(node, language):
-    """A Rust fn without `pub` (not main, not a test, not in a trait impl), or a TypeScript function that is not exported
-    or a method marked `private`."""
+    """A Rust fn without `pub` (not main, not a test, not in a trait impl), a Hare fn without `export` (not main or an attribute
+    like @test), or a TypeScript function that is not exported or a method marked `private`."""
 
     if language == RUST:
         in_trait_impl = node.parent.parent is not None and node.parent.parent.child_by_field_name("trait") is not None
@@ -15,6 +15,12 @@ def is_private_definition(node, language):
         name = node.child_by_field_name("name")
 
         return node.type == "function_item" and not has_pub and not in_trait_impl and not has_test_attribute(node) and name.text.decode() != RUST_ENTRY_POINT
+
+    if language == HARE:
+        is_exported = node.prev_sibling is not None and node.prev_sibling.type == "export"
+        is_special = any(child.type == "function_attribute" for child in node.children)  # @test, @init and @fini are called by the runtime
+
+        return node.type == "function_declaration" and not is_exported and not is_special and node.child_by_field_name("name").text.decode() != RUST_ENTRY_POINT
 
     if node.type == "function_declaration":
         return node.parent.type == "program"

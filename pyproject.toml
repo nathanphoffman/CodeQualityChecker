@@ -7,7 +7,11 @@ dependencies = [
     "tree-sitter>=0.25,<0.26",  # 0.26.0 crashes (segmentation fault) on large Rust files
     "tree-sitter-rust>=0.24,<0.25",
     "tree-sitter-typescript>=0.23,<0.24",
+    "tree-sitter-hare",  # vendored: the grammar has no PyPI release
 ]
+
+[tool.uv.sources]
+tree-sitter-hare = { path = "vendor/tree-sitter-hare" }
 
 [dependency-groups]
 dev = ["pytest"]

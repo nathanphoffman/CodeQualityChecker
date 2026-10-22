@@ -9,7 +9,7 @@ from ..shared.Spacing_Gaps import Spacing_Gaps
 
 # Words that start a control statement or a definition. Python's classes are Rust's structs, enums, traits and impls.
 CONTROL_WORDS = {"if", "for", "while", "switch", "match", "try", "return", "break", "continue", "throw", "loop", "do", "case",
-                 "default", "fn", "function", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules"}
+                 "default", "yield", "fn", "function", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules"}
 
 # Clever on purpose: finds a function stored in a variable, like `const f = (a, b): number =>` or `export const f = async x =>`.
 #   an optional "export", then const, let or var, then the name
@@ -19,7 +19,7 @@ ARROW_DEFINITION = re.compile(r"^(?:export\s+)?(?:const|let|var)\s+\w+[^=]*=\s*(
 # Node types that are statements, not the value a Rust block ends with.
 NOT_A_VALUE = {"expression_statement", "let_declaration", "empty_statement", "attribute_item", "inner_attribute_item"}
 
-MODIFIERS = {"pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
+MODIFIERS = {"@test", "@init", "@fini", "@noreturn", "pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
 OPENERS = ("{", "(", "[", ":")
 CLOSERS = ("}", ")", "]")
 

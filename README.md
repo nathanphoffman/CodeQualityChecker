@@ -10,7 +10,7 @@ Your coding rules in `RULES.md`, plus a script that grades any project against t
 
 ## How it works
 
-1. `detect.py` figures out the languages (Rust, TypeScript) and frameworks in the project.
+1. `detect.py` figures out the languages (Python, Rust, TypeScript, Hare, Deor) and frameworks in the project.
 2. Every rule that applies is run. Each returns a score from 0.0 to 1.0 plus a message.
 3. `report.py` prints per-rule grades and an overall weighted score.
 

@@ -1,15 +1,17 @@
-from ....source_code import RUST
+from ....source_code import HARE, RUST
 from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import PRIVATE_PREFIX
 from .names import name_counts
 
 def declared_variable(node, language):
-    """The name node of `let x = ...` (Rust) or `const x = ...` (TypeScript), or None for other nodes."""
+    """The name node of `let x = ...` (Rust and Hare) or `const x = ...` (TypeScript), or None for other nodes."""
 
     if language == RUST and node.type == "let_declaration" and node.child_by_field_name("value") is not None:
         name = node.child_by_field_name("pattern")
-    elif language != RUST and node.type == "variable_declarator" and node.child_by_field_name("value") is not None:
+    elif language == HARE and node.type == "let_declaration" and node.named_children:
+        name = node.named_children[0]
+    elif language not in (RUST, HARE) and node.type == "variable_declarator" and node.child_by_field_name("value") is not None:
         name = node.child_by_field_name("name")
     else:
         return None

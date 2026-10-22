@@ -1,6 +1,6 @@
 from ..deor.deor_handlers import deor_handlers
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import DEOR, RUST, TYPESCRIPT
+from ....source_code import DEOR, HARE, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
 from ....language_parsers.tree_sitter.use_names import dotted
@@ -9,6 +9,8 @@ from ..shared.limits import SILENT_CALLBACK_BODIES
 from ..python.python_handlers import is_loud_name
 
 ERR_CONSTRUCTOR = "Err"
+HARE_ERROR_TYPE = "error"
+HARE_SPEAKING_NODES = {"call_expression", "return_statement", "error_assertion_expression", "try_expression"}
 SILENT_RUST_BODIES = {"block", "unit_expression"}  # `{}` and `()`
 
 def line_of(node):
@@ -69,6 +71,37 @@ def typescript_handlers(root):
 
     return found
 
+def hare_error_case(case):
+    """An Error_Handler for a match case that receives an error, like `case let e: fs::error =>`, or None for any other case."""
+    pattern = case.named_children[0] if case.named_children else None
+
+    if pattern is None or pattern.type not in ("let_expression", "identifier", "scoped_type_identifier"):
+        return None
+
+    type_name = squashed(pattern.text.decode()).split(":")[-1] if pattern.type == "let_expression" else squashed(pattern.text.decode())
+
+    if not type_name.endswith(HARE_ERROR_TYPE):
+        return None
+
+    body = case.named_children[1:]
+    speaks = any(node.type in HARE_SPEAKING_NODES for statement in body for node in walk(statement))
+
+    return Error_Handler(line_of(case), True, speaks, type_name == HARE_ERROR_TYPE)
+
+def hare_handlers(root):
+    """`!` (crash on an error) and `?` (pass it up) are loud. A match case on an error type is a catch."""
+    found = []
+
+    for node in walk(root):
+        if node.type == "case":
+            case = hare_error_case(node)
+
+            found += [case] if case else []
+        elif node.type in ("error_assertion_expression", "try_expression"):
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
 def deor_error_handlers(source):
     """Deor crashes and failed-validity checks, plus the handlers in its `rust` blocks (read as Rust, lines moved back)."""
     found = [Error_Handler(*fields) for fields in deor_handlers(source)]
@@ -85,4 +118,6 @@ def tree_handlers(source, language):
 
     root = parse_tree(source, language)
 
-    return rust_handlers(root) if language == RUST else typescript_handlers(root)
+    handlers = {RUST: rust_handlers, HARE: hare_handlers}
+
+    return handlers.get(language, typescript_handlers)(root)

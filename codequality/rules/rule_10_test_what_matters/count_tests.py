@@ -3,7 +3,7 @@ import ast
 from ...language_parsers.python.parse_python import parse_python
 from ...language_parsers.deor.declarations import declarations_in
 from ...language_parsers.deor.tree import parse_deor
-from ...source_code import DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
+from ...source_code import DEOR, HARE, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from ...language_parsers.tree_sitter.tree_walk import squashed, walk
 from ..rule_05_be_secure.shared.uses import find_uses
@@ -13,6 +13,7 @@ CALLBACK_MARKERS = ("=>", "function")  # a real test passes its body as a functi
 PYTHON_TEST_PREFIX = "test"
 DEOR_EXPECTATION = "expect"  # a comment starting "expect:" or "expect-error:" in a Deor test example
 RUST_TEST_ATTRIBUTE_END = "test]"  # #[test] and #[tokio::test], but not #[cfg(test)]
+HARE_TEST_ATTRIBUTE = "@test"
 
 def count_python_tests(source):
     functions = [node for node in ast.walk(parse_python(source)) if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))]
@@ -34,6 +35,12 @@ def has_test_attribute(function):
 def count_rust_tests(source):
     return len([node for node in walk(parse_tree(source, RUST)) if node.type == "function_item" and has_test_attribute(node)])
 
+def count_hare_tests(source):
+    functions = [node for node in walk(parse_tree(source, HARE)) if node.type == "function_declaration"]
+
+    return len([function for function in functions if any(child.text == HARE_TEST_ATTRIBUTE.encode() for child in function.children
+                                                           if child.type == "function_attribute")])
+
 def count_typescript_tests(source):
     calls = [use for use in find_uses(source, TYPESCRIPT) if use.name in TYPESCRIPT_TEST_CALLS]
 
@@ -51,8 +58,9 @@ def count_deor_tests(source):
     return len(functions) + states_expectation
 
 def count_tests_in_project(project):
-    """Tests in every Python, Rust and TypeScript file, test folders included."""
-    counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests}
+    """Tests in every Python, Rust, TypeScript, Hare and Deor file, test folders included."""
+    counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests,
+                HARE: count_hare_tests}
     total = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

@@ -13,10 +13,13 @@ CLOSERS = ")]}>"
 # Clever on purpose: finding a function start without a real parser.
 # Each pattern captures the function name and the "(" that opens its arguments.
 #   rust: `fn name<T>(`
+#   hare: `fn name(`
 #   typescript: `function name(`, `name = (` / `name: Type = async (` for arrows,
 #   and an indented `name(` for class methods (control keywords are filtered out later).
 START_PATTERNS = {
     "rust": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()")],  # "fn", a name, optional <generics>, then the "(" opening the arguments
+
+    "hare": [re.compile(r"\bfn\s+(?P<name>\w+)\s*(?P<paren>\()")],  # "fn", a name, then the "(" opening the arguments
 
     "typescript": [
         re.compile(r"\bfunction\s*\*?\s*(?P<name>\w+)\s*(?:<[^>]*>)?\s*(?P<paren>\()"),  # "function", optional "*" for generators, a name, optional <generics>, then "("

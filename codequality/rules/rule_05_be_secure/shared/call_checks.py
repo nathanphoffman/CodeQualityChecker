@@ -60,7 +60,7 @@ SHELLS = ('"sh"', '"bash"', '"zsh"', '"cmd"', '"powershell"')
 # Keyword flags like verify=False are written in two pieces so this file does not flag itself.
 CALL_CHECKS = [
     Call_Check("RULE-05-SQL-STRINGS", "SQL is not built by joining strings", "error", {
-        "python": SQL_METHODS, "rust": SQL_METHODS, "typescript": SQL_METHODS,
+        "python": SQL_METHODS, "rust": SQL_METHODS, "typescript": SQL_METHODS, "hare": SQL_METHODS,
     }),
 
     Call_Check("RULE-05-RUN-STRINGS", "No eval or shell commands built from strings", "error", {
@@ -71,6 +71,7 @@ CALL_CHECKS = [
                        Entry("spawn", ("shell:true",)), Entry("spawnSync", ("shell:true",)), Entry("child_process.spawn", ("shell:true",))),
 
         "rust": (Entry("libc.system"),) + tuple(Entry("Command.new", (shell,)) for shell in SHELLS),
+        "hare": tuple(Entry(f"exec.{name}", (shell,)) for name in ("cmd", "cmdv") for shell in SHELLS),
     }),
 
     Call_Check("RULE-05-UNSAFE-LOADING", "No loading of untrusted data that can run code", "error", {
@@ -80,18 +81,21 @@ CALL_CHECKS = [
         "typescript": (Entry("unserialize"),),
 
         "rust": (),
+        "hare": (),
     }),
 
     Call_Check("RULE-05-WEAK-HASH", "No MD5 or SHA1 hashing", "warn", {
         "python": (Entry("hashlib.md5"), Entry("hashlib.sha1")) + hash_calls(("hashlib.new",), ("md5", "sha1")),
         "typescript": hash_calls(("createHash", "crypto.createHash"), ("md5", "sha1")),
         "rust": (Entry("Md5.new"), Entry("md5.compute"), Entry("Sha1.new"), Entry("Sha1.digest")),
+        "hare": (Entry("md5.md5"), Entry("sha1.sha1")),
     }),
 
     Call_Check("RULE-05-WEAK-RANDOM", "Secrets are not made with ordinary random numbers", "warn", {
         "python": tuple(Entry(f"random.{name}") for name in ("random", "randint", "choice", "choices", "randrange", "getrandbits")),
         "typescript": (Entry("Math.random"),),
         "rust": (Entry("rand.random"), Entry("rand.thread_rng"), Entry("thread_rng")),
+        "hare": tuple(Entry(f"random.{name}") for name in ("init", "u32", "u64", "u32n", "u64n")),
     }, line_words=SECRET_WORDS),
 
     Call_Check("RULE-05-SAFETY-OFF", "No turned-off certificate checks or left-on debug mode", "error", {
@@ -102,6 +106,7 @@ CALL_CHECKS = [
 
         "rust": (Entry(ANY_NAME, ("danger_accept_invalid_certs(true)",)),
                  Entry(ANY_NAME, ("danger_accept_invalid_hostnames(true)",))),
+        "hare": (),
     }),
 
     Call_Check("RULE-05-RISKY-OUTPUT", "Little output that skips escaping, and little unsafe", "info", {
@@ -109,6 +114,7 @@ CALL_CHECKS = [
         "typescript": (Entry("document.write"), Entry("assign.innerHTML"), Entry("assign.outerHTML"),
                        Entry("jsx.dangerouslySetInnerHTML"), Entry(ANY_NAME, (".insertAdjacentHTML(",))),
         "rust": (Entry("unsafe"),),
+        "hare": (),
     }),
 
     Call_Check("RULE-05-USER-PATHS", "File paths are not built from user input", "info", {
@@ -118,12 +124,14 @@ CALL_CHECKS = [
 
         "rust": (Entry("Path.new"), Entry("PathBuf.from"), Entry("File.open"), Entry("File.create"),
                  Entry("fs.read_to_string"), Entry("fs.read")),
+        "hare": tuple(Entry(f"os.{name}") for name in ("open", "create", "mkdir", "remove", "rename")),
     }, names_words=INPUT_WORDS),
 
     Call_Check("RULE-05-SECRET-LOGGING", "Secrets are not printed or logged", "info", {
         "python": (Entry("print"),) + log_calls(PYTHON_LOGGERS, LOG_METHODS),
         "typescript": log_calls(("console", "logger"), LOG_METHODS),
         "rust": tuple(Entry(name) for name in ("println", "eprintln", "print", "eprint", "dbg", "info", "warn", "error", "debug", "trace")),
+        "hare": tuple(Entry(f"fmt.{name}") for name in ("print", "println", "printf", "printfln", "error", "errorln", "errorf", "errorfln")),
     }, names_words=SECRET_WORDS),
 ]
 

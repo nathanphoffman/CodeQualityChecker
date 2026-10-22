@@ -1,7 +1,7 @@
 from .tree_walk import squashed
 
-# Node types named by one of their fields: calls, `new X()` and Rust macros like println!.
-NAMING_FIELDS = {"call_expression": "function", "new_expression": "constructor", "macro_invocation": "macro"}
+# Node types named by one of their fields: `new X()` and Rust macros like println!.
+NAMING_FIELDS = {"new_expression": "constructor", "macro_invocation": "macro"}
 
 def dotted(text):
     """`a?.b` and `a::b` both become `a.b`, so one name works across languages."""
@@ -17,8 +17,16 @@ def assignment_name(node):
 
     return "assign." + left.child_by_field_name("property").text.decode()
 
+def called_name(node):
+    """The callee of a call. Hare's grammar calls the field `callee`, the others `function`."""
+
+    return node.child_by_field_name("function") or node.child_by_field_name("callee")
+
 def use_name(node):
     """The dotted name of a call, assignment, JSX attribute or unsafe block, or None for other nodes."""
+
+    if node.type == "call_expression":
+        return dotted(called_name(node).text.decode())
 
     if node.type in NAMING_FIELDS:
         return dotted(node.child_by_field_name(NAMING_FIELDS[node.type]).text.decode())

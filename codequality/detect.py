@@ -6,7 +6,7 @@ import warnings
 from pathlib import Path
 
 from .models import Project
-from .source_code import DEOR, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
+from .source_code import DEOR, HARE, PYTHON, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
 
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
@@ -17,6 +17,7 @@ def detect(root: Path, exclude: list[str] | None = None) -> Project:
     _detect_rust(project)
     _detect_ts(project)
     _detect_deor(project)
+    _detect_hare(project)
 
     return project
 
@@ -29,6 +30,10 @@ def _detect_python(project: Project) -> None:
 def _detect_deor(project: Project) -> None:
     if project.files(".deor"):
         project.languages.add(DEOR)
+
+def _detect_hare(project: Project) -> None:
+    if project.files(".ha"):
+        project.languages.add(HARE)
 
 def _detect_rust(project: Project) -> None:
     cargo = project.root / "Cargo.toml"

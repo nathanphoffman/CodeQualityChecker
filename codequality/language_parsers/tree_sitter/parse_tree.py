@@ -1,12 +1,14 @@
 import warnings
 from functools import lru_cache
 
+import tree_sitter_hare
 import tree_sitter_rust
 import tree_sitter_typescript
 from tree_sitter import Language, Parser
 
 # Grammars to try in order. TypeScript falls back to TSX so files with JSX parse without errors.
 GRAMMARS = {
+    "hare": [tree_sitter_hare.language],
     "rust": [tree_sitter_rust.language],
     "typescript": [tree_sitter_typescript.language_typescript, tree_sitter_typescript.language_tsx],
 }

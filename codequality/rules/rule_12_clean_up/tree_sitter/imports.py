@@ -1,4 +1,6 @@
-from ....source_code import RUST
+import re
+
+from ....source_code import HARE, RUST
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
@@ -38,6 +40,18 @@ def rust_bound_names(declaration):
 
     return names
 
+def hare_bound_names(statement):
+    """Names from a `use` line: `use a::b;` binds b, `use x = a::b;` binds x and `use a::{b, c};` binds b and c."""
+    text = statement.text.decode().removeprefix("use").removesuffix(";").strip()
+
+    if "=" in text:
+        return [text.split("=")[0].strip()]
+
+    if "{" in text:
+        return re.findall(r"\w+", text[text.index("{"):])
+
+    return [] if text.endswith("*") else [text.split("::")[-1].strip()]
+
 def tree_imports(root, lines, language):
     """(imported names, line numbers of the unused ones)."""
     used = counts_outside_imports(root)
@@ -52,7 +66,8 @@ def tree_imports(root, lines, language):
         if any(child.type == PUBLIC_MARKER for child in node.children):
             continue
 
-        names = rust_bound_names(node) if language == RUST else typescript_bound_names(node)
+        bound_names = {RUST: rust_bound_names, HARE: hare_bound_names}
+        names = bound_names.get(language, typescript_bound_names)(node)
         total += len(names)
         unused += [line for name in names if used[name] <= 0]
 

@@ -4,16 +4,17 @@ from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ..shared.Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
-NUMBER_TYPES = {"number", "integer_literal", "float_literal"}
+NUMBER_TYPES = {"number", "float", "integer_literal", "float_literal"}
 STRING_TYPES = {"string", "string_literal"}
 
-# Code that already names or defines its values: Rust consts, statics, enum values and attributes.
-NAMED_TYPES = {"const_item", "static_item", "enum_variant", "attribute_item", "enum_assignment"}
+# Code that already names or defines its values: Rust consts, statics, enum values and attributes, and Hare defs.
+NAMED_TYPES = {"const_item", "static_item", "enum_variant", "attribute_item", "enum_assignment",
+               "constant_declaration", "enum_field", "declaration_attribute", "function_attribute"}  # the last four are Hare
 
 # Strings that are module paths or types, not values: imports, and `"a" | "b"` types.
 NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", "literal_type", "jsx_attribute"}
 
-RUST_NUMBER_SUFFIXES = ("usize", "isize", "u128", "i128", "u16", "u32", "u64", "i16", "i32", "i64", "f32", "f64", "u8", "i8")
+RUST_NUMBER_SUFFIXES = ("usize", "isize", "u128", "i128", "u16", "u32", "u64", "i16", "i32", "i64", "f32", "f64", "u8", "i8", "z", "u", "i")  # "z", "u" and "i" are Hare
 
 def number_value(text):
     """The number written in the source, or None when it can't be read. Handles 1_000, 0xFF, 2u32 and 10n."""

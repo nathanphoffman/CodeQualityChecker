@@ -2,11 +2,13 @@
 
 # Field names the grammars give to the parts of a node.
 NAME_FIELD, BODY_FIELD, OPERATOR_FIELD = "name", "body", "operator"
+FIRST_CHILD = "#first"  # stands in for a field name when the grammar gives the declared name no field (Hare)
 
 FUNCTION_TYPES = {
     "rust": {"function_item"},
     "typescript": {"function_declaration", "generator_function_declaration", "method_definition",
                    "arrow_function", "function_expression"},
+    "hare": {"function_declaration"},
 }
 
 # Declarations that create local variables: node type -> the field holding the new names.
@@ -17,12 +19,15 @@ BINDING_FIELDS = {
     "typescript": {"variable_declarator": "name", "required_parameter": "pattern",
                    "optional_parameter": "pattern", "arrow_function": "parameter",
                    "for_in_statement": "left", "catch_clause": "parameter"},
+
+    "hare": {"let_declaration": FIRST_CHILD, "parameter": FIRST_CHILD, "let_expression": FIRST_CHILD},
 }
 
 # Node types that are a variable name (field names and type names are different node types).
 IDENTIFIER_TYPES = {
     "rust": {"identifier"},
     "typescript": {"identifier", "shorthand_property_identifier", "shorthand_property_identifier_pattern"},
+    "hare": {"identifier"},
 }
 
 # Each of these adds one path through the function.
@@ -30,6 +35,7 @@ BRANCH_TYPES = {
     "rust": {"if_expression", "while_expression", "for_expression", "loop_expression", "match_arm"},
     "typescript": {"if_statement", "for_statement", "for_in_statement", "while_statement", "do_statement",
                    "switch_case", "catch_clause", "ternary_expression"},
+    "hare": {"if_statement", "for_statement", "case"},
 }
 
 BRANCH_OPERATORS = {"&&", "||", "??"}

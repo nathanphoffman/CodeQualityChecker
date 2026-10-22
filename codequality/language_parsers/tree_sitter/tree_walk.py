@@ -1,4 +1,4 @@
-from .syntax_shapes import IDENTIFIER_TYPES
+from .syntax_shapes import FIRST_CHILD, IDENTIFIER_TYPES
 
 NAME_TYPES = {"identifier", "property_identifier", "field_identifier", "shorthand_property_identifier"}
 
@@ -15,6 +15,14 @@ def identifiers_in(node, language):
     """The variable names used anywhere inside this node."""
 
     return {descendant.text.decode() for descendant in walk(node) if descendant.type in IDENTIFIER_TYPES[language]}
+
+def bound_node(node, field):
+    """The part of a declaration that holds the new names, or None when it has none."""
+
+    if field == FIRST_CHILD:
+        return node.named_children[0] if node.named_children else None
+
+    return node.child_by_field_name(field)
 
 def squashed(text):
     """Source text with all whitespace removed, so `verify = False` and `verify=False` compare equal."""

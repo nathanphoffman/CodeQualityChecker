@@ -1,6 +1,6 @@
 from .parse_tree import parse_tree
 from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
-from .tree_walk import identifiers_in, walk
+from .tree_walk import bound_node, identifiers_in, walk
 
 def function_name(function):
     name = function.child_by_field_name(NAME_FIELD)
@@ -16,7 +16,7 @@ def local_names(function, language):
 
     for node in walk(function):
         field = BINDING_FIELDS[language].get(node.type)
-        bound = node.child_by_field_name(field) if field else None
+        bound = bound_node(node, field) if field else None
         names |= identifiers_in(bound, language) if bound else set()
 
     return names

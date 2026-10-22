@@ -5,7 +5,7 @@ from ....language_parsers.tree_sitter.tree_walk import walk
 NAME_NODE_TYPES = {"identifier", "type_identifier", "field_identifier", "property_identifier",
                    "shorthand_property_identifier", "shorthand_field_identifier"}
 
-IMPORT_TYPES = {"import_statement", "use_declaration"}
+IMPORT_TYPES = {"import_statement", "use_declaration", "use_statement"}
 
 def name_counts(node):
     """How many times each name is written inside this node."""

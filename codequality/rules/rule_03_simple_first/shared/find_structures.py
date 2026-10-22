@@ -7,7 +7,7 @@ CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()"
 CHAIN_GAP = re.compile(r"[\s?]*")  # whitespace and Rust's "?" between chained calls
 
 # Rust closures start after "(", "," "=" or "move" as |args|. TypeScript arrows start at "=>".
-CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>")}  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
+CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>"), "hare": re.compile(r"(?!)")}  # Hare has no closures, so its pattern never matches  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match
 STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next ";" or brace
 

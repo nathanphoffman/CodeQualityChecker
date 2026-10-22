@@ -4,7 +4,8 @@ from ..deor.deor_names import deor_names
 from ..python.python_names import python_names
 from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.tree_walk import identifiers_in, walk
+from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD
+from ....language_parsers.tree_sitter.tree_walk import bound_node, identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".
@@ -16,6 +17,13 @@ NAME_PATTERNS = {
         re.compile(r"\b(?:const|static)\s+(?:mut\s+)?(?P<name>\w+)\s*:"),  # "const" or "static", optional "mut", a name, then ":"
         re.compile(r"\b(?:struct|enum|trait|type|union|mod)\s+(?P<name>\w+)"),  # a type keyword then the name
         re.compile(r"\bfor\s+(?P<name>\w+)\s+in\b"),  # "for", the loop variable, then "in"
+    ],
+    "hare": [
+        re.compile(r"\bfn\s+(?P<name>\w+)"),  # "fn" then the name
+        re.compile(r"\b(?:let|def)\s+(?P<name>\w+)\b"),  # "let" or "def" then the name; `let (a, b)` is skipped because "(" follows
+
+        re.compile(r"\bconst\s+(?P<name>\w+)\s*[:=]"),  # "const", a name, then ":" or "=" (so `const str` in a type is not a name)
+        re.compile(r"\btype\s+(?P<name>\w+)"),  # "type" then the name
     ],
     "typescript": [
         re.compile(r"\bfunction\s*\*?\s*(?P<name>\w+)"),  # "function", optional "*", then the name
@@ -29,6 +37,7 @@ NAME_PATTERNS = {
 # node type -> the field holding the new names. Rust closures list bare names between pipes, so the whole node is read.
 PARAMETER_FIELDS = {
     "rust": {"parameter": "pattern", "closure_parameters": None},
+    "hare": {"parameter": FIRST_CHILD},
     "typescript": {"required_parameter": "pattern", "optional_parameter": "pattern", "arrow_function": "parameter"},
 }
 
@@ -40,7 +49,7 @@ def parameter_names(source, language):
             continue
 
         field = PARAMETER_FIELDS[language][node.type]
-        declared = node.child_by_field_name(field) if field else node
+        declared = bound_node(node, field) if field else node
         names += identifiers_in(declared, language) if declared else []
 
     return names

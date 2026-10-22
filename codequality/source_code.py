@@ -1,9 +1,9 @@
 import re
 import warnings
 
-PYTHON, RUST, TYPESCRIPT, DEOR = "python", "rust", "typescript", "deor"
+PYTHON, RUST, TYPESCRIPT, DEOR, HARE = "python", "rust", "typescript", "deor", "hare"
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
-SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR}
+SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE}
 TSCONFIG_FILE = "tsconfig.json"
 NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes that find functions and declarations
 
