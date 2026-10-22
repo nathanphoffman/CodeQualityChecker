@@ -3,7 +3,7 @@ import ast
 from ...language_parsers.python.parse_python import parse_python
 from ...language_parsers.deor.declarations import declarations_in
 from ...language_parsers.deor.tree import parse_deor
-from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
+from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from ...language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
 from ...language_parsers.tree_sitter.tree_functions import function_name
@@ -67,6 +67,9 @@ def count_mojo_tests(source):
 def count_fortran_tests(source):
     return count_named_tests(source, FORTRAN, PYTHON_TEST_PREFIX)
 
+def count_rexx_tests(source):
+    return count_named_tests(source, REXX, PYTHON_TEST_PREFIX)
+
 def count_go_tests(source):
     return count_named_tests(source, GO, GO_TEST_PREFIX)
 
@@ -90,7 +93,7 @@ def count_tests_in_project(project):
     """Tests in every source file, test folders included."""
     counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests,
                 HARE: count_hare_tests, C_LANG: count_c_tests, GO: count_go_tests,
-                MOJO: count_mojo_tests, FORTRAN: count_fortran_tests, CSHARP: count_csharp_tests}
+                MOJO: count_mojo_tests, FORTRAN: count_fortran_tests, CSHARP: count_csharp_tests, REXX: count_rexx_tests}
     total = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

@@ -1,6 +1,6 @@
 import re
 
-from ....source_code import C_LANG, CSHARP, FORTRAN, MOJO, RUST
+from ....source_code import C_LANG, CSHARP, FORTRAN, MOJO, REXX, RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import normalized, walk
 from ...rule_09_comment_why.shared.extract.line_helpers import COMMENT_MARKERS
@@ -42,6 +42,9 @@ def leading_word(text):
 def starts_control(text, language=None):
     """True for lines like `if (x) {`, `return y;`, `pub async fn f() {`, `case 1:` and `const f = () => {`."""
 
+    if language == REXX:
+        return starts_rexx_control(text)
+
     if language == FORTRAN:
         words = text.lower().split()
 
@@ -50,6 +53,14 @@ def starts_control(text, language=None):
     words = [word for word in text.split() if word not in MODIFIERS]
 
     return (bool(words) and leading_word(words[0]) in CONTROL_WORDS) or bool(ARROW_DEFINITION.match(text))
+
+# Rexx instructions that need a blank line above them, and a label (`name:`) which starts a routine. `if = 3` is an assignment, not an `if`.
+REXX_CONTROL_WORDS = {"if", "do", "select", "return", "exit", "leave", "iterate", "signal"}
+REXX_LABEL = re.compile(r"^\w+:")
+REXX_ASSIGNMENT = re.compile(r"^\w+\s*=(?!=)")
+
+def starts_rexx_control(text):
+    return bool(REXX_LABEL.match(text)) or (leading_word(text.lower()) in REXX_CONTROL_WORDS and not REXX_ASSIGNMENT.match(text))
 
 def rust_tail_lines(source):
     """Lines where a Rust block ends with a value, like `total` or `Ok(x)`. That is an implicit return."""

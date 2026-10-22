@@ -32,6 +32,7 @@ LANGUAGE_NOTES = {
         "csharp": "Methods, constructors and local functions count as functions, read from the syntax tree. Lambdas are not counted as functions.",
         "mojo": "`self` is not counted as an argument. Functions are read from the syntax tree, so a method counts as a function.",
         "fortran": "Functions, subroutines and the main `program` count as functions, measured from the header line to the `end` line. A `call name` counts as a call when measuring call depth.",
+        "rexx": "A label (`name:`) and everything up to the next label counts as a function. `parse arg` and `arg` give its arguments, one per comma-separated part. `call name` counts as a call when measuring call depth.",
         "deor": "A `macro` (and `unsafe_macro`) counts as a function: its lines and parameters are measured the same way. `macro_run name` counts as a call when measuring call depth, so fn -> macro is 2 levels and fn -> macro -> fn is 3.",
     },
     "RULE-03": {
@@ -44,9 +45,11 @@ LANGUAGE_NOTES = {
         "csharp": "Clever means regex, long LINQ chains (Select, Where, Aggregate...), nested lambdas, chained ternaries, reflection, `unsafe`, `goto` and bit tricks (`<<`, `>>`, `^`).",
         "mojo": "Clever means `:=`, hand-written MLIR (`__mlir_...`) and bit tricks (`<<`, `>>`, `^`).",
         "fortran": "Clever means `goto`, `equivalence`, `common` blocks and `transfer(...)`.",
+        "rexx": "Clever means `interpret` (running a string as code), `signal label` (a goto) and `value(...)` (reaching a variable by a name held in another).",
         "deor": "Deor has no clever constructs of its own, so only the Rust inside `rust` blocks is checked. `unsafe_macro` is just a macro whose variables leak into the code that runs it, and is not treated as clever.",
     },
     "RULE-05": {
+        "rexx": "`say` and `lineout` count as output, `stream`, `linein`, `lineout`, `charin` and `charout` as file access, `random` as weak random, and `interpret` as running a string. A command line or `address` call with a variable in it counts as a shell command built from parts.",
         "deor": "Deor is judged by its library functions: random (`m_rand_int`, `m_rand_float`, `m_rand_bool`), file paths (`f_read`, `f_write`, `f_append`, `f_exists`, `f_lines`, `f_delete`) and `print` for logging secrets. Rust inside `rust` blocks gets the Rust checks.",
     },
     "RULE-10": {
@@ -59,6 +62,7 @@ LANGUAGE_NOTES = {
         "csharp": "A test is a method with a test attribute: `[Fact]`, `[Theory]`, `[Test]`, `[TestCase]` or `[TestMethod]`. Files ending in `Test.cs` or `Tests.cs` count as tests and are left out of the other rules.",
         "mojo": "A test is a function whose name starts with `test`.",
         "fortran": "Fortran has no test marker, so a test is a function or subroutine whose name starts with `test`.",
+        "rexx": "Rexx has no test marker, so a test is a label whose name starts with `test`.",
         "deor": "A test is a function whose name starts with `test`, plus one for a file that states what it expects with `# expect:` or `# expect-error:` comments.",
     },
     "RULE-11": {
@@ -69,6 +73,7 @@ LANGUAGE_NOTES = {
         "csharp": "Errors are raised with `throw` and handled with `try`/`catch`. A catch is loud when it throws, logs or prints, or uses the caught error. An empty `catch {}` is silent, and catching `Exception` (or nothing) is the broad, worst case.",
         "mojo": "Errors are raised with `raise` and handled with `try`/`except`. Every `except` catches anything. A handler is loud when it raises, calls something that speaks up (print, log), or uses the caught error. `pass` alone is silent.",
         "fortran": "Fortran reports errors through status variables (`iostat=`, `stat=`). An `if` that checks one is a catch, and is loud when it stops, prints, calls something or returns. `stop` and `error stop` count as raising.",
+        "rexx": "Rexx sets `rc` after every command. An `if` that checks `rc` is a catch, and so is `signal on error` or `call on halt`; they are loud when the code they run says something, calls, jumps, returns or exits. `exit` with a value other than 0 counts as raising.",
         "go": "Errors are values. `if err != nil` is a catch: an empty block is silent, while returning, calling something or panicking is loud. `_ = f()` throws a result away. `panic`, `errors.New` and `fmt.Errorf` count as raising.",
         "hare": "Errors are values in a tagged union. `!` (crash on error) and `?` (pass it up) count as error checks. A `match` case on an error type is a catch and must do something: a case that only yields `void` is silent.",
         "deor": "Deor has no exceptions. It registers error handling with validator types (`type Name(int val)` plus a rule that decides what is valid) and the checks on them, plus `crash(...)`. Counted as error checks: `crash(...)`, `if x is not valid` (the failure path is under the check) and `if x is valid ... else` (the failure path is the `else`). A failure path is loud when it prints, crashes or returns. An `if x is valid` with no `else` counts as a check but is never marked swallowed. `type` declarations and `avow` (forced unwrap) are not counted by themselves.",
@@ -83,6 +88,7 @@ LANGUAGE_NOTES = {
         "csharp": "Comments start with `//` or `/*`. An attribute like `[Fact]` belongs to the method below it.",
         "mojo": "Comments start with `#`. A decorator like `@fieldwise_init` belongs to the line below it. A block ends where the indentation drops.",
         "fortran": "Comments start with `!`. A block ends at its `end` line (`end if`, `end do`, `end function`...). Names ignore case.",
+        "rexx": "Comments are `/* ... */` and can nest. A block ends at its `end`, and a label (`name:`) starts a routine. Names ignore case.",
         "deor": "Comments start with `#` or `//`.",
     },
 }

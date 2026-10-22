@@ -2,7 +2,7 @@ from ....language_parsers.tree_sitter.tree_functions import statements_of
 from ....language_parsers.tree_sitter.tree_walk import walk
 
 BLOCK_TYPES = {"block", "statement_block", "compound_statement", "function", "subroutine", "program", "do_loop"}  # the last four are Fortran
-TERMINATOR_TYPES = {"return_statement", "throw_statement", "break_statement", "continue_statement", "goto_statement", "raise_statement", "stop_statement"}
+TERMINATOR_TYPES = {"return_statement", "throw_statement", "break_statement", "continue_statement", "goto_statement", "raise_statement", "stop_statement", "exit_statement"}
 HARE_CONTINUE = b"continue"
 FORTRAN_JUMPS = {"return", "exit", "cycle"}  # `goto` is left out: code after it can be reached through a label
 RUST_TERMINATOR_EXPRESSIONS = {"return_expression", "break_expression", "continue_expression"}

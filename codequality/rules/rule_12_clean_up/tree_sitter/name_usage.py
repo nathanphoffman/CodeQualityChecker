@@ -1,4 +1,4 @@
-from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, RUST, TYPESCRIPT
+from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ...rule_10_test_what_matters.count_tests import has_test_attribute
@@ -70,8 +70,13 @@ def is_private_fortran(node):
 
     return bool(set(ancestors) & {"program", "function", "subroutine"})
 
+def is_private_rexx(node):
+    """A routine that starts with `procedure` keeps its variables to itself, which is how Rexx marks a helper. Other labels can be called from other programs."""
+
+    return node.type == "routine_definition" and any(statement.type == "procedure_statement" for statement in node.child_by_field_name("body").children)
+
 PRIVATE_CHECKS = {RUST: is_private_rust, HARE: is_private_hare, TYPESCRIPT: is_private_typescript, C_LANG: is_private_c, GO: is_private_go,
-                  MOJO: is_private_mojo, FORTRAN: is_private_fortran, CSHARP: is_private_csharp}
+                  MOJO: is_private_mojo, FORTRAN: is_private_fortran, CSHARP: is_private_csharp, REXX: is_private_rexx}
 
 def is_private_definition(node, language):
     """A Rust fn without `pub` (not main, not a test, not in a trait impl), a Hare fn without `export` (not main or an attribute

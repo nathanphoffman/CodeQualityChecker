@@ -6,7 +6,8 @@ from .tree_walk import bound_nodes, declarator_name, identifiers_in, normalized,
 # Fortran has no block around a body: the statements sit directly inside the function, between its header and its end line,
 # mixed with declarations. These are the parts that are not statements of the body.
 FRAME_TYPES = {"function_statement", "subroutine_statement", "program_statement", "variable_declaration", "use_statement",
-               "implicit_statement", "do_statement", "internal_procedures", "contains_statement"}
+               "implicit_statement", "do_statement", "internal_procedures", "contains_statement",
+               "procedure_statement"}  # the last is Rexx's `procedure expose ...`, which only sets up the routine
 HEADER_TYPES = {"function_statement", "subroutine_statement", "program_statement"}
 BLOCK_ENDINGS = ("block", "_block", "compound_statement")
 

@@ -1,4 +1,4 @@
-from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, RUST, TYPESCRIPT
+from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
 from ....language_parsers.tree_sitter.tree_walk import declarator_name, normalized, walk
 from ..shared.limits import PRIVATE_PREFIX
@@ -13,6 +13,21 @@ def with_value(node, field):
 def first_named(node):
     return node.named_children[:1] if node is not None else []
 
+def rexx_variable(node):
+    """An assignment in a routine that has its own variables (`procedure`), unless the name is exposed to the caller. Without `procedure`
+    every variable is shared by the whole program, so one that nothing in the routine reads may be read somewhere else."""
+    routine = node
+
+    while routine is not None and routine.type != "routine_definition":
+        routine = routine.parent
+
+    procedures = [] if routine is None else [statement for statement in routine.child_by_field_name("body").children if statement.type == "procedure_statement"]
+    left = node.child_by_field_name("left")
+    name = left.child_by_field_name("declarator") or left  # a compound name like `stem.i` is judged by its stem
+    exposed = {shared.text for procedure in procedures for shared in procedure.children_by_field_name("exposed")}
+
+    return [name] if procedures and name.text not in exposed else []
+
 # Each language: the declaration node types that create variables -> how to find their name nodes.
 # Hare and Go's `a, b := ...` only follow the first name; C and Fortran look inside wrappers like `*name` and `name(10)`.
 # Mojo has no keyword on a first assignment (`x = 1`), so every assignment to a plain name counts.
@@ -25,6 +40,7 @@ VARIABLE_FINDERS = {
          "var_spec": lambda node: with_value(node, "name")},
     MOJO: {"assignment": lambda node: first_named(node.child_by_field_name("left"))},
     CSHARP: {"variable_declarator": lambda node: [node.child_by_field_name("name")] if len(node.named_children) > 1 else []},  # only with a value
+    REXX: {"assignment_statement": rexx_variable},
     FORTRAN: {"variable_declaration": lambda node: [declarator_name(declarator) for declarator in node.children_by_field_name("declarator")]},
 }
 

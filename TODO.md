@@ -1,16 +1,14 @@
 # TODO
 
-## Add Rexx support
+## Rexx: swap the hand-written reader for a real grammar
 
-Not done yet. The problem:
+Rexx is supported, but through our own small reader (`codequality/language_parsers/rexx/`), because the only tree-sitter grammar found
+(`stcarmi/tree-sitter-rexx`) is for syntax highlighting and has no license file. The reader builds a tree shaped like tree-sitter's, so
+every rule works on it, with these limits:
 
-- The only Rexx tree-sitter grammar found is `stcarmi/tree-sitter-rexx`. Its own header says it is for syntax highlighting, not full parsing, so it gives a flat list of words (keywords, labels, strings) with no functions or blocks.
-- That repo has no LICENSE file, only `"license": "ISC"` in `package.json`, so it should not be copied into `vendor/` until that is cleared up (ask the author, or check for a license in a newer version).
-- The other Rexx grammar found (`dhineshaps/rexx-tree-sitter`) is a 58-line toy.
+- A command is any line that is not an instruction, so a typo in a keyword reads as a host command instead of an error.
+- `import`-style checks do nothing, because plain Rexx has no imports (ooRexx's `::requires` is not read).
+- A routine is a label plus everything up to the next label. Labels used only for `signal` jumps count as routines too.
+- Objects and classes from ooRexx (`::class`, `::method`) are not understood.
 
-Options to look at later:
-
-1. Write a small Rexx reader by hand, like the Deor one: a label such as `greet:` is a function, and `do`/`end`, `select`/`end` blocks are matched by us. Checks would be shallower than for the other languages.
-2. Find or write a real Rexx grammar and vendor it the way Hare and Mojo are (see `vendor/`).
-
-Files Rexx would use: `.rexx`, `.rex`, `.exec`.
+If a proper grammar turns up with a clear license, vendor it like Hare and Mojo (see `vendor/`) and delete the reader.

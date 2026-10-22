@@ -15,6 +15,7 @@ FUNCTION_TYPES = {
     "mojo": {"function_definition"},
     "fortran": {"function", "subroutine", "program"},
     "csharp": {"method_declaration", "constructor_declaration", "local_function_statement"},  # lambdas are not counted as functions
+    "rexx": {"routine_definition"},  # a label and everything up to the next label
 }
 
 # Declarations that create local variables: node type -> the field holding the new names.
@@ -32,6 +33,7 @@ BINDING_FIELDS = {
     "mojo": {"parameter": "name", "assignment": "left", "for_statement": "left", "for_in_clause": "left", "except_clause": FIRST_CHILD},
     "fortran": {"variable_declaration": "declarator", "parameters": WHOLE_NODE, "loop_control_expression": FIRST_CHILD},
     "csharp": {"variable_declarator": "name", "parameter": "name", "foreach_statement": "left", "catch_declaration": "name"},
+    "rexx": {"parameter": "name", "assignment_statement": "left", "parse_statement": "target", "for_statement": "left"},
 }
 
 # Node types that are a variable name (field names and type names are different node types).
@@ -44,6 +46,7 @@ IDENTIFIER_TYPES = {
     "mojo": {"identifier"},
     "fortran": {"identifier"},
     "csharp": {"identifier"},
+    "rexx": {"identifier"},
 }
 
 # Each of these adds one path through the function.
@@ -59,9 +62,10 @@ BRANCH_TYPES = {
     "fortran": {"if_statement", "elseif_clause", "do_loop", "case_statement", "where_statement"},
     "csharp": {"if_statement", "for_statement", "foreach_statement", "while_statement", "do_statement", "switch_section", "catch_clause",
                "conditional_expression", "switch_expression_arm"},
+    "rexx": {"if_statement", "for_statement", "when_clause", "otherwise_clause", "boolean_operator"},  # `&` and `|` join conditions
 }
 
 BRANCH_OPERATORS = {"&&", "||", "??"}
 
 # Fortran does not care about case: `Total` and `total` are the same variable.
-CASE_INSENSITIVE_LANGUAGES = {"fortran"}
+CASE_INSENSITIVE_LANGUAGES = {"fortran", "rexx"}

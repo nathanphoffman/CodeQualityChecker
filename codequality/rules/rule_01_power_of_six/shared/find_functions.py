@@ -5,7 +5,7 @@ from ....language_parsers.deor.tree import parse_deor
 from .Function_Info import Function_Info
 from ..tree_sitter.tree_function_infos import tree_function_infos
 from ..python.python_functions import python_functions
-from ....source_code import CSHARP, DEOR, FORTRAN, MOJO, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
+from ....source_code import CSHARP, DEOR, FORTRAN, MOJO, REXX, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
 from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES, VOID_PARAMETERS
 
 OPENERS = "([{<"
@@ -99,7 +99,7 @@ def find_functions(source, language):
     if language == DEOR:
         return deor_function_infos(source)
 
-    if language in (MOJO, FORTRAN, CSHARP):
+    if language in (MOJO, FORTRAN, CSHARP, REXX):
         return tree_function_infos(source, language)
 
     text = blank_out_text(source, language)

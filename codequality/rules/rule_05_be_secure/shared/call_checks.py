@@ -61,7 +61,7 @@ SHELLS = ('"sh"', '"bash"', '"zsh"', '"cmd"', '"powershell"')
 CALL_CHECKS = [
     Call_Check("RULE-05-SQL-STRINGS", "SQL is not built by joining strings", "error", {
         "python": SQL_METHODS, "rust": SQL_METHODS, "typescript": SQL_METHODS, "hare": SQL_METHODS,
-        "c": SQL_METHODS, "go": SQL_METHODS, "fortran": SQL_METHODS, "csharp": SQL_METHODS,
+        "c": SQL_METHODS, "go": SQL_METHODS, "fortran": SQL_METHODS, "csharp": SQL_METHODS, "rexx": SQL_METHODS,
     }),
 
     Call_Check("RULE-05-RUN-STRINGS", "No eval or shell commands built from strings", "error", {
@@ -75,6 +75,7 @@ CALL_CHECKS = [
         "hare": tuple(Entry(f"exec.{name}", (shell,)) for name in ("cmd", "cmdv") for shell in SHELLS),
         "c": (Entry("system"), Entry("popen")),
         "fortran": (Entry("execute_command_line"), Entry("system")),
+        "rexx": (Entry("interpret"), Entry("command")),  # `command` is a line sent to the operating system with a variable in it
         "csharp": (Entry("CSharpScript.EvaluateAsync"), Entry("CSharpScript.RunAsync"), Entry("Process.Start", ('"cmd"',)))
         + tuple(Entry(name, (shell,)) for name in ("ProcessStartInfo", "Process.Start") for shell in SHELLS),
         "go": tuple(Entry(f"exec.{name}", (shell,)) for name in ("Command", "CommandContext") for shell in SHELLS),
@@ -111,6 +112,7 @@ CALL_CHECKS = [
         "hare": tuple(Entry(f"random.{name}") for name in ("init", "u32", "u64", "u32n", "u64n")),
         "c": tuple(Entry(name) for name in ("rand", "srand", "random", "srandom", "drand48")),
         "fortran": (Entry("random_number"), Entry("random_seed")),
+        "rexx": (Entry("random"),),
         "go": tuple(Entry(f"rand.{name}") for name in ("Int", "Intn", "Int63", "Int31", "Float64", "Seed")),
         "csharp": (Entry("Random"), Entry("Random.Shared.Next"), Entry("Random.Shared.NextBytes")),
     }, line_words=SECRET_WORDS),
@@ -152,6 +154,7 @@ CALL_CHECKS = [
         "hare": tuple(Entry(f"os.{name}") for name in ("open", "create", "mkdir", "remove", "rename")),
         "c": tuple(Entry(name) for name in ("fopen", "open", "opendir", "remove", "unlink", "rename")),
         "fortran": (Entry("open"),),
+        "rexx": tuple(Entry(name) for name in ("stream", "linein", "lineout", "charin", "charout")),
         "go": tuple(Entry(f"os.{name}") for name in ("Open", "OpenFile", "ReadFile", "WriteFile", "Create", "Remove")) + (Entry("filepath.Join"),),
         "csharp": tuple(Entry(f"File.{name}") for name in ("ReadAllText", "ReadAllBytes", "ReadAllLines", "WriteAllText", "Open", "OpenRead", "Create", "Delete"))
         + (Entry("Directory.GetFiles"), Entry("Path.Combine"), Entry("FileStream"), Entry("StreamReader"), Entry("StreamWriter")),
@@ -164,6 +167,7 @@ CALL_CHECKS = [
         "hare": tuple(Entry(f"fmt.{name}") for name in ("print", "println", "printf", "printfln", "error", "errorln", "errorf", "errorfln")),
         "c": tuple(Entry(name) for name in ("printf", "fprintf", "puts", "syslog")),
         "fortran": (Entry("print"), Entry("write")),
+        "rexx": (Entry("say"), Entry("lineout")),
         "go": tuple(Entry(f"{package}.{name}") for package in ("fmt", "log") for name in ("Print", "Println", "Printf", "Fatal", "Fatalf", "Panic", "Panicf")),
         "csharp": (Entry("Console.WriteLine"), Entry("Console.Write"), Entry("Debug.WriteLine"), Entry("Trace.WriteLine"))
         + log_calls(("logger", "_logger"), ("LogTrace", "LogDebug", "LogInformation", "LogWarning", "LogError", "LogCritical")),

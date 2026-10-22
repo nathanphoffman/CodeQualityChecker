@@ -1,7 +1,8 @@
 from ..deor.deor_handlers import deor_handlers
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, RUST, TYPESCRIPT
+from ....source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
+from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
 from ....language_parsers.tree_sitter.use_names import called_name, dotted
 from ..shared.Error_Handler import Error_Handler
@@ -21,6 +22,9 @@ FORTRAN_SPEAKING_NODES = {"stop_statement", "subroutine_call", "print_statement"
 FORTRAN_RETURN = b"return"
 CSHARP_BROAD_EXCEPTIONS = {"Exception", "System.Exception", "SystemException"}
 CSHARP_THROWING_NODES = {"throw_statement", "throw_expression"}
+REXX_STATUS_VARIABLE = "rc"  # the return code Rexx sets after every command
+REXX_SPEAKING_NODES = {"say_statement", "exit_statement", "call_statement", "goto_statement", "return_statement"}
+REXX_NO_ERROR = b"0"
 SILENT_RUST_BODIES = {"block", "unit_expression"}  # `{}` and `()`
 
 def line_of(node):
@@ -231,6 +235,42 @@ def csharp_handlers(root):
 
     return found
 
+def rexx_status_check(node):
+    """An Error_Handler for `if rc <> 0 then ...`: a check on the return code, or None for any other `if`."""
+    condition, consequence = node.child_by_field_name("condition"), node.child_by_field_name("consequence")
+
+    if condition is None or REXX_STATUS_VARIABLE not in identifiers_in(condition, REXX):
+        return None
+
+    return Error_Handler(line_of(node), True, any(inner.type in REXX_SPEAKING_NODES for inner in walk(consequence)), True)
+
+def rexx_trap(node, routines):
+    """`signal on error` and `call on halt` catch a condition and run the label named, which is loud when it speaks up."""
+    labels = {label.text.decode() for label in node.children}
+    handler = next((routine for routine in routines if function_name(routine) in labels), None)
+    speaks = handler is not None and any(inner.type in REXX_SPEAKING_NODES for inner in walk(handler))
+
+    return Error_Handler(line_of(node), True, speaks, True)
+
+def rexx_handlers(root):
+    """A check on `rc` and a trap are catches. `exit` with a value other than 0 raises."""
+    routines = [node for node in walk(root) if node.type == "routine_definition"]
+    found = []
+
+    for node in walk(root):
+        value = node.child_by_field_name("value") if node.type == "exit_statement" else None
+
+        if node.type == "if_statement":
+            check = rexx_status_check(node)
+
+            found += [check] if check else []
+        elif node.type == "trap_statement" and node.text.lower().split()[1] == b"on":
+            found.append(rexx_trap(node, routines))
+        elif value is not None and value.text != REXX_NO_ERROR:
+            found.append(Error_Handler(line_of(node), False, True, False))
+
+    return found
+
 def deor_error_handlers(source):
     """Deor crashes and failed-validity checks, plus the handlers in its `rust` blocks (read as Rust, lines moved back)."""
     found = [Error_Handler(*fields) for fields in deor_handlers(source)]
@@ -248,6 +288,6 @@ def tree_handlers(source, language):
     root = parse_tree(source, language)
 
     handlers = {RUST: rust_handlers, HARE: hare_handlers, C_LANG: c_handlers, GO: go_handlers, MOJO: mojo_handlers,
-                FORTRAN: fortran_handlers, CSHARP: csharp_handlers}
+                FORTRAN: fortran_handlers, CSHARP: csharp_handlers, REXX: rexx_handlers}
 
     return handlers.get(language, typescript_handlers)(root)

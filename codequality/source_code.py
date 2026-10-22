@@ -1,12 +1,15 @@
 import re
 import warnings
 
-PYTHON, RUST, TYPESCRIPT, DEOR, HARE, C_LANG, GO, MOJO, FORTRAN, CSHARP = ("python", "rust", "typescript", "deor", "hare", "c", "go",
-                                                                         "mojo", "fortran", "csharp")
+from .language_parsers.rexx.tokens import text_spans
+
+PYTHON, RUST, TYPESCRIPT, DEOR, HARE, C_LANG, GO, MOJO, FORTRAN, CSHARP, REXX = ("python", "rust", "typescript", "deor", "hare", "c", "go",
+                                                                               "mojo", "fortran", "csharp", "rexx")
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
 SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE, ".c": C_LANG, ".h": C_LANG,
                    ".go": GO, ".cs": CSHARP, ".mojo": MOJO, ".🔥": MOJO,
-                   ".f90": FORTRAN, ".F90": FORTRAN, ".f95": FORTRAN, ".f03": FORTRAN, ".f08": FORTRAN}
+                   ".f90": FORTRAN, ".F90": FORTRAN, ".f95": FORTRAN, ".f03": FORTRAN, ".f08": FORTRAN,
+                   ".rexx": REXX, ".rex": REXX, ".exec": REXX}
 TSCONFIG_FILE = "tsconfig.json"
 GO_TEST_SUFFIX = "_test.go"  # Go keeps its tests beside the code, in files named like this
 TEST_FILE_SUFFIXES = (GO_TEST_SUFFIX, "Tests.cs", "Test.cs")  # and C# test files are named after the class they test
@@ -27,8 +30,20 @@ LANGUAGE_TEXT_PATTERNS = {
     FORTRAN: re.compile(r"![^\n]*|\"(?:\"\"|[^\"\n])*\"|'(?:''|[^'\n])*'"),
 }
 
+def blank_spans(source, spans):
+    characters = list(source)
+
+    for start, end in spans:
+        characters[start:end] = [character if character == "\n" else " " for character in source[start:end]]
+
+    return "".join(characters)
+
 def blank_out_text(source, language=None):
     """Replace comments and strings with spaces, keeping newlines so line numbers still match."""
+
+    if language == REXX:
+        return blank_spans(source, text_spans(source))  # Rexx comments nest and its // is the remainder operator, so it is read with its own tokenizer
+
     pattern = LANGUAGE_TEXT_PATTERNS.get(language, TEXT_PATTERN)
 
     # each comment or string found is rewritten with every character except newlines turned into a space

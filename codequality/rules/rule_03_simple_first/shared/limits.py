@@ -5,9 +5,9 @@ MAX_TERNARIES_PER_STATEMENT = 1
 
 # A comment on the same line, or starting the line above.
 SAME_LINE_COMMENTS = {"python": ("#",), "rust": ("//", "/*"), "typescript": ("//", "/*"), "hare": ("//",), "c": ("//", "/*"),
-                      "go": ("//", "/*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*"), "deor": ("#", "//")}
+                      "go": ("//", "/*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*"), "rexx": ("/*",), "deor": ("#", "//")}
 LINE_ABOVE_COMMENTS = {"python": ("#",), "rust": ("//", "/*", "*"), "typescript": ("//", "/*", "*"), "hare": ("//",), "c": ("//", "/*", "*"),
-                      "go": ("//", "/*", "*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*", "*"), "deor": ("#", "//")}
+                      "go": ("//", "/*", "*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*", "*"), "rexx": ("/*", "*"), "deor": ("#", "//")}
 
 # Methods that take a function; three or more in one chain is a pipeline that's hard to read.
 CHAIN_METHODS = {
@@ -19,6 +19,7 @@ CHAIN_METHODS = {
     "go": set(),
     "mojo": set(),
     "fortran": set(),
+    "rexx": set(),
     "csharp": {"Select", "SelectMany", "Where", "Aggregate", "OrderBy", "OrderByDescending", "ThenBy", "GroupBy", "Join", "Zip", "Skip",
                "Take", "TakeWhile", "SkipWhile"},  # LINQ
 }

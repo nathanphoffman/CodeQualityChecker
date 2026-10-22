@@ -72,6 +72,7 @@ DECLARATION_FIELDS = {
                "class_declaration": "name", "struct_declaration": "name", "interface_declaration": "name", "enum_declaration": "name",
                "record_declaration": "name", "enum_member_declaration": "name", "property_declaration": "name", "parameter": "name",
                "variable_declarator": "name", "foreach_statement": "left", "catch_declaration": "name"},
+    "rexx": {"routine_definition": "name", "parameter": "name", "assignment_statement": "left", "parse_statement": "target", "for_statement": "left"},
 }
 
 def declared_in(node):

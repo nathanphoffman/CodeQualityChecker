@@ -49,6 +49,12 @@ TEXT_PATTERNS = {
         "transfer": r"(?i)\btransfer\s*\(",  # reading memory as another type
     },
 
+    "rexx": {
+        "interpret": r"(?i)\binterpret\b",  # running a string as code
+        "signal": r"(?i)\bsignal\s+(?!on\b|off\b)",  # `signal label` is a goto
+        "indirect": r"(?i)\bvalue\s*\(",  # reading or setting a variable by a name held in another variable
+    },
+
     "go": {
         "regex": r"\bregexp\.(?:MustCompile|Compile)\s*\(",
         "reflect": r"\breflect\.\w+",

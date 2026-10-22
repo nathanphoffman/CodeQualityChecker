@@ -1,4 +1,4 @@
-from .tree_walk import squashed
+from .tree_walk import squashed, walk
 
 # Node types named by one of their fields: `new X()` and Rust macros like println!.
 NAMING_FIELDS = {"new_expression": "constructor", "macro_invocation": "macro", "object_creation_expression": "type"}
@@ -17,8 +17,16 @@ def assignment_name(node):
 
     return "assign." + left.child_by_field_name("property").text.decode()
 
-CALL_TYPES = {"call_expression", "call", "subroutine_call", "invocation_expression"}  # Mojo, Fortran (`call name(...)`) and C#
-STATEMENT_NAMES = {"print_statement": "print", "write_statement": "write", "open_statement": "open", "read_statement": "read"}  # Fortran
+CALL_TYPES = {"call_expression", "call", "subroutine_call", "invocation_expression", "call_statement"}  # Mojo, Fortran (`call name(...)`), C# and Rexx
+STATEMENT_NAMES = {"print_statement": "print", "write_statement": "write", "open_statement": "open", "read_statement": "read",  # Fortran
+                   "say_statement": "say", "interpret_statement": "interpret"}  # Rexx
+HOST_COMMANDS = {"command_statement", "address_statement"}  # Rexx sends these to the operating system
+
+def runs_host_command(node):
+    """A Rexx command that has a variable in it is built from parts, which is how shell injection happens. A fixed string is fine."""
+    command = node.child_by_field_name("command")
+
+    return command is not None and any(inner.type == "identifier" and inner.parent.type != "call_expression" for inner in walk(command))
 
 def called_name(node):
     """The callee of a call. Hare's grammar calls the field `callee`, Fortran's `subroutine` or nothing, the others `function`."""
@@ -48,5 +56,8 @@ def use_name(node):
 
     if node.type == "jsx_attribute":
         return "jsx." + node.named_children[0].text.decode()
+
+    if node.type in HOST_COMMANDS:
+        return "command" if runs_host_command(node) else None
 
     return "unsafe" if node.type in ("unsafe_block", "unsafe_statement") else STATEMENT_NAMES.get(node.type)

@@ -11,6 +11,9 @@ import tree_sitter_rust
 import tree_sitter_typescript
 from tree_sitter import Language, Parser
 
+from ...source_code import REXX
+from ..rexx.parser import has_clean_rexx, parse_rexx
+
 # Grammars to try in order. TypeScript falls back to TSX so files with JSX parse without errors.
 GRAMMARS = {
     "c": [tree_sitter_c.language],
@@ -29,6 +32,9 @@ MAX_CACHED_FILES = 2048  # every rule parses every file, so keeping the trees me
 def parse_tree(source, language):
     """Root node of the syntax tree. Like parse_python, it warns when the source has errors."""
 
+    if language == REXX:
+        return parse_rexx(source)  # no tree-sitter grammar reads Rexx, so its own reader builds a tree of the same shape
+
     for grammar in GRAMMARS[language]:
         root = Parser(Language(grammar())).parse(source.encode()).root_node
 
@@ -42,5 +48,8 @@ def parse_tree(source, language):
 @lru_cache(maxsize=MAX_CACHED_FILES)
 def has_clean_parse(source, language):
     """True when the text parses as code with no errors. Unlike parse_tree, it never warns."""
+
+    if language == REXX:
+        return has_clean_rexx(source)
 
     return any(not Parser(Language(grammar())).parse(source.encode()).root_node.has_error for grammar in GRAMMARS[language])
