@@ -5,6 +5,7 @@ STRING, NUMBER, SYMBOL, OPERATOR, SPECIAL, END, OTHER = "string", "number", "sym
 COMMENT = "comment"
 SHEBANG = "#!"
 COMMENT_OPEN, COMMENT_CLOSE = "/*", "*/"
+TOKEN_BEFORE_COMMA = -2  # the comma at the end of a line is last in the list, so the token before it is second to last
 CONTINUATION = ","  # a comma at the end of a line carries the clause onto the next line
 
 class Token(NamedTuple):
@@ -82,7 +83,7 @@ def take_token(source, index, tokens, ok):
 
     if kind != "space" and not (kind == END and ends_after_continuation(tokens, match.group())):
         tokens.append(Token(kind, match.group(), match.start(), match.end()))
-    elif ends_after_continuation(tokens, match.group()) and len(tokens) > 1 and tokens[-2].kind == OPERATOR and tokens[-2].text != CONTINUATION:
+    elif ends_after_continuation(tokens, match.group()) and len(tokens) > 1 and tokens[TOKEN_BEFORE_COMMA].kind == OPERATOR and tokens[TOKEN_BEFORE_COMMA].text != CONTINUATION:
         tokens.pop()  # `1 +,` then a new line: the comma only carries the clause over, it is not an argument separator
 
     return match.end(), ok

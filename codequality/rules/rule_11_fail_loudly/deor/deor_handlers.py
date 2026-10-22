@@ -12,7 +12,7 @@ LOUD_CALL = re.compile(r"(?<![\w.])(?:print|crash)\(")
 
 # a validity check: 'is valid' or 'is not valid', with any amount of whitespace between the words
 VALID_CHECK = re.compile(r"\bis\s+(?:not\s+)?valid\b")
-NEGATED_VALID_CHECK = re.compile(r"\bis\s+not\s+valid\b")
+NEGATED_VALID_CHECK = re.compile(r"\bis\s+not\s+valid\b")  # `is not valid` only
 
 def is_loud(statement):
     """A failed check is loud when what is under it prints, crashes, or returns an answer."""
@@ -41,6 +41,7 @@ def deor_handlers(source):
 
     Deor has no exceptions. A crash is the same as a raise, and a validity check is the closest thing to a catch. Both forms
     count because the code under a valid check may be either the working case or the failure."""
+
     found = []
 
     for siblings in sibling_lists(parse_deor(source).roots):

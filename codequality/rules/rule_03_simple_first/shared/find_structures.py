@@ -7,9 +7,11 @@ CALL_PATTERN = re.compile(r"\.\s*(?P<name>\w+)\s*(?:::<[^>]*>)?\s*(?P<paren>\()"
 CHAIN_GAP = re.compile(r"[\s?]*")  # whitespace and Rust's "?" between chained calls
 
 # Rust closures start after "(", "," "=" or "move" as |args|. TypeScript arrows start at "=>".
+# where each language's closures start; a pattern that never matches, `(?!)`, means the language has none
 CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescript": re.compile(r"=>"), "csharp": re.compile(r"=>"), "hare": re.compile(r"(?!)"), "c": re.compile(r"(?!)"), "mojo": re.compile(r"(?!)"),  # these have no closures, so their patterns never match
-                 "fortran": re.compile(r"(?!)"), "rexx": re.compile(r"(?!)"),
+                 "fortran": re.compile(r"(?!)"), "rexx": re.compile(r"(?!)"),  # never matches: no closures
                  "go": re.compile(r"(?:[=(,:]|\breturn|\bgo|\bdefer)\s*func\s*\([^)]*\)[^{;]*(?=\{)")}  # Go: a `func(args)` after one of those, stopping at its "{"  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
+
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match
 STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next ";" or brace
 

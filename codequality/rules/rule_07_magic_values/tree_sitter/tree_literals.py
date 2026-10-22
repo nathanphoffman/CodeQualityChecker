@@ -21,6 +21,7 @@ NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", 
                      "preproc_include", "import_spec", "field_declaration",  # #include paths, Go imports and Go struct tags
                      "expression_statement"}  # a string standing alone is a Mojo docstring
 
+TRIPLE_QUOTE_LENGTH = 3
 STRING_PREFIXES = "fFrRbB@$"  # Mojo writes f"..." and r"...", C# writes @"..." and $"..."
 
 NUMBER_SUFFIXES = ("usize", "isize", "u128", "i128", "u16", "u32", "u64", "i16", "i32", "i64", "f32", "f64", "u8", "i8", "z", "u", "i",  # Hare
@@ -31,6 +32,7 @@ def number_value(text):
     cleaned = re.sub(r"_[A-Za-z]\w*$", "", text).replace("_", "").lower()  # a kind or type after the number: 1.5_dp, 2_u32
 
     if not cleaned.startswith("0x"):
+        # Fortran writes an exponent with d (1d3 is 1000.0), and a trailing n marks a JavaScript bigint
         cleaned = re.sub(r"(?<=\d)d(?=[+-]?\d)", "e", cleaned).removesuffix("n")
 
         for suffix in NUMBER_SUFFIXES:
@@ -44,7 +46,7 @@ def number_value(text):
 def string_body(text):
     """The text inside a string's quotes, without a prefix like Mojo's f or triple quotes."""
     text = text.lstrip(STRING_PREFIXES)
-    quote = text[:3] if text[:3] in ('"""', "'''") else text[:1]
+    quote = text[:TRIPLE_QUOTE_LENGTH] if text[:TRIPLE_QUOTE_LENGTH] in ('"""', "'''") else text[:1]
 
     return text[len(quote):-len(quote)]
 

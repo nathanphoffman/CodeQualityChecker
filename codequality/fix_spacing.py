@@ -1,3 +1,5 @@
+import warnings
+
 from .rules.rule_14_space_out import file_gaps
 from .rules.rule_14_space_out.python.python_spacing import python_string_lines
 from .rules.rule_14_space_out.shared.limits import MAX_BLANK_LINES_IN_A_ROW
@@ -37,7 +39,9 @@ def fix_spacing(project):
 
         try:
             fixed = fix_source(source, SUFFIX_LANGUAGE[path.suffix]) if source else source
-        except (SyntaxError, ValueError):
+        except (SyntaxError, ValueError) as error:
+            warnings.warn(f"left {path} alone, it could not be read: {error}")  # rewriting a file we cannot parse could break it
+
             continue
 
         if fixed != source:

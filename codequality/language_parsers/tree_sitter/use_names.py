@@ -20,6 +20,7 @@ def assignment_name(node):
 CALL_TYPES = {"call_expression", "call", "subroutine_call", "invocation_expression", "call_statement"}  # Mojo, Fortran (`call name(...)`), C# and Rexx
 STATEMENT_NAMES = {"print_statement": "print", "write_statement": "write", "open_statement": "open", "read_statement": "read",  # Fortran
                    "say_statement": "say", "interpret_statement": "interpret"}  # Rexx
+
 HOST_COMMANDS = {"command_statement", "address_statement"}  # Rexx sends these to the operating system
 
 def runs_host_command(node):

@@ -92,6 +92,7 @@ def test_attributes_stay_attached_to_their_method():
 def test_nuget_packages_are_dependencies_but_test_tools_are_not(tmp_path):
     (tmp_path / "App.csproj").write_text('<Project><ItemGroup><PackageReference Include="Serilog" Version="3" />'
                                          '<PackageReference Include="xunit" Version="2" /></ItemGroup></Project>')
+
     assert project_dependencies(detect(tmp_path)) == {("nuget", "Serilog")}
 
 def test_test_files_are_left_out_of_non_test_rules(tmp_path):

@@ -5,6 +5,7 @@ from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
 
+PATH_BEFORE_VERSION = -2  # in example.com/lib/v2 the version is last and the library name comes just before it
 PUBLIC_MARKER = "visibility_modifier"  # `pub use` re-exports on purpose
 
 def typescript_bound_names(statement):
@@ -48,6 +49,7 @@ def hare_bound_names(statement):
         return [text.split("=")[0].strip()]
 
     if "{" in text:
+        # the words inside the braces
         return re.findall(r"\w+", text[text.index("{"):])
 
     return [] if text.endswith("*") else [text.split("::")[-1].strip()]
@@ -60,7 +62,7 @@ def go_bound_names(spec):
         return [] if alias.text in (b"_", b".") else [alias.text.decode()]
 
     parts = spec.child_by_field_name("path").text.decode().strip('"`').split("/")
-    last = parts[-2] if re.fullmatch(r"v\d+", parts[-1]) and len(parts) > 1 else parts[-1]  # example.com/lib/v2 is used as lib
+    last = parts[PATH_BEFORE_VERSION] if re.fullmatch(r"v\d+", parts[-1]) and len(parts) > 1 else parts[-1]  # example.com/lib/v2 is used as lib
 
     return [re.sub(r"\.v\d+$|-go$", "", last)]  # gopkg.in/yaml.v3 is used as yaml
 
@@ -90,6 +92,7 @@ def fortran_bound_names(statement):
     """Names from `use m, only: a, b`. A `use m` with no list brings in everything, so there is no name to look for."""
     items = [child for child in statement.children if child.type == "included_items"]
 
+    # every identifier inside every `only:` list, lower-cased
     return [name.text.decode().lower() for item in items for name in item.named_children if name.type == "identifier"]
 
 def tree_imports(root, lines, language):
@@ -108,6 +111,7 @@ def tree_imports(root, lines, language):
 
         bound_names = {RUST: rust_bound_names, HARE: hare_bound_names, GO: go_bound_names, MOJO: mojo_bound_names, FORTRAN: fortran_bound_names,
                    CSHARP: csharp_bound_names}
+
         names = bound_names.get(language, typescript_bound_names)(node)
         total += len(names)
         unused += [line for name in names if used[name] <= 0]

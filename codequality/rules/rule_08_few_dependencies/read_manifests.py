@@ -84,6 +84,7 @@ def project_dependencies(project):
     """{(where it comes from, name)} for every direct runtime dependency. Dev-only tools are not counted."""
     node = table_dependencies(project, "package.json", json.loads, NPM_PACKAGE)
 
+    # the entries of every pixi manifest that exists
     pixi = {entry for filename in ("pixi.toml", "mojoproject.toml") for entry in table_dependencies(project, filename, tomllib.loads, PIXI_PACKAGE)}
 
     return (python_dependencies(project) | node | table_dependencies(project, "Cargo.toml", tomllib.loads, RUST_CRATE) | go_dependencies(project)

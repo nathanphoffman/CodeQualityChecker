@@ -16,6 +16,7 @@ def first_named(node):
 def rexx_variable(node):
     """An assignment in a routine that has its own variables (`procedure`), unless the name is exposed to the caller. Without `procedure`
     every variable is shared by the whole program, so one that nothing in the routine reads may be read somewhere else."""
+
     routine = node
 
     while routine is not None and routine.type != "routine_definition":
@@ -24,6 +25,8 @@ def rexx_variable(node):
     procedures = [] if routine is None else [statement for statement in routine.child_by_field_name("body").children if statement.type == "procedure_statement"]
     left = node.child_by_field_name("left")
     name = left.child_by_field_name("declarator") or left  # a compound name like `stem.i` is judged by its stem
+
+    # every name any `procedure expose` in this routine shares with its caller
     exposed = {shared.text for procedure in procedures for shared in procedure.children_by_field_name("exposed")}
 
     return [name] if procedures and name.text not in exposed else []
@@ -47,6 +50,7 @@ VARIABLE_FINDERS = {
 def declared_variables(node, language):
     """The name nodes of `let x = ...` (Rust and Hare), `const x = ...` (TypeScript), `int x = ...` (C), `x := ...` (Go),
     `x = ...` (Mojo), `integer :: x` (Fortran) or `var x = ...` (C#). Empty for other nodes."""
+
     finder = VARIABLE_FINDERS[language].get(node.type)
     names = finder(node) if finder else []
 

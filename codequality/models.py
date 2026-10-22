@@ -10,6 +10,7 @@ from typing import Callable
 
 IGNORED_FOLDERS = {"node_modules", "target", ".git", "dist", "build", ".next", ".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache",
                    "obj"}  # obj is where .NET puts generated code
+
 MAX_LISTED_OFFENDERS = 5
 SEVERITY_ERROR, SEVERITY_WARN, SEVERITY_INFO = "error", "warn", "info"
 SEVERITY_WEIGHTS = {SEVERITY_ERROR: 3, SEVERITY_WARN: 2, SEVERITY_INFO: 1}
@@ -88,6 +89,7 @@ class Project:
         parts = Path(path).relative_to(self.root).parts
         hidden = git_ignored_paths(self.root)
 
+        # true when a pattern matches one path part or the path up to any part, so excluding `vendor` also skips everything inside vendor/
         if any(fnmatch(part, pattern) or fnmatch("/".join(parts[:end]), pattern) for end, part in enumerate(parts, start=1) for pattern in self.exclude):
             return True
 
@@ -104,9 +106,9 @@ class Rule:
     id: str
     title: str
     check: Callable[[Project], Result]
-    language: str | None = None  # None = all languages
+    language: str | None = None  # a rule with no language applies to every project
 
-    framework: str | None = None  # None = any
+    framework: str | None = None  # a rule with no framework applies whatever the project uses
     severity: str = SEVERITY_WARN
     checkable: str = CHECK_AUTO
     weight_multiplier: int = 1  # a check that stands in for several counts that many times

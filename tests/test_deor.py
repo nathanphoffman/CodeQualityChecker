@@ -150,4 +150,5 @@ def test_deor_valid_checks_are_judged_by_their_else():
               "    if item is valid\n        work(item)\n    else\n        print(missing)\n"
               "    if other is valid\n        work(other)\n    else\n        quiet(other)\n"
               "    if last is valid\n        work(last)\n")
+
     assert deor_handlers(source) == [(2, True, True, False), (6, True, False, False), (10, False, True, False)]

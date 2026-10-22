@@ -31,6 +31,7 @@ def is_private_c(node):
 
 def is_private_go(node):
     """Go makes a name private by starting it with a lower-case letter. main, init and tests are called from outside."""
+
     if node.type not in ("function_declaration", "method_declaration"):
         return False
 

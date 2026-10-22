@@ -5,11 +5,13 @@ from .language_parsers.rexx.tokens import text_spans
 
 PYTHON, RUST, TYPESCRIPT, DEOR, HARE, C_LANG, GO, MOJO, FORTRAN, CSHARP, REXX = ("python", "rust", "typescript", "deor", "hare", "c", "go",
                                                                                "mojo", "fortran", "csharp", "rexx")
+
 TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
 SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE, ".c": C_LANG, ".h": C_LANG,
                    ".go": GO, ".cs": CSHARP, ".mojo": MOJO, ".🔥": MOJO,
                    ".f90": FORTRAN, ".F90": FORTRAN, ".f95": FORTRAN, ".f03": FORTRAN, ".f08": FORTRAN,
                    ".rexx": REXX, ".rex": REXX, ".exec": REXX}
+
 TSCONFIG_FILE = "tsconfig.json"
 GO_TEST_SUFFIX = "_test.go"  # Go keeps its tests beside the code, in files named like this
 TEST_FILE_SUFFIXES = (GO_TEST_SUFFIX, "Tests.cs", "Test.cs")  # and C# test files are named after the class they test
@@ -27,7 +29,7 @@ TEXT_PATTERN = re.compile(r"//[^\n]*|/\*.*?\*/|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\
 # Its // is an operator (joining strings), not a comment, so it must be left alone.
 LANGUAGE_TEXT_PATTERNS = {
     MOJO: re.compile(r"#[^\n]*|\"\"\".*?\"\"\"|\'\'\'.*?\'\'\'|\"(?:\\.|[^\"\\\n])*\"|'(?:\\.|[^'\\\n])*'", re.S),
-    FORTRAN: re.compile(r"![^\n]*|\"(?:\"\"|[^\"\n])*\"|'(?:''|[^'\n])*'"),
+    FORTRAN: re.compile(r"![^\n]*|\"(?:\"\"|[^\"\n])*\"|'(?:''|[^'\n])*'"),  # ! comments, and strings where a doubled quote stands for one quote
 }
 
 def blank_spans(source, spans):

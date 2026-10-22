@@ -126,6 +126,7 @@ def test_unreadable_source_warns_but_still_gives_a_tree():
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
         assert "source_file" in types_in("say 'unfinished\nend\n")
+
     assert any("syntax errors" in str(warning.message) for warning in caught)
 
 def test_blank_lines_go_above_control_statements_and_labels():

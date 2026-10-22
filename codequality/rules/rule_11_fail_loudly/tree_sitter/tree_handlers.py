@@ -98,6 +98,8 @@ def hare_error_case(case):
         return None
 
     body = case.named_children[1:]
+
+    # the case speaks up when any statement in its body, at any depth, is one of the speaking nodes
     speaks = any(node.type in HARE_SPEAKING_NODES for statement in body for node in walk(statement))
 
     return Error_Handler(line_of(case), True, speaks, type_name == HARE_ERROR_TYPE)
@@ -191,6 +193,8 @@ def fortran_status_check(node):
         return None
 
     body = node.named_children[1:]
+
+    # the check speaks up when anything in its body, at any depth, stops, prints, calls or returns
     speaks = any(inner.type in FORTRAN_SPEAKING_NODES or (inner.type == "keyword_statement" and inner.text.lower().startswith(FORTRAN_RETURN))
                  for statement in body for inner in walk(statement))
 
@@ -217,6 +221,7 @@ def csharp_catch(clause):
     bound = declaration.child_by_field_name("name") if declaration is not None else None
     body = clause.child_by_field_name("body")
     uses_error = bound is not None and bound.text.decode() in identifiers_in(body, CSHARP)
+
     # Console.WriteLine and _logger.LogError speak up: names are lower-cased and lose their leading underscore to match the shared list
     speaks = any(node.type in CSHARP_THROWING_NODES or (node.type == "invocation_expression"
                  and is_loud_name(dotted(called_name(node).text.decode()).lower().lstrip("_"))) for node in walk(body))

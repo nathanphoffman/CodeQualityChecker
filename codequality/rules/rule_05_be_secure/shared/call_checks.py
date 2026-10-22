@@ -72,13 +72,13 @@ CALL_CHECKS = [
                        Entry("spawn", ("shell:true",)), Entry("spawnSync", ("shell:true",)), Entry("child_process.spawn", ("shell:true",))),
 
         "rust": (Entry("libc.system"),) + tuple(Entry("Command.new", (shell,)) for shell in SHELLS),
-        "hare": tuple(Entry(f"exec.{name}", (shell,)) for name in ("cmd", "cmdv") for shell in SHELLS),
+        "hare": tuple(Entry(f"exec.{name}", (shell,)) for name in ("cmd", "cmdv") for shell in SHELLS),  # every command function paired with every shell name
         "c": (Entry("system"), Entry("popen")),
         "fortran": (Entry("execute_command_line"), Entry("system")),
         "rexx": (Entry("interpret"), Entry("command")),  # `command` is a line sent to the operating system with a variable in it
         "csharp": (Entry("CSharpScript.EvaluateAsync"), Entry("CSharpScript.RunAsync"), Entry("Process.Start", ('"cmd"',)))
-        + tuple(Entry(name, (shell,)) for name in ("ProcessStartInfo", "Process.Start") for shell in SHELLS),
-        "go": tuple(Entry(f"exec.{name}", (shell,)) for name in ("Command", "CommandContext") for shell in SHELLS),
+        + tuple(Entry(name, (shell,)) for name in ("ProcessStartInfo", "Process.Start") for shell in SHELLS),  # every process-starting name paired with every shell name
+        "go": tuple(Entry(f"exec.{name}", (shell,)) for name in ("Command", "CommandContext") for shell in SHELLS),  # both functions with every shell name
     }),
 
     Call_Check("RULE-05-UNSAFE-LOADING", "No loading of untrusted data that can run code", "error", {
@@ -168,7 +168,7 @@ CALL_CHECKS = [
         "c": tuple(Entry(name) for name in ("printf", "fprintf", "puts", "syslog")),
         "fortran": (Entry("print"), Entry("write")),
         "rexx": (Entry("say"), Entry("lineout")),
-        "go": tuple(Entry(f"{package}.{name}") for package in ("fmt", "log") for name in ("Print", "Println", "Printf", "Fatal", "Fatalf", "Panic", "Panicf")),
+        "go": tuple(Entry(f"{package}.{name}") for package in ("fmt", "log") for name in ("Print", "Println", "Printf", "Fatal", "Fatalf", "Panic", "Panicf")),  # every print or fatal-error function of fmt and log
         "csharp": (Entry("Console.WriteLine"), Entry("Console.Write"), Entry("Debug.WriteLine"), Entry("Trace.WriteLine"))
         + log_calls(("logger", "_logger"), ("LogTrace", "LogDebug", "LogInformation", "LogWarning", "LogError", "LogCritical")),
     }, names_words=SECRET_WORDS),

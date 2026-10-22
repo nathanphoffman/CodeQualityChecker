@@ -6,6 +6,7 @@ MAX_TERNARIES_PER_STATEMENT = 1
 # A comment on the same line, or starting the line above.
 SAME_LINE_COMMENTS = {"python": ("#",), "rust": ("//", "/*"), "typescript": ("//", "/*"), "hare": ("//",), "c": ("//", "/*"),
                       "go": ("//", "/*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*"), "rexx": ("/*",), "deor": ("#", "//")}
+
 LINE_ABOVE_COMMENTS = {"python": ("#",), "rust": ("//", "/*", "*"), "typescript": ("//", "/*", "*"), "hare": ("//",), "c": ("//", "/*", "*"),
                       "go": ("//", "/*", "*"), "mojo": ("#",), "fortran": ("!",), "csharp": ("//", "/*", "*"), "rexx": ("/*", "*"), "deor": ("#", "//")}
 

@@ -18,14 +18,15 @@ DEFAULT_COMMENT_STARTS = ("//", "/*", "*")
 #   a function or subroutine header, which may start with a type or `pure`/`recursive`, but is not an `end function` line
 FORTRAN_OPENER = re.compile(r"^(?:do\b|else\b|case\b|select\b|program\b|module\b|contains\b|interface\b|type\b(?!\s*\()"
                             r"|(?:else\s*)?if\b.*\bthen$|(?!end\b).*\b(?:function|subroutine)\b)", re.I)
-FORTRAN_CLOSER = re.compile(r"^end\s*(?:if|do|select|function|subroutine|module|program|type|interface|where)?\b", re.I)
+
+FORTRAN_CLOSER = re.compile(r"^end\s*(?:if|do|select|function|subroutine|module|program|type|interface|where)?\b", re.I)  # `end`, optionally followed by what it closes
 
 # Clever on purpose: a Rexx line that opens a block, so the first statement inside it needs no blank line above.
 #   an optional `if ... then` or `else` in front of `do`, or a `select` or `otherwise`
 #   an `if ... then`, `when ... then` or `else` whose instruction is on the next line
 #   a label (`name:`), which may be followed by `procedure`
-REXX_OPENER = re.compile(r"^(?:(?:if|when)\b.*\bthen\s+|else\s+)?do\b|^(?:select|otherwise)\b|^(?:if|when)\b.*\bthen$|^else$|^\w+:(?:\s*procedure\b.*)?$", re.I)
-REXX_CLOSER = re.compile(r"^end\b", re.I)
+REXX_OPENER = re.compile(r"^(?:(?:if|when)\b.*\bthen\s+|else\s+)?do\b|^(?:select|otherwise)\b|^(?:if|when)\b.*\bthen$|^else$|^\w+:(?:\s*procedure\b.*)?$", re.I)  # see the list above: do groups, select, if/when/else lines whose instruction is on the next line, and labels
+REXX_CLOSER = re.compile(r"^end\b", re.I)  # a line starting with the word `end`
 
 def comment_starts(language):
     return COMMENT_STARTS.get(language, DEFAULT_COMMENT_STARTS)

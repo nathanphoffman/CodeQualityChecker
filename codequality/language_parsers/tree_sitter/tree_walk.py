@@ -5,6 +5,7 @@ NAME_TYPES = {"identifier", "property_identifier", "field_identifier", "shorthan
 def walk(node):
     """Every named node under (and including) this one. Tokens like the `function` keyword are skipped: Fortran names its
     function nodes `function` and `subroutine` too, so the keywords would be mistaken for the real thing."""
+
     pending = [node]
 
     while pending:

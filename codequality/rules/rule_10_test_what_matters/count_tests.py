@@ -42,6 +42,7 @@ def count_rust_tests(source):
 def count_hare_tests(source):
     functions = [node for node in walk(parse_tree(source, HARE)) if node.type == "function_declaration"]
 
+    # functions with an attribute child reading @test
     return len([function for function in functions if any(child.text == HARE_TEST_ATTRIBUTE.encode() for child in function.children
                                                            if child.type == "function_attribute")])
 
@@ -94,6 +95,7 @@ def count_tests_in_project(project):
     counters = {PYTHON: count_python_tests, RUST: count_rust_tests, TYPESCRIPT: count_typescript_tests, DEOR: count_deor_tests,
                 HARE: count_hare_tests, C_LANG: count_c_tests, GO: count_go_tests,
                 MOJO: count_mojo_tests, FORTRAN: count_fortran_tests, CSHARP: count_csharp_tests, REXX: count_rexx_tests}
+
     total = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

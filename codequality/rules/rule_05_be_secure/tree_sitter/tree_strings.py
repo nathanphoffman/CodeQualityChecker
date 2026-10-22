@@ -5,6 +5,7 @@ from ....language_parsers.tree_sitter.use_names import called_name, dotted
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content", "interpreted_string_literal_content", "raw_string_literal_content",
                      "string_literal_content"}
+
 # calls that put values into a string: Hare, C, Go and C#
 STRING_BUILDERS = {"fmt.asprintf", "fmt.bsprintf", "strings.concat", "strings.join", "sprintf", "snprintf", "asprintf", "strcat", "fmt.Sprintf", "string.Format", "string.Concat"}
 

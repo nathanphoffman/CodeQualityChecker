@@ -1,7 +1,8 @@
 import warnings
+from functools import partial
 
 from .nodes import Node, Source_Map
-from .tokens import COMMENT, END, NUMBER, OPERATOR, OTHER, SPECIAL, STRING, SYMBOL, Token, tokenize
+from .tokens import COMMENT, END, NUMBER, OPERATOR, SPECIAL, STRING, SYMBOL, Token, tokenize
 
 # Words that end an expression wherever it is: `if a then b else c` runs the expressions together on one line.
 CLAUSE_WORDS = {"then", "else"}
@@ -14,6 +15,7 @@ LABEL_MARK = ":"
 LEVELS = [("boolean_operator", {"|", "&&"}), ("boolean_operator", {"&"}), ("binary_expression", COMPARISONS),
           ("concatenation_expression", {"||"}), ("binary_expression", {"+", "-"}), ("binary_expression", {"*", "/", "%", "//"}),
           ("binary_expression", {"**"})]
+
 PREFIX_OPERATORS = {"\\", "¬", "+", "-"}
 CONCAT_LEVEL = 3
 
@@ -28,11 +30,14 @@ class Rexx_Parser:
         self.keywords = self.keyword_table()
 
     def keyword_table(self):
-        return {"say": self.say, "call": self.call, "if": self.if_statement, "do": self.do, "select": self.select, "return": self.return_statement,
-                "exit": self.exit_statement, "leave": self.leave, "iterate": self.iterate, "nop": self.nop, "arg": self.arg, "parse": self.parse,
-                "pull": self.pull, "push": self.push, "queue": self.push, "procedure": self.procedure, "drop": self.drop,
-                "address": self.address, "signal": self.signal, "interpret": self.interpret, "numeric": self.directive, "trace": self.directive,
-                "options": self.directive}
+        with_value = {"say": "say_statement", "return": "return_statement", "interpret": "interpret_statement", "push": "push_statement",
+                      "queue": "push_statement", "numeric": "directive_statement", "trace": "directive_statement", "options": "directive_statement"}
+
+        table = {word: partial(self.keyword_with_value, type_) for word, type_ in with_value.items()}
+
+        return table | {"call": self.call, "if": self.if_statement, "do": self.do, "select": self.select, "exit": self.exit_statement,
+                        "leave": self.leave, "iterate": self.iterate, "nop": self.nop, "arg": self.arg, "parse": self.parse, "pull": self.pull,
+                        "procedure": self.procedure, "drop": self.drop, "address": self.address, "signal": self.signal}
 
     # --- reading tokens
 
@@ -219,6 +224,7 @@ class Rexx_Parser:
                 self.advance()
             elif self.peek().text != ")":
                 self.fail()
+
                 break
 
         self.stops = saved
@@ -232,46 +238,18 @@ class Rexx_Parser:
 
     # --- simple instructions
 
-    def rest_expression(self, stops=()):
-        """The expression after an instruction word, or None."""
-
-        return self.expression(stops)
-
-    def say(self):
+    def keyword_with_value(self, type_):
+        """An instruction word and the optional expression after it: `say`, `return`, `interpret`, `push` and the like."""
         start = self.advance().start
-        value = self.rest_expression()
+        value = self.expression()
 
-        return self.make("say_statement", start, [value] if value else [])
-
-    def return_statement(self):
-        start = self.advance().start
-        value = self.rest_expression()
-
-        return self.make("return_statement", start, [value] if value else [])
+        return self.make(type_, start, [value] if value else [])
 
     def exit_statement(self):
         start = self.advance().start
-        value = self.rest_expression()
+        value = self.expression()
 
         return self.make("exit_statement", start, [value] if value else [], {"value": [value] if value else []})
-
-    def interpret(self):
-        start = self.advance().start
-        value = self.rest_expression()
-
-        return self.make("interpret_statement", start, [value] if value else [])
-
-    def push(self):
-        start = self.advance().start
-        value = self.rest_expression()
-
-        return self.make("push_statement", start, [value] if value else [])
-
-    def directive(self):
-        start = self.advance().start
-        value = self.rest_expression()
-
-        return self.make("directive_statement", start, [value] if value else [])
 
     def nop(self):
         start = self.advance().start
@@ -315,7 +293,7 @@ class Rexx_Parser:
     def address(self):
         start = self.advance().start
         environment = [self.name_node(self.advance())] if self.peek().kind == SYMBOL and self.word(self.peek()) != "with" else []
-        command = self.rest_expression()
+        command = self.expression()
 
         return self.make("address_statement", start, environment + ([command] if command else []), {"command": [command] if command else []})
 
@@ -372,7 +350,7 @@ class Rexx_Parser:
 
         if self.word(self.peek()) == "value":
             self.advance()
-            target = self.rest_expression()
+            target = self.expression()
 
             return self.make("goto_statement", start, [target] if target else [])
 
@@ -412,6 +390,8 @@ class Rexx_Parser:
 
     def pull(self):
         start = self.advance().start
+
+        # the variable names of every comma-separated part of the template
         targets = [name for part in self.template() for name in part.children]
 
         return self.make("parse_statement", start, targets, {"target": targets})
@@ -428,6 +408,8 @@ class Rexx_Parser:
             return self.make("arg_statement", start, self.template())
 
         sources = self.parse_source(source)
+
+        # the variable names of every comma-separated part of the template
         targets = [name for part in self.template() for name in part.children]
 
         return self.make("parse_statement", start, sources + targets, {"target": targets, "source": sources})
@@ -620,6 +602,7 @@ class Rexx_Parser:
             if self.word(self.peek()) in ("end", "then", "else", "when", "otherwise") and not self.is_assignment():
                 self.fail()
                 self.advance()
+
                 continue
 
             found.append(self.statement())

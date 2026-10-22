@@ -11,7 +11,7 @@ from .block_syntax import closes_block, comment_starts, continuations, finishes_
 # Words that start a control statement or a definition. Python's classes are Rust's structs, enums, traits and impls.
 CONTROL_WORDS = {"if", "for", "while", "switch", "match", "try", "return", "break", "continue", "throw", "loop", "do", "case",
                  "default", "yield", "fn", "function", "func", "select", "defer", "go", "goto", "typedef", "class", "struct", "enum", "trait", "impl", "mod", "interface", "macro_rules",
-                 "def", "raise", "with", "foreach", "lock", "namespace"}  # def, raise and with are Mojo; foreach, lock and namespace are C#
+                 "def", "raise", "with", "foreach", "lock", "namespace"}  # the last six are not names in any other language, so sharing one set costs nothing: Mojo's def, raise and with, C#'s foreach, lock and namespace
 
 # Clever on purpose: finds a function stored in a variable, like `const f = (a, b): number =>` or `export const f = async x =>`.
 #   an optional "export", then const, let or var, then the name
@@ -23,7 +23,7 @@ NOT_A_VALUE = {"expression_statement", "let_declaration", "empty_statement", "at
 
 # Fortran's words are matched in lower case. Its function and subroutine headers can start with a type, so they are found by search.
 FORTRAN_CONTROL_WORDS = {"if", "do", "select", "case", "return", "stop", "error", "exit", "cycle", "goto", "program", "module", "interface"}
-FORTRAN_PROCEDURE_HEADER = re.compile(r"^(?!end\b).*\b(?:function|subroutine)\b", re.I)
+FORTRAN_PROCEDURE_HEADER = re.compile(r"^(?!end\b).*\b(?:function|subroutine)\b", re.I)  # any line with the word function or subroutine, except an `end` line
 
 MODIFIERS = {"internal", "sealed", "override", "virtual", "readonly", "partial", "extern",  # C#
              "@test", "@init", "@fini", "@noreturn", "pub", "export", "async", "unsafe", "const", "default", "static", "abstract", "public", "private", "protected"}
@@ -56,8 +56,8 @@ def starts_control(text, language=None):
 
 # Rexx instructions that need a blank line above them, and a label (`name:`) which starts a routine. `if = 3` is an assignment, not an `if`.
 REXX_CONTROL_WORDS = {"if", "do", "select", "return", "exit", "leave", "iterate", "signal"}
-REXX_LABEL = re.compile(r"^\w+:")
-REXX_ASSIGNMENT = re.compile(r"^\w+\s*=(?!=)")
+REXX_LABEL = re.compile(r"^\w+:")  # a word and a colon at the start of a line
+REXX_ASSIGNMENT = re.compile(r"^\w+\s*=(?!=)")  # a name and a single `=` at the start of a line, not `==`
 
 def starts_rexx_control(text):
     return bool(REXX_LABEL.match(text)) or (leading_word(text.lower()) in REXX_CONTROL_WORDS and not REXX_ASSIGNMENT.match(text))
@@ -74,7 +74,7 @@ def rust_tail_lines(source):
 
     return lines
 
-# C and C# write a function as `int Name(...)` with no keyword, so the text patterns can't tell it from a call: the syntax tree finds them.
+# C and C# start a function with a return type and a name, no keyword, so text patterns can't tell it from a call: the syntax tree finds them.
 DECLARATION_NODES = {C_LANG: {"function_definition"}, CSHARP: {"method_declaration", "constructor_declaration", "local_function_statement"}}
 
 def declaration_lines(source, language):
