@@ -1,9 +1,10 @@
 from collections import Counter
 
 from ....language_parsers.tree_sitter.tree_walk import normalized, walk
+from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER, NAME_FIELD
 
-NAME_NODE_TYPES = {"identifier", "type_identifier", "field_identifier", "property_identifier",
-                   "shorthand_property_identifier", "shorthand_field_identifier", "package_identifier", "name"}
+NAME_NODE_TYPES = {IDENTIFIER, "type_identifier", "field_identifier", "property_identifier",
+                   "shorthand_property_identifier", "shorthand_field_identifier", "package_identifier", NAME_FIELD}
 
 IMPORT_TYPES = {"import_statement", "use_declaration", "use_statement", "import_spec", "import_from_statement", "using_directive"}
 END_STATEMENT_PREFIX = "end_"  # Fortran repeats a name on its closing line (`end function area`), which is not a use

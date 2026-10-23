@@ -5,7 +5,7 @@ from ...language_parsers.deor.declarations import declarations_in
 from ...language_parsers.deor.tree import parse_deor
 from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
-from ...language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES
+from ...language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, NAME_FIELD
 from ...language_parsers.tree_sitter.tree_functions import function_name
 from ...language_parsers.tree_sitter.tree_walk import squashed, walk
 from ..rule_05_be_secure.shared.uses import find_uses
@@ -58,7 +58,7 @@ def count_c_tests(source):
 def count_csharp_tests(source):
     """Methods carrying a test attribute like [Fact] or [TestMethod]. `Attribute` on the end of a name is optional in C#."""
     attributes = [node for node in walk(parse_tree(source, CSHARP)) if node.type == "attribute" and node.parent.parent.type == "method_declaration"]
-    names = [attribute.child_by_field_name("name").text.decode().split(".")[-1].removesuffix("Attribute") for attribute in attributes]
+    names = [attribute.child_by_field_name(NAME_FIELD).text.decode().split(".")[-1].removesuffix("Attribute") for attribute in attributes]
 
     return len([name for name in names if name in CSHARP_TEST_ATTRIBUTES])
 

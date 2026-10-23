@@ -4,7 +4,7 @@ from ....source_code import CSHARP, FORTRAN, GO, HARE, MOJO, RUST
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.limits import NOQA_MARKER
 from .names import IMPORT_TYPES, counts_outside_imports
-from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER, NAME_FIELD
 
 PATH_BEFORE_VERSION = -2  # in example.com/lib/v2 the version is last and the library name comes just before it
 PUBLIC_MARKER = "visibility_modifier"  # `pub use` re-exports on purpose
@@ -28,7 +28,7 @@ def rust_bound_names(declaration):
     for node in walk(declaration):
         parent = node.parent
 
-        if node.type != "identifier" or parent is None or parent.type == "use_wildcard":
+        if node.type != IDENTIFIER or parent is None or parent.type == "use_wildcard":
             continue
 
         if parent.type == "use_as_clause":

@@ -89,7 +89,7 @@ def test_rust_findings():
     assert findings.unreachable == [12]
     assert [name for name, _ in usage.private_definitions] == ["helper"]
 
-def test_project_level_rules_see_unused_private_functions_and_commented_code(tmp_path: Path):
+def test_project_level_rules_see_unused_private_functions_plus_commented_code(tmp_path: Path):
     (tmp_path / "a.py").write_text(MESSY_PYTHON + "\n# total = price * quantity\n")
     results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
     assert "_never_called" in results["RULE-12-UNUSED-PRIVATE-FUNCTIONS"].message

@@ -42,7 +42,7 @@ def test_only_unnamed_python_numbers_are_flagged(tmp_path: Path):
     assert "86400" in result.message and "-42" in result.message
     assert result.message.startswith("2 of ")
 
-def test_typescript_and_rust_numbers(tmp_path: Path):
+def test_typescript_plus_rust_numbers(tmp_path: Path):
     typescript = grade(tmp_path, "a.ts", TYPESCRIPT, "RULE-07-MAGIC-NUMBERS")
     assert typescript.message.startswith("1 of ") and "86400" in typescript.message
     other = tmp_path / "rust"

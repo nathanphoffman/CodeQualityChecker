@@ -8,7 +8,7 @@ from ....language_parsers.tree_sitter.use_names import called_name, dotted
 from ..shared.Error_Handler import Error_Handler
 from ..shared.limits import SILENT_CALLBACK_BODIES
 from ..python.python_handlers import is_loud_name
-from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, CALL_EXPRESSION, FUNCTION_FIELD, LEFT_FIELD, NAME_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, CALL_EXPRESSION, FUNCTION_FIELD, IDENTIFIER, LEFT_FIELD, NAME_FIELD, VALUE_FIELD
 
 ERR_CONSTRUCTOR = "Err"
 HARE_ERROR_TYPE = "error"
@@ -38,7 +38,7 @@ def rust_error_arm(arm):
     if pattern is None or pattern.type != "tuple_struct_pattern" or pattern.child_by_field_name("type").text.decode() != ERR_CONSTRUCTOR:
         return None
 
-    body = arm.child_by_field_name("value")
+    body = arm.child_by_field_name(VALUE_FIELD)
 
     is_empty = body.type in SILENT_RUST_BODIES and not (body.type == "block" and body.named_children)
 
@@ -90,7 +90,7 @@ def hare_error_case(case):
     """An Error_Handler for a match case that receives an error, like `case let e: fs::error =>`, or None for any other case."""
     pattern = case.named_children[0] if case.named_children else None
 
-    if pattern is None or pattern.type not in ("let_expression", "identifier", "scoped_type_identifier"):
+    if pattern is None or pattern.type not in ("let_expression", IDENTIFIER, "scoped_type_identifier"):
         return None
 
     type_name = squashed(pattern.text.decode()).split(":")[-1] if pattern.type == "let_expression" else squashed(pattern.text.decode())
@@ -264,7 +264,7 @@ def rexx_handlers(root):
     found = []
 
     for node in walk(root):
-        value = node.child_by_field_name("value") if node.type == "exit_statement" else None
+        value = node.child_by_field_name(VALUE_FIELD) if node.type == "exit_statement" else None
 
         if node.type == "if_statement":
             check = rexx_status_check(node)

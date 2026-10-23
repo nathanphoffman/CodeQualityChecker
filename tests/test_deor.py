@@ -25,7 +25,7 @@ fn int wrapped(
     one + two
 """
 
-def test_deor_functions_and_macros_are_found():
+def test_deor_functions_plus_macros_are_found():
     found = {info.name: info for info in find_functions(SOURCE, "deor")}
     assert list(found) == ["macro say_hello", "macro start_timer", "greet", "macro local_one", "wrapped"]
     assert (found["macro say_hello"].argument_count, found["macro say_hello"].line_count) == (0, 2)
@@ -73,21 +73,21 @@ fn void log_it(string msg)
         unsafe { run(); }
 """
 
-def test_deor_names_include_parameters_fields_and_variables():
+def test_deor_names_include_parameters_fields_plus_variables():
     from codequality.rules.rule_02_clear_names.shared.find_names import find_names
 
     names = find_names(FULL, "deor")
     assert {"Account", "owner", "balance", "find_account", "accounts", "wanted", "missing", "idx", "msg", "best"} <= set(names)
     assert "run" not in names and "remove_file" not in names  # inside a rust block
 
-def test_deor_bodies_count_branches_and_variables():
+def test_deor_bodies_count_branches_plus_variables():
     from codequality.rules.rule_04_one_job.shared.find_bodies import find_bodies
 
     bodies = {body.name: body for body in find_bodies(FULL, "deor")}
     assert bodies["find_account"].branch_count == 3  # for, if, and
     assert bodies["macro timer_start"].branch_count == 0
 
-def test_deor_literals_skip_imports_rust_blocks_and_constants():
+def test_deor_literals_skip_imports_rust_blocks_plus_constants():
     from codequality.rules.rule_07_magic_values.tree_sitter.tree_literals import tree_literals
 
     found = [(use.kind, use.value, use.in_constant) for use in tree_literals(FULL + "\nfn void run()\n    const int MAX = 5\n", "deor")]
@@ -95,13 +95,13 @@ def test_deor_literals_skip_imports_rust_blocks_and_constants():
     assert ("number", 42, False) in found and ("number", 5, True) in found
     assert not any(kind == "string" and value == "lib/string.deor" for kind, value, _ in found)
 
-def test_deor_uses_find_calls_built_sql_and_rust_blocks_at_their_lines():
+def test_deor_uses_find_calls_built_sql_plus_rust_blocks_at_their_lines():
     from codequality.rules.rule_05_be_secure.shared.uses import find_uses
 
     uses = {(use.name, use.line_number) for use in find_uses(FULL, "deor")}
     assert ("crash", 24) in uses and ("dynamic_string", 23) in uses and ("unsafe", 30) in uses
 
-def test_deor_error_handlers_crashes_checks_and_rust_blocks():
+def test_deor_error_handlers_crashes_checks_plus_rust_blocks():
     from codequality.rules.rule_11_fail_loudly.tree_sitter.tree_handlers import tree_handlers
 
     found = [(handler.line_number, handler.is_catch, handler.is_loud) for handler in tree_handlers(FULL, "deor")]
@@ -109,21 +109,21 @@ def test_deor_error_handlers_crashes_checks_and_rust_blocks():
     assert (26, True, True) in found  # is not valid check that prints
     assert (29, True, False) in found  # `let _ =` in a rust block
 
-def test_deor_cleanup_finds_unread_variables_and_unreachable_code():
+def test_deor_cleanup_finds_unread_variables_plus_unreachable_code():
     from codequality.rules.rule_12_clean_up.tree_sitter import analyze_tree
 
     findings, _ = analyze_tree(FULL, "deor")
     assert findings.unused_variables == [12, 13, 23]
     assert findings.unreachable == [20]
 
-def test_deor_spacing_wants_blank_lines_before_control_and_after_blocks():
+def test_deor_spacing_wants_blank_lines_before_control_plus_after_blocks():
     from codequality.rules.rule_14_space_out.deor.deor_spacing import deor_gaps
 
     source = "fn void run()\n    int one = 1\n    if one is 1\n        print(one)\n    print(one)\n\n    return\n"
     control_total, control_missing, block_total, block_missing = deor_gaps(source)
     assert control_missing == [3] and block_missing == [5]
 
-def test_deor_comments_and_commented_out_code():
+def test_deor_comments_plus_commented_out_code():
     from codequality.rules.rule_09_comment_why.shared.extract import tree_comments
     from codequality.rules.rule_09_comment_why.shared.judging.signals import is_commented_out_code
 
@@ -136,7 +136,7 @@ def test_deor_clever_is_only_rust_blocks():
 
     assert clever_constructs(FULL, "deor") == []
 
-def test_deor_tests_and_secrets():
+def test_deor_tests_plus_secrets():
     from codequality.rules.rule_05_be_secure.shared.secrets import secret_line_numbers
     from codequality.rules.rule_10_test_what_matters.count_tests import count_deor_tests
 

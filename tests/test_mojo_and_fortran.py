@@ -61,7 +61,7 @@ contains
 end module geometry
 """
 
-def test_mojo_and_fortran_files_are_detected(tmp_path):
+def test_mojo_plus_fortran_files_are_detected(tmp_path):
     (tmp_path / "a.mojo").write_text("fn main():\n    pass\n")
     (tmp_path / "b.f90").write_text("program p\nend program p\n")
     assert {"mojo", "fortran"} <= detect(tmp_path).languages
@@ -76,15 +76,15 @@ def test_fortran_call_without_parentheses_is_a_call():
     calls = {name: called for name, _, called in text_calls(FORTRAN, "fortran")}
     assert "helper" in calls["test_area"]
 
-def test_names_are_read_from_mojo_patterns_and_fortran_declarators():
+def test_names_are_read_from_mojo_patterns_plus_fortran_declarators():
     assert {"_hidden", "kept", "scale", "Point"} <= set(find_names(MOJO, "mojo"))
     assert {"Area", "radius", "unused_count", "pi"} <= set(find_names(FORTRAN, "fortran"))
 
-def test_calls_and_statements_are_named_for_the_security_rules():
+def test_calls_plus_statements_are_named_for_the_security_rules():
     assert "print" in [use.name for use in find_uses(MOJO, "mojo")]
     assert {"open", "print"} <= {use.name for use in find_uses(FORTRAN, "fortran")}
 
-def test_fortran_kinds_and_mojo_prefixes_do_not_hide_numbers_and_strings():
+def test_fortran_kinds_plus_mojo_prefixes_do_not_hide_numbers_plus_strings():
     assert sorted(literal.value for literal in tree_literals("program p\nx = 1.5_dp\ny = 2d3\nend program p\n", "fortran")) == [1.5, 2000.0]
     assert [literal.value for literal in tree_literals('fn f():\n    var s = f"id {1}"\n', "mojo") if literal.kind == "string"] == ["id {1}"]
 
@@ -92,7 +92,7 @@ def test_tests_are_counted_by_name():
     assert count_mojo_tests(MOJO) == 1
     assert count_fortran_tests(FORTRAN) == 1
 
-def test_mojo_except_and_fortran_status_checks_are_judged_by_what_they_do():
+def test_mojo_except_plus_fortran_status_checks_are_judged_by_what_they_do():
     assert [(handler.is_catch, handler.is_loud) for handler in tree_handlers(MOJO, "mojo") if handler.is_catch] == [(True, False)]
     fortran = {handler.is_catch: handler.is_loud for handler in tree_handlers(FORTRAN, "fortran")}
     assert fortran == {True: True, False: True}
@@ -104,7 +104,7 @@ def test_mojo_cleanup():
     assert findings.unreachable == [13]
     assert [name for name, _ in usage.private_definitions] == ["_hidden"]
 
-def test_fortran_cleanup_ignores_case_and_end_line_names():
+def test_fortran_cleanup_ignores_case_plus_end_line_names():
     findings, usage = analyze_tree(FORTRAN, "fortran")
     assert findings.unused_imports == [2]  # int32
     assert findings.unused_variables == [11]

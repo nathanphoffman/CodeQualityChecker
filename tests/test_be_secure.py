@@ -87,7 +87,7 @@ def test_env_file_in_gitignore_is_fine(tmp_path: Path):
     results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
     assert results["RULE-05-SECRET-FILES"].score == 1.0
 
-def test_ordinary_sentences_and_safe_code_pass(tmp_path: Path):
+def test_ordinary_sentences_plus_safe_code_pass(tmp_path: Path):
     (tmp_path / "ok.py").write_text(
         "import subprocess\n"
         "def fine(name, conn):\n"

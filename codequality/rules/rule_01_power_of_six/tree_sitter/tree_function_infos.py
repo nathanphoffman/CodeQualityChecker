@@ -1,5 +1,5 @@
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, NAME_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, IDENTIFIER, NAME_FIELD, PARAMETERS
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import walk
 from ..shared.Function_Info import Function_Info
@@ -8,14 +8,14 @@ from ..shared.Function_Info import Function_Info
 # are measured from the syntax tree instead of by pattern.
 # Mojo's `self` is not an argument, the same as Python's.
 RECEIVER_NAMES = {"self"}
-ARGUMENT_TYPES = {"parameter", "identifier"}
+ARGUMENT_TYPES = {"parameter", IDENTIFIER}
 
 def parameters_of(function):
     """The `parameters` node: Mojo has it on the function, Fortran has it on the function's header line."""
 
     for node in [function] + function.children:
-        if node.child_by_field_name("parameters") is not None:
-            return node.child_by_field_name("parameters")
+        if node.child_by_field_name(PARAMETERS) is not None:
+            return node.child_by_field_name(PARAMETERS)
 
     return None
 

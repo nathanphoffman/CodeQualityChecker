@@ -1,6 +1,6 @@
-from .syntax_shapes import CASE_INSENSITIVE_LANGUAGES, FIRST_CHILD, IDENTIFIER_TYPES, LEFT_FIELD, WHOLE_NODE
+from .syntax_shapes import CASE_INSENSITIVE_LANGUAGES, FIRST_CHILD, IDENTIFIER, IDENTIFIER_TYPES, LEFT_FIELD, NAME_FIELD, WHOLE_NODE
 
-NAME_TYPES = {"identifier", "property_identifier", "field_identifier", "shorthand_property_identifier"}
+NAME_TYPES = {IDENTIFIER, "property_identifier", "field_identifier", "shorthand_property_identifier"}
 
 def walk(node):
     """Every named node under (and including) this one. Tokens like the `function` keyword are skipped: Fortran names its
@@ -37,7 +37,7 @@ def bound_nodes(node, field):
 
     return node.children_by_field_name(field)
 
-DECLARED_NAME_TYPES = {"identifier", "type_identifier", "field_identifier", "name"}
+DECLARED_NAME_TYPES = {IDENTIFIER, "type_identifier", "field_identifier", NAME_FIELD}
 
 def inner_declarator(node):
     """What a wrapper like C's `*name`, `name[8]`, Fortran's `name = 5` or `name(10)` wraps."""

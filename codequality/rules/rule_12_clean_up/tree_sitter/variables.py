@@ -1,12 +1,12 @@
 from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
-from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, LEFT_FIELD, NAME_FIELD
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, LEFT_FIELD, NAME_FIELD, VALUE_FIELD
 from ....language_parsers.tree_sitter.tree_walk import declarator_name, normalized, walk
 from ..shared.limits import PRIVATE_PREFIX
 from .names import name_counts
 
 def with_value(node, field):
     """The name field of a declaration that gives the variable a value, or nothing when it is left empty."""
-    name = node.child_by_field_name(field) if node.child_by_field_name("value") is not None else None
+    name = node.child_by_field_name(field) if node.child_by_field_name(VALUE_FIELD) is not None else None
 
     return [name] if name is not None else []
 
@@ -36,11 +36,11 @@ def rexx_variable(node):
 # Mojo has no keyword on a first assignment (`x = 1`), so every assignment to a plain name counts.
 VARIABLE_FINDERS = {
     RUST: {"let_declaration": lambda node: with_value(node, "pattern")},
-    TYPESCRIPT: {"variable_declarator": lambda node: with_value(node, "name")},
+    TYPESCRIPT: {"variable_declarator": lambda node: with_value(node, NAME_FIELD)},
     HARE: {"let_declaration": first_named},
     C_LANG: {"init_declarator": lambda node: [declarator_name(node.child_by_field_name("declarator"))]},
     GO: {"short_var_declaration": lambda node: first_named(node.child_by_field_name(LEFT_FIELD)),
-         "var_spec": lambda node: with_value(node, "name")},
+         "var_spec": lambda node: with_value(node, NAME_FIELD)},
     MOJO: {"assignment": lambda node: first_named(node.child_by_field_name(LEFT_FIELD))},
     CSHARP: {"variable_declarator": lambda node: [node.child_by_field_name(NAME_FIELD)] if len(node.named_children) > 1 else []},  # only with a value
     REXX: {"assignment_statement": rexx_variable},

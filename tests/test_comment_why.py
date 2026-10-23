@@ -18,7 +18,7 @@ CASES = [
     ("x = 1\n# see `close()` for the cleanup that follows\ny = 2\n", "why"),
 ]
 
-def test_python_comments_are_sorted_into_what_and_why():
+def test_python_comments_are_sorted_into_what_plus_why():
     for source, expected in CASES:
         (comment,) = python_comments(source)
         confidence = why_confidence(comment)
@@ -29,7 +29,7 @@ def test_comments_on_clever_code_are_marked_so_they_can_be_left_out():
     comments = python_comments(source)
     assert len(comments) == 2 and all(comment.explains_clever for comment in comments)
 
-def test_rust_and_typescript_comments_are_read():
+def test_rust_plus_typescript_comments_are_read():
     rust = "fn main() {\n    // increment the counter\n    counter += 1;\n}\n"
     typescript = "function f() {\n  /* because the API caps pages at 50 */\n  const size = 50;\n}\n"
     (rust_comment,) = tree_comments(rust, "rust")

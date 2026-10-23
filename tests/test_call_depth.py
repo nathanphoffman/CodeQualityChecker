@@ -13,7 +13,7 @@ def test_python_chain_depth_counts_each_function(tmp_path: Path):
     source = "def main():\n    child()\n\ndef child():\n    grandchild()\n\ndef grandchild():\n    print(1)\n"
     assert depths_of(tmp_path, "app.py", source) == [3]
 
-def test_rust_calls_are_followed_and_loops_end(tmp_path: Path):
+def test_rust_calls_are_followed_plus_loops_end(tmp_path: Path):
     source = "fn top() {\n    middle();\n}\n\nfn middle() {\n    bottom();\n}\n\nfn bottom() {\n    middle();\n}\n"
     assert depths_of(tmp_path, "lib.rs", source) == [3]
 
@@ -26,7 +26,7 @@ def test_depth_credit_slides_after_six():
     assert 0.9 < depth_credit(7) < 1.0
     assert depth_credit(10) < 0.2
 
-def test_deor_functions_and_nested_macros_all_count_as_levels(tmp_path: Path):
+def test_deor_functions_plus_nested_macros_all_count_as_levels(tmp_path: Path):
     source = ("fn void helper()\n    print(1)\n\nmacro middle\n    helper()\n\nfn void entry()\n    macro_run middle\n\n"
               "macro outer\n    macro inner\n        macro deepest\n            print(2)\n\n        macro_run deepest\n\n    macro_run inner\n\n"
               "fn void second()\n    macro_run outer\n")

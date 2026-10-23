@@ -1,5 +1,6 @@
 from ..nodes import Node
 from ..tokens import END, STRING, SYMBOL, Token
+from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER
 
 # Words that end an expression wherever it is: `if a then b else c` runs the expressions together on one line.
 CLAUSE_WORDS = {"then", "else"}
@@ -56,7 +57,7 @@ class Token_Reader:
         """An identifier node for a symbol (or a quoted label), with its text in lower case."""
         text = token.text.strip("'\"") if token.kind == STRING else token.text
 
-        node = Node("identifier", token.start, token.end, self.map)
+        node = Node(IDENTIFIER, token.start, token.end, self.map)
         node.override = text.lower()
 
         return node

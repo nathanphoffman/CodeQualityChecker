@@ -1,6 +1,7 @@
 from ..nodes import Node
 from ..reading.reader import PLACEHOLDER
 from ..tokens import SYMBOL
+from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
 class Template_Statements:
     """`arg`, `pull` and `parse`, which fill variables from a template."""
@@ -25,7 +26,7 @@ class Template_Statements:
     def parameter(self, start, names):
         end = names[-1].end_byte if names else start
 
-        return Node("parameter", start, end, self.map, names, {"name": names})
+        return Node("parameter", start, end, self.map, names, {NAME_FIELD: names})
 
     def arg(self):
         start = self.advance().start

@@ -54,18 +54,18 @@ def test_csharp_files_are_detected(tmp_path):
     (tmp_path / "App.csproj").write_text("<Project />")
     assert "csharp" in detect(tmp_path).languages
 
-def test_methods_are_found_with_their_arguments_and_lambdas_are_not_functions():
+def test_methods_are_found_with_their_arguments_plus_lambdas_are_not_functions():
     found = {info.name: info.argument_count for info in find_functions(CSHARP, "csharp")}
     assert found == {"Handle": 2, "Helper": 1, "Numbers": 0, "TestHandle": 0}
 
-def test_names_include_methods_parameters_and_variables():
+def test_names_include_methods_parameters_plus_variables():
     assert {"Server", "Handle", "path", "count", "total", "e", "MaxItems"} <= set(find_names(CSHARP, "csharp"))
 
-def test_calls_and_string_building_are_seen_by_the_security_rules():
+def test_calls_plus_string_building_are_seen_by_the_security_rules():
     names = [use.name for use in find_uses(CSHARP, "csharp")]
     assert {"File.ReadAllText", "Console.WriteLine", "dynamic_string"} <= set(names)
 
-def test_const_fields_and_enum_values_are_named_numbers():
+def test_const_fields_plus_enum_values_are_named_numbers():
     numbers = [literal for literal in tree_literals(CSHARP, "csharp") if literal.kind == "number"]
     assert {literal.value: literal.in_constant for literal in numbers}[10] is True
     assert [literal.value for literal in tree_literals("class A { decimal d = 2.5m; long l = 5UL; }", "csharp")] == [5, 2.5]
@@ -74,11 +74,11 @@ def test_tests_are_counted_by_attribute():
     assert count_csharp_tests(CSHARP) == 1
     assert count_csharp_tests("class A { [Theory] void T() {} [TestMethod] public void U() {} void V() {} }") == 2
 
-def test_catch_clauses_are_judged_by_what_they_do_and_what_they_catch():
+def test_catch_clauses_are_judged_by_what_they_do_plus_what_they_catch():
     catches = sorted((handler.line_number, handler.is_loud, handler.is_broad) for handler in tree_handlers(CSHARP, "csharp") if handler.is_catch)
     assert catches == [(17, True, False), (21, False, True)]
 
-def test_cleanup_finds_unused_alias_variables_dead_code_and_private_methods():
+def test_cleanup_finds_unused_alias_variables_dead_code_plus_private_methods():
     findings, usage = analyze_tree(CSHARP, "csharp")
     assert findings.unused_imports == [2]
     assert findings.unused_variables == [11, 12]  # unused and sql

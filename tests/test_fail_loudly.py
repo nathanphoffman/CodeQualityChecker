@@ -51,15 +51,15 @@ LOUD_RUST = "fn f() { match r { Ok(v) => v, Err(e) => log(e) }; let x = run()?; 
 def loud_flags(handlers):
     return [handler.is_loud for handler in handlers if handler.is_catch]
 
-def test_python_silent_and_loud_handlers():
+def test_python_silent_plus_loud_handlers():
     assert loud_flags(python_handlers(SILENT_PYTHON)) == [False, False, False]
     assert loud_flags(python_handlers(LOUD_PYTHON)) == [True, True, True, True]
 
-def test_typescript_silent_and_loud_handlers():
+def test_typescript_silent_plus_loud_handlers():
     assert loud_flags(tree_handlers(SILENT_TYPESCRIPT, "typescript")) == [False, False, False]
     assert loud_flags(tree_handlers(LOUD_TYPESCRIPT, "typescript")) == [True, True, True]
 
-def test_rust_silent_and_loud_handlers():
+def test_rust_silent_plus_loud_handlers():
     assert loud_flags(tree_handlers(SILENT_RUST, "rust")) == [False, False]
     assert loud_flags(tree_handlers(LOUD_RUST, "rust")) == [True]
     assert len(tree_handlers(LOUD_RUST, "rust")) == 2  # the Err arm, and the ? that passes an error up

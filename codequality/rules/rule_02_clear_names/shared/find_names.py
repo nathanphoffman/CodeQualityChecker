@@ -4,7 +4,7 @@ from ..deor.deor_names import deor_names
 from ..python.python_names import python_names
 from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD
+from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD, NAME_FIELD
 from ....language_parsers.tree_sitter.tree_walk import bound_nodes, declarator_name, identifiers_in, walk
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
@@ -60,19 +60,19 @@ def parameter_names(source, language):
 DECLARATION_FIELDS = {
     "c": {"function_definition": "declarator", "declaration": "declarator", "init_declarator": "declarator",
           "parameter_declaration": "declarator", "field_declaration": "declarator", "type_definition": "declarator",
-          "enumerator": "name", "struct_specifier": "name", "enum_specifier": "name", "union_specifier": "name",
-          "preproc_def": "name", "preproc_function_def": "name"},
-    "go": {"function_declaration": "name", "method_declaration": "name", "var_spec": "name", "const_spec": "name",
-           "type_spec": "name", "parameter_declaration": "name", "field_declaration": "name", "short_var_declaration": "left",
+          "enumerator": NAME_FIELD, "struct_specifier": NAME_FIELD, "enum_specifier": NAME_FIELD, "union_specifier": NAME_FIELD,
+          "preproc_def": NAME_FIELD, "preproc_function_def": NAME_FIELD},
+    "go": {"function_declaration": NAME_FIELD, "method_declaration": NAME_FIELD, "var_spec": NAME_FIELD, "const_spec": NAME_FIELD,
+           "type_spec": NAME_FIELD, "parameter_declaration": NAME_FIELD, "field_declaration": NAME_FIELD, "short_var_declaration": "left",
            "range_clause": "left"},
-    "mojo": {"function_definition": "name", "struct_definition": "name", "trait_definition": "name", "parameter": "name",
+    "mojo": {"function_definition": NAME_FIELD, "struct_definition": NAME_FIELD, "trait_definition": NAME_FIELD, "parameter": NAME_FIELD,
              "assignment": "left", "for_statement": "left", "for_in_clause": "left", "aliased_import": "alias"},
-    "fortran": {"function_statement": "name", "subroutine_statement": "name", "variable_declaration": "declarator"},
-    "csharp": {"method_declaration": "name", "constructor_declaration": "name", "local_function_statement": "name",
-               "class_declaration": "name", "struct_declaration": "name", "interface_declaration": "name", "enum_declaration": "name",
-               "record_declaration": "name", "enum_member_declaration": "name", "property_declaration": "name", "parameter": "name",
-               "variable_declarator": "name", "foreach_statement": "left", "catch_declaration": "name"},
-    "rexx": {"routine_definition": "name", "parameter": "name", "assignment_statement": "left", "parse_statement": "target", "for_statement": "left"},
+    "fortran": {"function_statement": NAME_FIELD, "subroutine_statement": NAME_FIELD, "variable_declaration": "declarator"},
+    "csharp": {"method_declaration": NAME_FIELD, "constructor_declaration": NAME_FIELD, "local_function_statement": NAME_FIELD,
+               "class_declaration": NAME_FIELD, "struct_declaration": NAME_FIELD, "interface_declaration": NAME_FIELD, "enum_declaration": NAME_FIELD,
+               "record_declaration": NAME_FIELD, "enum_member_declaration": NAME_FIELD, "property_declaration": NAME_FIELD, "parameter": NAME_FIELD,
+               "variable_declarator": NAME_FIELD, "foreach_statement": "left", "catch_declaration": NAME_FIELD},
+    "rexx": {"routine_definition": NAME_FIELD, "parameter": NAME_FIELD, "assignment_statement": "left", "parse_statement": "target", "for_statement": "left"},
 }
 
 def declared_in(node):

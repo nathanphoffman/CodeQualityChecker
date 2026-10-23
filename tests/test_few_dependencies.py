@@ -27,7 +27,7 @@ def test_small_project_is_judged_as_1296_lines(tmp_path: Path):
     assert abs(result.score - 0.75 ** 2) < 1e-9  # 2 dependencies, dev tools not counted
     assert "requests" in result.message and "tree-sitter" in result.message
 
-def test_requirements_and_package_json_and_cargo_count_once_each(tmp_path: Path):
+def test_requirements_plus_package_json_plus_cargo_count_once_each(tmp_path: Path):
     (tmp_path / "requirements.txt").write_text("# comment\nrequests==2.0\n-r other.txt\n")
     (tmp_path / "package.json").write_text('{"dependencies": {"react": "18"}, "devDependencies": {"jest": "1"}}')
     (tmp_path / "Cargo.toml").write_text('[dependencies]\naxum = "0.7"\n[dev-dependencies]\ntokio-test = "1"\n')

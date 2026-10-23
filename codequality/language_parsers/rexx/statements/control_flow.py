@@ -1,9 +1,10 @@
 from ..tokens import SYMBOL
+from ....language_parsers.tree_sitter.syntax_shapes import IF_STATEMENT
 
 class Control_Flow:
     """`if`, `do` and `select`, the instructions that hold other instructions."""
 
-    def statement_or_block(self):
+    def branch_body(self):
         """The one instruction after `then`, `else` or `when ... then`, which can be a `do` group."""
         self.skip_ends()
 
@@ -14,20 +15,20 @@ class Control_Flow:
         condition = self.expression({"then"})
         self.skip_ends()
         self.eat_word("then")
-        consequence = self.statement_or_block()
+        consequence = self.branch_body()
         position, end = self.index, self.last_end
         self.skip_ends()
 
         if self.word(self.peek()) == "else":
             self.advance()
-            alternative = self.statement_or_block()
+            alternative = self.branch_body()
 
-            return self.make("if_statement", start, [condition, consequence, alternative],
+            return self.make(IF_STATEMENT, start, [condition, consequence, alternative],
                              {"condition": [condition], "consequence": [consequence], "alternative": [alternative]})
 
         self.index, self.last_end = position, end
 
-        return self.make("if_statement", start, [condition, consequence], {"condition": [condition], "consequence": [consequence]})
+        return self.make(IF_STATEMENT, start, [condition, consequence], {"condition": [condition], "consequence": [consequence]})
 
     def do_header(self):
         """(the control variable or None, the expressions after `do`, whether it is a loop). `do` alone just groups statements."""
@@ -98,7 +99,7 @@ class Control_Flow:
         condition = self.expression({"then"})
         self.skip_ends()
         self.eat_word("then")
-        body = self.statement_or_block()
+        body = self.branch_body()
 
         return self.make("when_clause", start, [condition, body], {"condition": [condition], "body": [body]})
 

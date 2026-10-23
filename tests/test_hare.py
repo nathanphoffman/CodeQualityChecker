@@ -27,14 +27,14 @@ def test_hare_error_cases_are_judged_by_what_they_do():
     assert [handler.is_loud for handler in tree_handlers(silent, "hare")] == [False]
     assert [handler.is_loud for handler in tree_handlers(loud, "hare")] == [True]
 
-def test_hare_cleanup_finds_unused_imports_variables_and_dead_code():
+def test_hare_cleanup_finds_unused_imports_variables_plus_dead_code():
     source = "use fmt;\nuse os;\n\nfn f() void = {\n\tlet unused = 1;\n\treturn;\n\tfmt::println(\"x\")!;\n};\n"
     findings, _ = analyze_tree(source, "hare")
     assert findings.unused_imports == [2]
     assert findings.unused_variables == [5]
     assert findings.unreachable == [7]
 
-def test_codequalityignore_skips_folders_and_everything_inside(tmp_path):
+def test_codequalityignore_skips_folders_plus_everything_inside(tmp_path):
     (tmp_path / "vendor" / "deep").mkdir(parents=True)
     (tmp_path / "vendor" / "deep" / "copied.ha").write_text("fn f() void = {};\n")
     (tmp_path / "main.ha").write_text("fn g() void = {};\n")

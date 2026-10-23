@@ -1,4 +1,5 @@
 from ..tokens import SYMBOL
+from ....language_parsers.tree_sitter.syntax_shapes import VALUE_FIELD
 
 class Simple_Statements:
     """Instructions that are a word and a few names or one expression: say, return, exit, leave, drop, procedure, address."""
@@ -14,7 +15,7 @@ class Simple_Statements:
         start = self.advance().start
         value = self.expression()
 
-        return self.make("exit_statement", start, [value] if value else [], {"value": [value] if value else []})
+        return self.make("exit_statement", start, [value] if value else [], {VALUE_FIELD: [value] if value else []})
 
     def nop(self):
         start = self.advance().start

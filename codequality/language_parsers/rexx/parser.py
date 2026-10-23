@@ -9,6 +9,7 @@ from .reading.reader import CLAUSE_WORDS, Token_Reader
 from .statements.simple_statements import Simple_Statements
 from .statements.templates import Template_Statements
 from .tokens import COMMENT, OPERATOR, SYMBOL, tokenize
+from ...language_parsers.tree_sitter.syntax_shapes import NAME_FIELD, PARAMETERS
 
 LABEL_MARK = ":"
 
@@ -103,7 +104,7 @@ class Rexx_Parser(Token_Reader, Expression_Reader, Simple_Statements, Call_State
         body = self.body_block(start, statements)
         parameters = self.parameters_of(statements, start)
 
-        return self.make("routine_definition", start, [name, body], {"name": [name], "body": [body], "parameters": parameters},
+        return self.make("routine_definition", start, [name, body], {NAME_FIELD: [name], "body": [body], PARAMETERS: parameters},
                          end=statements[-1].end_byte if statements else self.last_end)
 
     def body_block(self, start, statements):
@@ -118,7 +119,7 @@ class Rexx_Parser(Token_Reader, Expression_Reader, Simple_Statements, Call_State
         if found is None:
             return []
 
-        node = Node("parameters", found.start_byte, found.end_byte, self.map)
+        node = Node(PARAMETERS, found.start_byte, found.end_byte, self.map)
         node.children = found.children
 
         return [node]

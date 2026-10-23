@@ -56,33 +56,33 @@ int test_helper(void)
 }
 """
 
-def test_c_and_go_files_are_detected(tmp_path):
+def test_c_plus_go_files_are_detected(tmp_path):
     (tmp_path / "a.c").write_text("int main(void) { return 0; }\n")
     (tmp_path / "b.go").write_text("package main\n")
     assert {"c", "go"} <= detect(tmp_path).languages
 
-def test_go_functions_and_methods_are_found_with_their_arguments():
+def test_go_functions_plus_methods_are_found_with_their_arguments():
     found = {info.name: info.argument_count for info in find_functions(GO, "go")}
     assert found == {"handle": 2, "quiet": 0}
 
-def test_c_functions_are_found_and_void_is_not_an_argument():
+def test_c_functions_are_found_plus_void_is_not_an_argument():
     found = {info.name: info.argument_count for info in find_functions(C, "c")}
     assert found == {"helper": 2, "test_helper": 0}
 
-def test_names_are_read_through_c_pointers_and_go_multiple_assignments():
+def test_names_are_read_through_c_pointers_plus_go_multiple_assignments():
     assert {"helper", "count", "label", "total"} <= set(find_names(C, "c"))
     assert {"handle", "a", "b", "data", "err", "unused"} <= set(find_names(GO, "go"))
 
-def test_calls_are_named_with_dots_in_c_and_go():
+def test_calls_are_named_with_dots_in_c_plus_go():
     assert "os.ReadFile" in [use.name for use in find_uses(GO, "go")]
     assert "printf" in [use.name for use in find_uses(C, "c")]
 
-def test_c_suffixes_and_go_import_paths_are_not_magic_values():
+def test_c_suffixes_plus_go_import_paths_are_not_magic_values():
     numbers = [literal.value for literal in tree_literals("int x = 10UL;\n", "c")]
     assert numbers == [10]
     assert tree_literals('import "fmt"\n'.replace("import", "package main\nimport"), "go") == []
 
-def test_tests_are_counted_by_name_in_c_and_go():
+def test_tests_are_counted_by_name_in_c_plus_go():
     assert count_c_tests(C) == 1
     assert count_go_tests("package a\nfunc TestOne(t *testing.T) {}\nfunc helper() {}\n") == 1
 
@@ -93,14 +93,14 @@ def test_go_error_checks_are_judged_by_what_the_block_does():
 def test_c_null_checks_count_as_error_handling():
     assert [handler.is_loud for handler in tree_handlers(C, "c")] == [True]
 
-def test_go_cleanup_finds_unused_imports_variables_dead_code_and_private_functions():
+def test_go_cleanup_finds_unused_imports_variables_dead_code_plus_private_functions():
     findings, usage = analyze_tree(GO, "go")
     assert findings.unused_imports == [6]
     assert findings.unused_variables == [15]
     assert findings.unreachable == [18]
     assert sorted(name for name, _ in usage.private_definitions) == ["handle", "quiet"]
 
-def test_c_cleanup_finds_unused_variables_and_static_functions():
+def test_c_cleanup_finds_unused_variables_plus_static_functions():
     findings, usage = analyze_tree(C, "c")
     assert findings.unused_variables == [6]
     assert [name for name, _ in usage.private_definitions] == ["helper"]
