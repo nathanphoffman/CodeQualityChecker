@@ -54,3 +54,9 @@ def test_typescript_plus_rust_numbers(tmp_path: Path):
 def test_repeated_strings_are_flagged(tmp_path: Path):
     result = grade(tmp_path, "a.py", REPEATED, "RULE-07-REPEATED-STRINGS")
     assert "same-text-here" in result.message and result.score == 0.0
+
+TYPE_KEYWORDS = "".join(f"function f{n}(x: string): string[] {{ return [x]; }}\n" for n in range(3))
+
+def test_typescript_string_type_is_not_a_repeated_string(tmp_path: Path):
+    result = grade(tmp_path, "a.ts", TYPE_KEYWORDS, "RULE-07-REPEATED-STRINGS")
+    assert result.message == "no strings found" and result.score == 1.0

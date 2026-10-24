@@ -72,7 +72,7 @@ def literal_of(node, in_constant):
 
         return Literal_Use(KIND_NUMBER, value, line, in_constant) if value is not None else None
 
-    if node.type in STRING_TYPES and node.parent.type not in NOT_VALUE_PARENTS:
+    if node.type in STRING_TYPES and node.is_named and node.parent.type not in NOT_VALUE_PARENTS:  # the `string` type keyword is an unnamed node
         return Literal_Use(KIND_STRING, string_body(text), line, in_constant)
 
     return None
