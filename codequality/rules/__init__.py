@@ -1,3 +1,21 @@
-from . import (common, rule_01_power_of_six, rule_02_clear_names, rule_03_simple_first, rule_04_one_job, rule_05_be_secure,
-               rule_06_dont_repeat, rule_07_magic_values, rule_08_few_dependencies, rule_09_comment_why, rule_10_test_what_matters,
-               rule_11_fail_loudly, rule_12_clean_up, rule_13_project_size, rule_14_space_out, rust, typescript)  # noqa: F401
+from . import (
+               common,
+               format_and_lint,  # noqa: F401
+               frameworks,
+               rule_01_power_of_six,
+               rule_02_clear_names,
+               rule_03_simple_first,
+               rule_04_one_job,
+               rule_05_be_secure,
+               rule_06_dont_repeat,
+               rule_07_magic_values,
+               rule_08_few_dependencies,
+               rule_09_comment_why,
+               rule_10_test_what_matters,
+               rule_11_fail_loudly,
+               rule_12_clean_up,
+               rule_13_project_size,
+               rule_14_space_out,
+               rust,
+               typescript,
+)

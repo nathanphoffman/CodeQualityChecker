@@ -2,8 +2,8 @@ from .....language_parsers.tree_sitter.parse_tree import parse_tree
 from .....language_parsers.tree_sitter.tree_walk import walk
 from .....source_code import TYPESCRIPT
 from .lookups.type_names import named
-from .type_rules import ANY_MEMBER, FIELD, METHOD, TYPE_RULES
 from .Type_Info import Type_Info
+from .type_rules import ANY_MEMBER, FIELD, METHOD, TYPE_RULES
 
 SKIPPED = {"visibility_modifier", "attribute_item", "line_comment", "block_comment", "comment", "ERROR"}
 ANONYMOUS = "(anonymous)"

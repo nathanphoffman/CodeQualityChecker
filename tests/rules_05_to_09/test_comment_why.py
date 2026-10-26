@@ -73,8 +73,8 @@ def test_the_amount_check_counts_twice_as_much_as_a_warning():
     assert weights["RULE-09-COMMENT-AMOUNT"] == 2 * weights["RULE-09-COMMENTS-SAY-WHY"]
 
 def test_comments_on_clever_code_do_not_count_toward_the_amount(tmp_path: Path):
-    from codequality.rules.rule_09_comment_why.shared.amount_checks import count_plain_comments
     from codequality.detect import detect
+    from codequality.rules.rule_09_comment_why.shared.amount_checks import count_plain_comments
 
     (tmp_path / "a.py").write_text("import re\n# how this works\nPATTERN = re.compile('x')\n# plain note\ny = 1\n")
     assert count_plain_comments(detect(tmp_path)) == 1

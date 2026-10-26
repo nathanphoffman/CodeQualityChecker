@@ -1,10 +1,10 @@
 import re
 
-from ..deor.deor_literals import deor_literals
-from ....source_code import DEOR
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
-from ..shared.Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 from ....language_parsers.tree_sitter.syntax_shapes import LEFT_FIELD, NAME_FIELD
+from ....source_code import DEOR
+from ..deor.deor_literals import deor_literals
+from ..shared.Literal_Use import KIND_NUMBER, KIND_STRING, Literal_Use
 
 NUMBER_TYPES = {"number", "float", "integer_literal", "float_literal", "number_literal", "int_literal", "imaginary_literal", "integer", "real_literal"}
 STRING_TYPES = {"string", "string_literal", "interpreted_string_literal", "raw_string_literal", "verbatim_string_literal"}

@@ -1,5 +1,5 @@
-from .tree_walk import squashed, walk
 from ...language_parsers.tree_sitter.syntax_shapes import CALL_EXPRESSION, FUNCTION_FIELD, LEFT_FIELD
+from .tree_walk import squashed, walk
 
 # Node types named by one of their fields: `new X()` and Rust macros like println!.
 NAMING_FIELDS = {"new_expression": "constructor", "macro_invocation": "macro", "object_creation_expression": "type"}

@@ -27,3 +27,17 @@ dev = ["pytest"]
 
 [project.scripts]
 codequality = "codequality.cli:main"
+
+[tool.ruff]
+line-length = 200  # the code is written with long lines on purpose, so this matches it instead of fighting it
+extend-exclude = ["vendor"]  # copied-in grammars are not ours to lint
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]  # pycodestyle errors, pyflakes, import order
+ignore = ["E501"]  # line length is judged by this project's own rules
+
+[tool.ruff.lint.per-file-ignores]
+"codequality/rules/__init__.py" = ["F401"]  # these imports are what registers the rules, so they look unused
+
+[tool.ruff.lint.isort]
+lines-after-imports = 1  # rule 14 never allows two blank lines in a row

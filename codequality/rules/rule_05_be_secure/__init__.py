@@ -1,11 +1,11 @@
 """Rule 5: Be secure. Looks for secrets in code, and for risky calls and constructs."""
 from functools import partial
 
+from ...models import SEVERITY_ERROR
 from ...registry import rule
 from .shared.call_checks import CALL_CHECKS
 from .shared.judge_uses import grade_findings, run_call_check
 from .shared.secrets import hardcoded_secrets, judge_secret_files
-from ...models import SEVERITY_ERROR
 
 for check in CALL_CHECKS:
     rule(check.id, check.title, severity=check.severity)(partial(run_call_check, check))

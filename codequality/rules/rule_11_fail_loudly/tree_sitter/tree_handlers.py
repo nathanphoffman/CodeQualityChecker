@@ -1,14 +1,14 @@
-from ..deor.deor_handlers import deor_handlers
 from ....language_parsers.deor.rust_blocks import real_line, rust_blocks
-from ....source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, CALL_EXPRESSION, FUNCTION_FIELD, IDENTIFIER, LEFT_FIELD, NAME_FIELD, VALUE_FIELD
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import identifiers_in, squashed, walk
 from ....language_parsers.tree_sitter.use_names import called_name, dotted
+from ....source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
+from ..deor.deor_handlers import deor_handlers
+from ..python.python_handlers import is_loud_name
 from ..shared.Error_Handler import Error_Handler
 from ..shared.limits import SILENT_CALLBACK_BODIES
-from ..python.python_handlers import is_loud_name
-from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, CALL_EXPRESSION, FUNCTION_FIELD, IDENTIFIER, LEFT_FIELD, NAME_FIELD, VALUE_FIELD
 
 ERR_CONSTRUCTOR = "Err"
 HARE_ERROR_TYPE = "error"

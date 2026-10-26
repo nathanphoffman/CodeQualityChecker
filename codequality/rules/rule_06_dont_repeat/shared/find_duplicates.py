@@ -1,7 +1,7 @@
 from ....source_code import items_in_project
-from .limits import MIN_DUPLICATE_STATEMENTS, MIN_SHAPE_SIZE
 from ..python.python_shapes import python_shapes
 from ..tree_sitter.tree_shapes import tree_shapes
+from .limits import MIN_DUPLICATE_STATEMENTS, MIN_SHAPE_SIZE
 
 def shapes_in_project(project):
     """[(file label, Function_Shape)] for every function in non-test Python, Rust and TypeScript files."""

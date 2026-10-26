@@ -22,8 +22,10 @@
 10. Test what matters. Verify every change. Write simple unit and integration tests for critical logic only; skip trivial code.
 11. Fail loudly but directedly. Never hide errors, don't over report or over-throw.
 12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables, and exports nothing imports.
-13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
-14. 14. Space it out. Blank lines separate ideas like paragraphs.
+13. Keep the project small. Judge size in powers of 6, a project of 6^x lines.
+   - Up to 6^4 (1,296 lines) is full marks.
+   - 6^6 (46,656 lines) is the most to aim for; past that, split it into separate projects.
+14. Space it out. Blank lines separate ideas like paragraphs.
    - Max 6 lines in a row without a blank line.
    - A blank line before control statements, returns, line comments, and function/macro definitions, unless first in a block.
    - A blank line after function/macro definitions, closing brackets or multi-line statements, unless followed by another closing bracket, else, catch, or finally.

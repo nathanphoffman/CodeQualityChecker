@@ -2,6 +2,7 @@ import warnings
 
 from codequality.detect import detect
 from codequality.language_parsers.rexx.parser import has_clean_rexx, parse_rexx
+from codequality.language_parsers.tree_sitter.tree_walk import walk
 from codequality.rules.rule_01_power_of_six.shared.find_functions import find_functions
 from codequality.rules.rule_01_power_of_six.tree_sitter.text_calls import text_calls
 from codequality.rules.rule_02_clear_names.shared.find_names import find_names
@@ -12,7 +13,6 @@ from codequality.rules.rule_10_test_what_matters.count_tests import count_rexx_t
 from codequality.rules.rule_11_fail_loudly.tree_sitter.tree_handlers import tree_handlers
 from codequality.rules.rule_12_clean_up.tree_sitter import analyze_tree
 from codequality.rules.rule_14_space_out.tree_sitter.text_spacing import text_gaps
-from codequality.language_parsers.tree_sitter.tree_walk import walk
 from codequality.source_code import blank_out_text
 
 REXX = """/* Report tool */

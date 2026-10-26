@@ -10,6 +10,11 @@ from .source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, 
 
 RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
 TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
+PYTHON_FRAMEWORKS = {"django": "django", "flask": "flask", "fastapi": "fastapi"}
+PYTHON_DEPENDENCY_FILES = ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile")
+GO_FRAMEWORKS = {"github.com/gin-gonic/gin": "gin", "github.com/labstack/echo": "echo", "github.com/gofiber/fiber": "fiber"}
+CSHARP_FRAMEWORKS = {"Microsoft.NET.Sdk.Web": "aspnet", "Microsoft.AspNetCore": "aspnet", "Microsoft.EntityFrameworkCore": "efcore",
+                     "Microsoft.AspNetCore.Components": "blazor", "Microsoft.NET.Sdk.BlazorWebAssembly": "blazor"}
 
 IGNORE_FILE = ".codequalityignore"
 
@@ -56,10 +61,21 @@ def detect(root: Path, exclude: list[str] | None = None) -> Project:
     return project
 
 def _detect_python(project: Project) -> None:
+    """Python when a Python project file or any .py file exists; frameworks are then read from the dependency files."""
     markers = ("pyproject.toml", "setup.py", "requirements.txt")
 
     if any((project.root / name).exists() for name in markers) or project.files(".py"):
         project.languages.add(PYTHON)
+        _detect_python_frameworks(project)
+
+def _detect_python_frameworks(project: Project) -> None:
+    paths = [project.root / name for name in PYTHON_DEPENDENCY_FILES if (project.root / name).exists()]
+    text = "\n".join(read_source(path) for path in paths)
+
+    for package, framework in PYTHON_FRAMEWORKS.items():
+        # finds the package name at the start of a line or after a quote or space, so `flask-cors` and `my-django-tools` don't count as the framework
+        if re.search(rf"(^|[\"'\s])({package})(?![\w-])", text, re.I | re.M):
+            project.frameworks.add(framework)
 
 def _detect_deor(project: Project) -> None:
     if project.files(".deor"):
@@ -70,12 +86,23 @@ def _detect_c(project: Project) -> None:
         project.languages.add(C_LANG)
 
 def _detect_go(project: Project) -> None:
+    """Go when go.mod or any .go file exists; frameworks are named by the modules go.mod requires."""
+
     if (project.root / "go.mod").exists() or project.files(".go"):
         project.languages.add(GO)
 
+    go_mod = project.root / "go.mod"
+    text = read_source(go_mod) if go_mod.exists() else ""
+    project.frameworks.update(name for module, name in GO_FRAMEWORKS.items() if module in text)
+
 def _detect_csharp(project: Project) -> None:
+    """C# when any .cs or .csproj file exists; frameworks are named by the SDK or packages in the .csproj files."""
+
     if project.files(".cs", ".csproj"):
         project.languages.add(CSHARP)
+
+    project_text = "\n".join(read_source(path) for path in project.files(".csproj"))
+    project.frameworks.update(name for marker, name in CSHARP_FRAMEWORKS.items() if marker in project_text)
 
 def _detect_mojo(project: Project) -> None:
     if project.files(".mojo", ".🔥"):

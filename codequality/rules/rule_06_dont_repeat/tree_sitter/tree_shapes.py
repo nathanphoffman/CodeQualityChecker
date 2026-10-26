@@ -1,9 +1,9 @@
-from ..deor.deor_shapes import deor_shapes
-from ....source_code import DEOR
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, IDENTIFIER_TYPES, OPERATOR_FIELD
 from ....language_parsers.tree_sitter.tree_functions import function_body, function_name, statements_of
 from ....language_parsers.tree_sitter.tree_walk import walk
+from ....source_code import DEOR
+from ..deor.deor_shapes import deor_shapes
 from ..shared.Function_Shape import Function_Shape, Statement_Shape
 
 BLOCK_TYPES = {"block", "statement_block", "compound_statement", "function", "subroutine", "program", "do_loop"}  # the last four are Fortran

@@ -1,4 +1,4 @@
-"""Rule 13: Keep the project small. The total line count, in powers of 6, should stay at 6 ** 6 lines or below."""
+"""Rule 13: Keep the project small. Size is judged in powers of 6: full marks to 6 ** 4 lines, and 6 ** 6 lines is the most to aim for."""
 import math
 
 from ...models import Result
@@ -7,7 +7,7 @@ from ...source_code import SUFFIX_LANGUAGE, read_source
 from .limits import BASE, DECAY, EDGE_POWER, FULL_CREDIT_POWER, SCORE_AT_EDGE, STEEPNESS
 
 def count_project_lines(project):
-    """Non-blank lines in every Python, Rust and TypeScript file, tests included: the size of the whole project."""
+    """Non-blank lines in every source file of a supported language, tests included: the size of the whole project."""
     lines = 0
 
     for path in project.files(*SUFFIX_LANGUAGE):

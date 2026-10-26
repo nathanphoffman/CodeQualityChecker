@@ -53,9 +53,25 @@ SQL_METHODS = (
     Entry("dynamic_string", prefix="DELETE FROM "),
 )
 
+def any_call_with(*texts):
+    """Entries that match any call whose text holds one of these pieces."""
+
+    return tuple(Entry(ANY_NAME, (text,)) for text in texts)
+
+def mode_calls(names, modes):
+    """Every name paired with every file permission, like chmod with 0o777 and chmod with 0o666."""
+
+    # two loops: each name gets its own entry for each mode, because an entry's must_contain parts all have to match
+    return tuple(Entry(name, (mode,)) for name in names for mode in modes)
+
 LOG_METHODS = ("debug", "info", "warning", "warn", "error", "exception", "critical", "log")
 PYTHON_LOGGERS = ("logging", "logger", "log")
 SHELLS = ('"sh"', '"bash"', '"zsh"', '"cmd"', '"powershell"')
+
+WIDE_OPEN_PYTHON = ("511", "438")  # 0o777 and 0o666, which is how Python prints them back
+WIDE_OPEN_C = ("0777", "0666")
+CORS_HEADER = "Access-Control-Allow-Origin"
+BROKEN_NODE_CIPHERS = ("-ecb", "'des", '"des', "rc4", "rc2")  # as written inside createCipheriv("aes-128-ecb", ...)
 
 # Keyword flags like verify=False are written in two pieces so this file does not flag itself.
 CALL_CHECKS = [
@@ -172,6 +188,36 @@ CALL_CHECKS = [
         "csharp": (Entry("Console.WriteLine"), Entry("Console.Write"), Entry("Debug.WriteLine"), Entry("Trace.WriteLine"))
         + log_calls(("logger", "_logger"), ("LogTrace", "LogDebug", "LogInformation", "LogWarning", "LogError", "LogCritical")),
     }, names_words=SECRET_WORDS),
+
+    Call_Check("RULE-05-WEAK-CIPHER", "No broken encryption (DES, RC4, ECB mode)", "warn", {
+        "python": tuple(Entry(name) for name in ("DES.new", "DES3.new", "ARC4.new", "ARC2.new", "Blowfish.new", "algorithms.TripleDES",
+                                                 "algorithms.ARC4", "algorithms.Blowfish", "modes.ECB")) + (Entry("AES.new", ("MODE_ECB",)),),
+        "typescript": tuple(Entry(name) for name in ("createCipher", "crypto.createCipher", "createDecipher", "crypto.createDecipher"))
+        # two loops: each cipher function gets one entry per broken algorithm, since an entry's must_contain parts all have to match
+        + tuple(Entry(name, (algorithm,)) for name in ("createCipheriv", "crypto.createCipheriv", "createDecipheriv", "crypto.createDecipheriv")
+                for algorithm in BROKEN_NODE_CIPHERS),
+
+        "rust": tuple(Entry(name) for name in ("Des.new", "Des.new_from_slice", "TdesEde3.new", "Rc4.new")),
+        "c": tuple(Entry(name) for name in ("DES_ecb_encrypt", "DES_set_key", "RC4", "RC4_set_key", "EVP_des_ecb", "EVP_des_cbc", "EVP_des_ede3",
+                                            "EVP_rc4", "EVP_aes_128_ecb", "EVP_aes_192_ecb", "EVP_aes_256_ecb")),
+        "go": (Entry("des.NewCipher"), Entry("des.NewTripleDESCipher"), Entry("rc4.NewCipher")),
+        "csharp": tuple(Entry(name) for name in ("DES.Create", "TripleDES.Create", "RC2.Create", "DESCryptoServiceProvider",
+                                                 "TripleDESCryptoServiceProvider", "RC2CryptoServiceProvider")),
+    }),
+
+    Call_Check("RULE-05-OPEN-ACCESS", "No world-writable files or any-website (CORS) access", "warn", {
+        "python": mode_calls(("os.chmod", "os.mkdir", "os.makedirs"), WIDE_OPEN_PYTHON)
+        + (Entry("CORSMiddleware", ("allow_origins=['*']",)), Entry("CORS", ("origins='*'",)), Entry(ANY_NAME, (CORS_HEADER, "'*'"))),
+        "typescript": mode_calls(("fs.chmod", "fs.chmodSync", "chmod", "chmodSync"), ("777", "666"))
+        + (Entry("cors", ("cors()",)), Entry("cors", ("origin:'*'",)), Entry("cors", ('origin:"*"',)),
+           Entry(ANY_NAME, (CORS_HEADER, '"*"')), Entry(ANY_NAME, (CORS_HEADER, "'*'"))),
+
+        "rust": any_call_with("mode(0o777)", "mode(0o666)", "permissive()", ".allow_any_origin()", "allow_origin(Any)"),
+        "c": mode_calls(("chmod", "mkdir"), WIDE_OPEN_C),
+        "go": mode_calls(("os.Chmod", "os.Mkdir", "os.MkdirAll", "os.WriteFile", "os.OpenFile"), WIDE_OPEN_C)
+        + any_call_with('"' + CORS_HEADER + '","*"', "AllowAllOrigins:true", 'AllowOrigins:[]string{"*"}', "cors.Default()", "cors.New()", "middleware.CORS()"),
+        "csharp": (Entry("File.SetUnixFileMode", ("OtherWrite",)),) + any_call_with("AllowAnyOrigin()"),
+    }),
 ]
 
 # Deor code is judged by its standard library's functions, and its `rust` blocks by the Rust entries.

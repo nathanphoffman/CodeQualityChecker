@@ -1,8 +1,8 @@
 import re
 
-from ....source_code import C_LANG, CSHARP, FORTRAN, MOJO, REXX, RUST
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.tree_walk import normalized, walk
+from ....source_code import C_LANG, CSHARP, FORTRAN, MOJO, REXX, RUST
 from ...rule_09_comment_why.shared.extract.line_helpers import COMMENT_MARKERS
 from ..shared.comment_gaps import comment_block_gaps
 from ..shared.Spacing_Gaps import Spacing_Gaps

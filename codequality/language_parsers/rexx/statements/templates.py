@@ -1,7 +1,7 @@
+from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 from ..nodes import Node
 from ..reading.reader import PLACEHOLDER
 from ..tokens import SYMBOL
-from ....language_parsers.tree_sitter.syntax_shapes import NAME_FIELD
 
 class Template_Statements:
     """`arg`, `pull` and `parse`, which fill variables from a template."""

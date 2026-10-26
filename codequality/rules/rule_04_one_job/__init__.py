@@ -4,7 +4,6 @@ from ..rule_02_clear_names.shared.judge_names import WORD_PATTERN
 from .shared.cohesion import count_job_groups
 from .shared.find_bodies import bodies_in_project
 from .shared.grading import grade_bodies
-
 from .shared.limits import JOINING_WORDS, MAX_COMPLEXITY, MAX_JOB_GROUPS, MAX_NESTING, MIN_STATEMENTS_TO_CHECK
 
 def has_separate_jobs(body):

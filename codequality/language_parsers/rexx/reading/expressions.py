@@ -1,7 +1,7 @@
-from ..nodes import Node
-from .reader import CLAUSE_WORDS
-from ..tokens import NUMBER, OPERATOR, SPECIAL, STRING, SYMBOL
 from ....language_parsers.tree_sitter.syntax_shapes import CALL_EXPRESSION
+from ..nodes import Node
+from ..tokens import NUMBER, OPERATOR, SPECIAL, STRING, SYMBOL
+from .reader import CLAUSE_WORDS
 
 COMPARISONS = {"=", "==", "\\=", "\\==", "¬=", "¬==", "<>", "><", "<", ">", "<=", ">=", "\\<", "\\>", "¬<", "¬>", "<<", ">>", "<<=", ">>=", "\\<<", "\\>>"}
 

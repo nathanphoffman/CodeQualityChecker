@@ -1,6 +1,6 @@
+from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER
 from ..nodes import Node
 from ..tokens import END, STRING, SYMBOL, Token
-from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER
 
 # Words that end an expression wherever it is: `if a then b else c` runs the expressions together on one line.
 CLAUSE_WORDS = {"then", "else"}

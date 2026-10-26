@@ -1,6 +1,6 @@
 from ..models import CHECK_MANUAL, Project, Result, Rule, Status
-from .grouping import group_results, letter, overall_score  # noqa: F401  (used by the command line)
 from .detail_output import print_full, print_quick  # noqa: F401
+from .grouping import group_results, letter, overall_score  # noqa: F401  (used by the command line)
 from .json_output import to_json  # noqa: F401
 from .text_output import print_text  # noqa: F401
 

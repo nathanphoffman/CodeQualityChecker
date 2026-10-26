@@ -1,13 +1,13 @@
 import ast
 
-from ...language_parsers.python.parse_python import parse_python
 from ...language_parsers.deor.declarations import declarations_in
 from ...language_parsers.deor.tree import parse_deor
-from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
+from ...language_parsers.python.parse_python import parse_python
 from ...language_parsers.tree_sitter.parse_tree import parse_tree
 from ...language_parsers.tree_sitter.syntax_shapes import FUNCTION_TYPES, NAME_FIELD
 from ...language_parsers.tree_sitter.tree_functions import function_name
 from ...language_parsers.tree_sitter.tree_walk import squashed, walk
+from ...source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, read_source
 from ..rule_05_be_secure.shared.uses import find_uses
 
 TYPESCRIPT_TEST_CALLS = {"it", "test", "it.only", "test.only"}

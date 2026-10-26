@@ -22,6 +22,11 @@ GROUP_TITLES = {
     "RUST": "Rust",
 
     "TS": "TypeScript",
+    "PYTHON": "Python",
+    "GO": "Go",
+    "C": "C",
+    "CSHARP": "C#",
+    "FORTRAN": "Fortran",
 }
 
 UNGRADED = (Status.MANUAL, Status.SKIPPED)

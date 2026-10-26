@@ -5,8 +5,8 @@ from codequality.detect import detect
 from codequality.models import Status
 from codequality.registry import all_rules
 from codequality.rules.rule_02_clear_names.shared.find_names import find_kinded_names
+from codequality.rules.rule_02_clear_names.shared.name_styles import CONSTANT, FILE, FOLDER, FUNCTION, MY_CONVENTION, TYPE, TYPE_FILE, VALUE, VARIABLE, VARIANT, best_convention, follows
 from codequality.rules.rule_02_clear_names.shared.path_names import path_names_by_language
-from codequality.rules.rule_02_clear_names.shared.name_styles import CONSTANT, FILE, FOLDER, FUNCTION, TYPE, TYPE_FILE, VALUE, VARIABLE, VARIANT, best_convention, follows, MY_CONVENTION
 
 RULE_ID = "RULE-02-NAMING-STYLE"
 

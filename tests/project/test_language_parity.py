@@ -1,5 +1,5 @@
-from codequality.rules.rule_05_be_secure.shared.secrets import secret_line_numbers
 from codequality.rules.rule_02_clear_names.shared.find_names import find_names
+from codequality.rules.rule_05_be_secure.shared.secrets import secret_line_numbers
 from codequality.rules.rule_14_space_out.tree_sitter.text_spacing import text_gaps
 
 def test_parameters_count_as_names_in_every_language():

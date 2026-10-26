@@ -1,10 +1,9 @@
 """Rule 10: Test what matters. Judged by how many tests there are for the amount of code."""
 from ...models import Result
 from ...registry import rule
-from ..rule_09_comment_why.shared.amount_checks import STANDS_IN_FOR_CHECKS, amount_score, describe_amount, edge_range
 from ..rule_08_few_dependencies import count_code_lines
+from ..rule_09_comment_why.shared.amount_checks import STANDS_IN_FOR_CHECKS, amount_score, describe_amount, edge_range
 from .count_tests import count_tests_in_project
-
 from .limits import LINES_PER_TEST, MAX_LINES_WITHOUT_TESTS
 
 @rule("RULE-10-TEST-AMOUNT", "The right number of tests for the code size", weight_multiplier=STANDS_IN_FOR_CHECKS)

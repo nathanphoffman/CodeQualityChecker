@@ -1,8 +1,7 @@
 import math
 
 from ....models import MAX_LISTED_OFFENDERS, Result
-from .limits import (DEPTH_EDGE_CREDIT, DEPTH_EDGE_POWER, FALLOFF_PER_STEP, ITEM_EDGE_CREDIT, ITEM_EDGE_POWER, LENGTH_EDGE_POWER, MAX_ITEMS, PARTIAL_CREDIT,
-                     POWER_BASE)
+from .limits import DEPTH_EDGE_CREDIT, DEPTH_EDGE_POWER, FALLOFF_PER_STEP, ITEM_EDGE_CREDIT, ITEM_EDGE_POWER, LENGTH_EDGE_POWER, MAX_ITEMS, PARTIAL_CREDIT, POWER_BASE
 
 def degraded_credit(value, edge_power, edge_credit):
     """Full credit up to 6, then a slide down on a scale of powers of 6: a 7 barely hurts, an 8 a little more.

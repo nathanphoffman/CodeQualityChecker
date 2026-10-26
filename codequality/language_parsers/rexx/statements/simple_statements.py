@@ -1,5 +1,5 @@
-from ..tokens import SYMBOL
 from ....language_parsers.tree_sitter.syntax_shapes import VALUE_FIELD
+from ..tokens import SYMBOL
 
 class Simple_Statements:
     """Instructions that are a word and a few names or one expression: say, return, exit, leave, drop, procedure, address."""

@@ -1,8 +1,8 @@
 from collections import Counter
 
-from ..deor.deor_cleanup import deor_cleanup
-from ....source_code import DEOR
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
+from ....source_code import DEOR
+from ..deor.deor_cleanup import deor_cleanup
 from ..shared.Cleanup_Findings import Cleanup_Findings, Name_Usage
 from .imports import tree_imports
 from .name_usage import tree_name_usage

@@ -1,15 +1,15 @@
 import warnings
 from functools import partial
 
+from ...language_parsers.tree_sitter.syntax_shapes import NAME_FIELD, PARAMETERS
+from .nodes import Node, Source_Map
+from .reading.expressions import Expression_Reader
+from .reading.reader import CLAUSE_WORDS, Token_Reader
 from .statements.call_statements import Call_Statements
 from .statements.control_flow import Control_Flow
-from .reading.expressions import Expression_Reader
-from .nodes import Node, Source_Map
-from .reading.reader import CLAUSE_WORDS, Token_Reader
 from .statements.simple_statements import Simple_Statements
 from .statements.templates import Template_Statements
 from .tokens import COMMENT, OPERATOR, SYMBOL, tokenize
-from ...language_parsers.tree_sitter.syntax_shapes import NAME_FIELD, PARAMETERS
 
 LABEL_MARK = ":"
 

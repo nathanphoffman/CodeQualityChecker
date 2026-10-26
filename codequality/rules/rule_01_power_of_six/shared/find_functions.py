@@ -2,10 +2,10 @@ import re
 
 from ....language_parsers.deor.declarations import FUNCTION_KINDS, declarations_in
 from ....language_parsers.deor.tree import parse_deor
-from .Function_Info import Function_Info
-from ..tree_sitter.tree_function_infos import tree_function_infos
+from ....source_code import CSHARP, DEOR, FORTRAN, MOJO, NAME_GROUP, PAREN_GROUP, PYTHON, REXX, blank_out_text, line_number_at, matching_close
 from ..python.python_functions import python_functions
-from ....source_code import CSHARP, DEOR, FORTRAN, MOJO, REXX, NAME_GROUP, PAREN_GROUP, PYTHON, blank_out_text, line_number_at, matching_close
+from ..tree_sitter.tree_function_infos import tree_function_infos
+from .Function_Info import Function_Info
 from .limits import CONTROL_KEYWORDS, IGNORED_ARGUMENT_PREFIXES, VOID_PARAMETERS
 
 OPENERS = "([{<"

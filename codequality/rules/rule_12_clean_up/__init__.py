@@ -4,7 +4,6 @@ from ...registry import rule
 from ...source_code import items_in_project
 from ..rule_09_comment_why.shared.extract import python_comments, tree_comments
 from ..rule_09_comment_why.shared.judging.signals import is_commented_out_code
-
 from .shared.project_cleanup import analyze_project, unused_private_definitions
 from .shared.unused_exports import unused_exports
 

@@ -1,5 +1,5 @@
-from ..tokens import SYMBOL
 from ....language_parsers.tree_sitter.syntax_shapes import IF_STATEMENT
+from ..tokens import SYMBOL
 
 class Control_Flow:
     """`if`, `do` and `select`, the instructions that hold other instructions."""

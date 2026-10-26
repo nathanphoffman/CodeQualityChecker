@@ -2,15 +2,11 @@
 from ...models import MAX_LISTED_OFFENDERS, SEVERITY_ERROR, Result
 from ...registry import rule
 from ...source_code import items_in_project
-from ..rule_09_comment_why.shared.amount_checks import amount_score, describe_amount
-from ..rule_09_comment_why.shared.limits import POWER_BASE
-
 from ..rule_08_few_dependencies import count_code_lines
-from .shared.hiding_constructs import hiding_constructs
-from .shared.limits import (FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK, MAX_LINES_PER_ERROR_CHECK, MIN_LINES_PER_ERROR_CHECK,
-                     NARROW_SILENT_WEIGHT)
-
+from ..rule_09_comment_why.shared.amount_checks import amount_score, describe_amount
 from .python.python_handlers import python_handlers
+from .shared.hiding_constructs import hiding_constructs
+from .shared.limits import FULL_CREDIT_POWERS, LINES_PER_ERROR_CHECK, MAX_LINES_PER_ERROR_CHECK, MIN_LINES_PER_ERROR_CHECK, NARROW_SILENT_WEIGHT
 from .tree_sitter.tree_handlers import tree_handlers
 
 def silent_cost(handler):

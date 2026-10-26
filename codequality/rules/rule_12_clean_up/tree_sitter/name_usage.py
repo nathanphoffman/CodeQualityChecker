@@ -1,11 +1,11 @@
-from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
+from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD
 from ....language_parsers.tree_sitter.tree_functions import function_name
 from ....language_parsers.tree_sitter.tree_walk import walk
+from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ...rule_10_test_what_matters.count_tests import has_test_attribute
 from ..shared.Cleanup_Findings import Name_Usage
 from ..shared.limits import CSHARP_ENTRY_POINT, CSHARP_VISIBLE_MODIFIERS, GO_RUNTIME_FUNCTIONS, PRIVATE_PREFIX, RUST_ENTRY_POINT
 from .names import name_counts
-from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD
 
 def is_private_rust(node):
     in_trait_impl = node.parent.parent is not None and node.parent.parent.child_by_field_name("trait") is not None

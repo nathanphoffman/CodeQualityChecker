@@ -1,7 +1,7 @@
 from collections import Counter
 
-from ....language_parsers.tree_sitter.tree_walk import normalized, walk
 from ....language_parsers.tree_sitter.syntax_shapes import IDENTIFIER, NAME_FIELD
+from ....language_parsers.tree_sitter.tree_walk import normalized, walk
 
 NAME_NODE_TYPES = {IDENTIFIER, "type_identifier", "field_identifier", "property_identifier",
                    "shorthand_property_identifier", "shorthand_field_identifier", "package_identifier", NAME_FIELD}

@@ -1,4 +1,4 @@
-from ..models import Project, Result, SEVERITY_INFO, SEVERITY_WARN
+from ..models import SEVERITY_INFO, SEVERITY_WARN, Project, Result
 from ..registry import rule
 from ..source_code import TEST_FILE_SUFFIXES, TYPESCRIPT_SUFFIXES
 from .rule_08_few_dependencies import count_code_lines

@@ -3,8 +3,7 @@ import re
 
 from ....models import IGNORED_FOLDERS, Result
 from ....source_code import SUFFIX_LANGUAGE, non_test_files, read_source
-from .limits import (CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE_FILE_ENDINGS, SECRET_FILE_PATTERNS,
-                     SECRET_WORDS)
+from .limits import CONFIG_SUFFIXES, MIN_SECRET_LENGTH, PLACEHOLDER_HINTS, SAFE_FILE_ENDINGS, SECRET_FILE_PATTERNS, SECRET_WORDS
 
 # Clever on purpose: finds a secret word assigned a quoted value, like a password variable or a JSON "api_key" entry.
 #   the secret word, then any other word characters, e.g. api_key or password_hash

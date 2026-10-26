@@ -3,14 +3,14 @@ after multi-line statements, and never two blank lines in a row."""
 
 from ...models import MAX_LISTED_OFFENDERS, Result
 from ...registry import rule
-from .deor.deor_spacing import deor_gaps
 from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ..rule_01_power_of_six.shared.limits import MAX_ITEMS
 from ..rule_01_power_of_six.shared.scoring import function_length_credit
-from .shared.limits import MAX_BLANK_LINES_IN_A_ROW
-from .shared.Spacing_Gaps import Spacing_Gaps
-from .shared.paragraphs import find_blank_runs, find_paragraphs, is_judged
+from .deor.deor_spacing import deor_gaps
 from .python.python_spacing import python_gaps, python_string_lines
+from .shared.limits import MAX_BLANK_LINES_IN_A_ROW
+from .shared.paragraphs import find_blank_runs, find_paragraphs, is_judged
+from .shared.Spacing_Gaps import Spacing_Gaps
 from .tree_sitter.text_spacing import text_gaps
 
 def source_files(project):

@@ -16,7 +16,7 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
 
 ## How it works
 
-1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, C#, Mojo, Fortran, Hare, Rexx, Deor) and frameworks in the project.
+1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, C#, Mojo, Fortran, Hare, Rexx, Deor) and frameworks in the project (Python: django, flask, fastapi; Rust: axum, actix, tauri; TypeScript: react, next, express, nest; Go: gin, echo, fiber; C#: aspnet, efcore, blazor).
 2. Every rule that applies is run. Each returns a score from 0.0 to 1.0 plus a message.
 3. `report.py` prints per-rule grades and an overall weighted score.
 
@@ -36,6 +36,8 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
       registry.py               @rule decorator and rule lookup
       report.py                 text/JSON output and scoring
       rules/common.py           language-agnostic rules
-      rules/rust.py             Rust rules + axum/actix/tauri
-      rules/typescript.py       TS rules + react/next/express/nest
+      rules/format_and_lint.py  formatter / linter config check for Python, Go, C, C# and Fortran
+      rules/rust.py             Rust rules (RUST-002 and TS-003 are the Rust and TypeScript config checks)
+      rules/typescript.py       TS rules + next
+      rules/frameworks/         framework rules for each language, run only when the project uses the framework
     tests/                      grouped into folders: rules_01_to_04, rules_05_to_09, rules_10_to_14, languages, project

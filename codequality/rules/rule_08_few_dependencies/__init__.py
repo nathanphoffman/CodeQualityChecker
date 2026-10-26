@@ -4,7 +4,6 @@ from ...registry import rule
 from ...source_code import SUFFIX_LANGUAGE, non_test_files, read_source
 from .group_dependencies import effective_count, find_families
 from .limits import LINES_PER_DEPENDENCY, SCORE_PER_DEPENDENCY
-
 from .read_manifests import project_dependencies
 
 def count_code_lines(project):

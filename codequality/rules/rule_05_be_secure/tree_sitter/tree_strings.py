@@ -1,7 +1,7 @@
-from ....language_parsers.tree_sitter.tree_walk import walk
-from ..shared.Code_Use import Code_Use
 from ....language_parsers.tree_sitter.syntax_shapes import CALL_EXPRESSION, OPERATOR_FIELD
+from ....language_parsers.tree_sitter.tree_walk import walk
 from ....language_parsers.tree_sitter.use_names import called_name, dotted
+from ..shared.Code_Use import Code_Use
 
 STRING_TEXT_TYPES = {"string_fragment", "string_content", "interpreted_string_literal_content", "raw_string_literal_content",
                      "string_literal_content"}

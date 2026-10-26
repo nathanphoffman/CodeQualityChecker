@@ -4,7 +4,6 @@ from ....rule_03_simple_first.shared.find_clever import clever_constructs
 from ..Comment_Found import Comment_Found
 from ..limits import PRAGMA_PREFIXES
 from .line_helpers import clean_text, merge_runs, next_code
-
 from .raw_comments import python_raw, tree_raw
 from .statement_spans import statement_ends
 

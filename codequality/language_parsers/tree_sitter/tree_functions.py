@@ -1,9 +1,8 @@
 import re
 
-from .parse_tree import parse_tree
 from ...source_code import FORTRAN
-from .syntax_shapes import (BINDING_FIELDS, BODY_FIELD, BOOLEAN_TYPED_LANGUAGES, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, IF_STATEMENT,
-                            NAME_FIELD, NESTING_TYPES, OPERATOR_FIELD, PARAMETERS)
+from .parse_tree import parse_tree
+from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BOOLEAN_TYPED_LANGUAGES, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, IF_STATEMENT, NAME_FIELD, NESTING_TYPES, OPERATOR_FIELD, PARAMETERS
 from .tree_walk import bound_nodes, declarator_name, identifiers_in, normalized, walk
 
 # Fortran has no block around a body: the statements sit directly inside the function, between its header and its end line,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import subprocess
+from dataclasses import dataclass, field
 from enum import Enum
 from fnmatch import fnmatch
 from functools import lru_cache

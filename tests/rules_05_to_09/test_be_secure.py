@@ -19,6 +19,8 @@ def bad(user_input, password):
     requests.get("https://x", verify=False)
     open(os.path.join("/data", user_input))
     logging.info(password)
+    os.chmod('/data', 0o777)
+    AES.new(key, AES.MODE_ECB)
 '''
 
 BAD_TYPESCRIPT = '''
@@ -33,6 +35,9 @@ function bad(userInput: string, password: string) {
   el.innerHTML = userInput;
   fs.readFile(userInput);
   console.log(password);
+  fs.chmodSync(userInput, 0o777);
+  crypto.createCipheriv("aes-128-ecb", key, null);
+  app.use(cors());
 }
 '''
 
@@ -44,6 +49,8 @@ fn bad(user_input: String, password: String) {
     unsafe { dangerous(); }
     let file = File::open(user_input);
     println!("{}", password);
+    let cipher = Des::new(&key);
+    let cors = Cors::permissive();
 }
 '''
 
@@ -59,6 +66,8 @@ EXPECTED = {
     "RULE-05-RISKY-OUTPUT": ("bad.ts", "bad.rs"),
     "RULE-05-USER-PATHS": ("bad.py", "bad.ts", "bad.rs"),
     "RULE-05-SECRET-LOGGING": ("bad.py", "bad.ts", "bad.rs"),
+    "RULE-05-WEAK-CIPHER": ("bad.py", "bad.ts", "bad.rs"),
+    "RULE-05-OPEN-ACCESS": ("bad.py", "bad.ts", "bad.rs"),
 }
 
 def grade_bad_project(root: Path):

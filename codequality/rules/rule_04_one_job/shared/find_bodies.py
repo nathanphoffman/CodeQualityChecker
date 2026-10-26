@@ -1,7 +1,7 @@
+from ....language_parsers.tree_sitter.tree_functions import tree_bodies
+from ....source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ..deor.deor_bodies import deor_bodies
 from ..python.python_bodies import python_bodies
-from ....source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
-from ....language_parsers.tree_sitter.tree_functions import tree_bodies
 from .Function_Body import Function_Body
 
 def find_bodies(source, language):

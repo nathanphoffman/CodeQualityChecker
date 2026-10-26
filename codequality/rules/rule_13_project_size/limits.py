@@ -5,7 +5,7 @@ BASE = 6
 FULL_CREDIT_POWER = 4
 EDGE_POWER = 6
 
-# The scores that anchor the curve: 90% at 6 ** 6 (46656 lines, where n ** n with n = 6 puts the "roughly 6" in rule 13),
+# The scores that anchor the curve: 90% at 6 ** 6 (46656 lines, the most rule 13 asks you to aim for),
 # almost a failing grade at 6 ** 7, and nearly nothing at 6 ** 8.
 SCORE_AT_EDGE = 0.90
 SCORE_AT_EDGE_PLUS_ONE = 0.62

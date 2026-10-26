@@ -1,8 +1,7 @@
 from pathlib import Path
 
 from codequality.detect import detect
-from codequality.rules.rule_10_test_what_matters.count_tests import (count_python_tests, count_rust_tests,
-                                                             count_tests_in_project, count_typescript_tests)
+from codequality.rules.rule_10_test_what_matters.count_tests import count_python_tests, count_rust_tests, count_tests_in_project, count_typescript_tests
 
 PYTHON = "def test_one():\n    pass\n\nclass T:\n    def test_two(self):\n        pass\n\ndef helper():\n    pass\n"
 RUST = "#[cfg(test)]\nmod tests {\n    #[test]\n    fn one() {}\n\n    #[tokio::test]\n    // note\n    async fn two() {}\n\n    fn helper() {}\n}\n"

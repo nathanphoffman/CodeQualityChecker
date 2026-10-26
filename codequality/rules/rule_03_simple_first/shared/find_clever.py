@@ -1,8 +1,8 @@
 from ....language_parsers.deor.rust_blocks import rust_only_source
-from ..python.python_clever import python_clever
 from ....source_code import C_LANG, CSHARP, DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, non_test_files, read_source
-from .Clever_Hit import Clever_Hit
+from ..python.python_clever import python_clever
 from ..tree_sitter.clever_patterns import pattern_hits
+from .Clever_Hit import Clever_Hit
 from .find_structures import long_chain_hits, nested_closure_hits, ternary_hits
 from .limits import LINE_ABOVE_COMMENTS, SAME_LINE_COMMENTS
 

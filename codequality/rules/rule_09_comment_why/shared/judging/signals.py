@@ -1,9 +1,9 @@
 import ast
 
-from ...deor.deor_comments import looks_like_deor
-from .....source_code import DEOR, PYTHON
 from .....language_parsers.tree_sitter.parse_tree import has_clean_parse
+from .....source_code import DEOR, PYTHON
 from ....rule_02_clear_names.shared.judge_names import WORD_PATTERN
+from ...deor.deor_comments import looks_like_deor
 from ..limits import CODE_SYMBOLS, STOP_WORDS, WHY_PHRASES
 
 STEM_ENDINGS = ("ing", "ed", "es", "s")

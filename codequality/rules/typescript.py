@@ -1,6 +1,6 @@
 import re
 
-from ..models import CHECK_MANUAL, Project, Result, SEVERITY_ERROR, SEVERITY_INFO, SEVERITY_WARN
+from ..models import SEVERITY_ERROR, SEVERITY_INFO, SEVERITY_WARN, Project, Result
 from ..registry import rule
 from ..source_code import TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, non_test_files, read_source
 
@@ -51,10 +51,6 @@ def linter(project: Project) -> Result:
 
 # --- frameworks (add rules per framework here) --------------------------------
 
-@rule("TS-REACT-001", "react: placeholder", language=TYPESCRIPT, framework="react", checkable=CHECK_MANUAL)
-def react_placeholder(project: Project) -> Result:
-    return Result.manual()
-
 @rule("TS-NEXT-001", "next: no secrets in NEXT_PUBLIC_ variables", language=TYPESCRIPT, framework="next", severity=SEVERITY_WARN)
 def next_public_secrets(project: Project) -> Result:
     paths = non_test_files(project, TYPESCRIPT_SUFFIXES) + sorted(project.root.glob(".env*"))
@@ -72,11 +68,3 @@ def next_components(project: Project) -> Result:
         return Result.passed("no images or links found")
 
     return Result.scored(better / (plain + better), f"{plain} plain <img>/<a> where next/image or next/link fits")
-
-@rule("TS-EXPRESS-001", "express: placeholder", language=TYPESCRIPT, framework="express", checkable=CHECK_MANUAL)
-def express_placeholder(project: Project) -> Result:
-    return Result.manual()
-
-@rule("TS-NEST-001", "nest: placeholder", language=TYPESCRIPT, framework="nest", checkable=CHECK_MANUAL)
-def nest_placeholder(project: Project) -> Result:
-    return Result.manual()

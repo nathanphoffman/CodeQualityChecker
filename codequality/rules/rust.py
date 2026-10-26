@@ -1,5 +1,5 @@
 
-from ..models import CHECK_MANUAL, Project, Result, SEVERITY_INFO, SEVERITY_WARN
+from ..models import SEVERITY_INFO, SEVERITY_WARN, Project, Result
 from ..registry import rule
 from ..source_code import RUST, read_source
 
@@ -33,17 +33,3 @@ def unwrap_usage(project: Project) -> Result:
     per_file = hits / len(files)
 
     return Result.scored(1 - per_file / MAX_UNWRAPS_PER_FILE, f"{hits} calls across {len(files)} files")
-
-# --- frameworks (add rules per framework here) --------------------------------
-
-@rule("RUST-AXUM-001", "axum: placeholder", language=RUST, framework="axum", checkable=CHECK_MANUAL)
-def axum_placeholder(project: Project) -> Result:
-    return Result.manual()
-
-@rule("RUST-ACTIX-001", "actix: placeholder", language=RUST, framework="actix", checkable=CHECK_MANUAL)
-def actix_placeholder(project: Project) -> Result:
-    return Result.manual()
-
-@rule("RUST-TAURI-001", "tauri: placeholder", language=RUST, framework="tauri", checkable=CHECK_MANUAL)
-def tauri_placeholder(project: Project) -> Result:
-    return Result.manual()

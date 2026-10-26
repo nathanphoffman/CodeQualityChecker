@@ -1,6 +1,6 @@
-from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ....language_parsers.tree_sitter.syntax_shapes import BODY_FIELD, FUNCTION_TYPES, LEFT_FIELD, NAME_FIELD, VALUE_FIELD
 from ....language_parsers.tree_sitter.tree_walk import declarator_name, normalized, walk
+from ....source_code import C_LANG, CSHARP, FORTRAN, GO, HARE, MOJO, REXX, RUST, TYPESCRIPT
 from ..shared.limits import PRIVATE_PREFIX
 from .names import name_counts
 

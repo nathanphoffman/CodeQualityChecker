@@ -1,12 +1,12 @@
 import re
 
-from ..deor.deor_names import deor_kinded_names
-from ..python.python_names import python_kinded_names
-from .name_styles import CONSTANT, FUNCTION, TYPE, VALUE, VARIABLE, VARIANT
-from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
 from ....language_parsers.tree_sitter.parse_tree import parse_tree
 from ....language_parsers.tree_sitter.syntax_shapes import FIRST_CHILD, NAME_FIELD
 from ....language_parsers.tree_sitter.tree_walk import bound_nodes, declarator_name, identifiers_in, walk
+from ....source_code import DEOR, NAME_GROUP, PYTHON, SUFFIX_LANGUAGE, blank_out_text, read_source
+from ..deor.deor_names import deor_kinded_names
+from ..python.python_names import python_kinded_names
+from .name_styles import CONSTANT, FUNCTION, TYPE, VALUE, VARIABLE, VARIANT
 
 # Clever on purpose: each pattern captures a declared name, one per kind of declaration.
 # `let` skips destructuring like `let Some(x)` or `let Point { x }` by refusing a name followed by "(" or "{".

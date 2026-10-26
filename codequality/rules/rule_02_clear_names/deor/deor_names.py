@@ -1,7 +1,7 @@
 from ....language_parsers.deor.declarations import FUNCTION_KINDS, declaration_of, declared_variables
 from ....language_parsers.deor.tree import parse_deor, walk_statements
 from ....language_parsers.deor.words import identifiers
-from ..shared.name_styles import FUNCTION, VARIABLE, VARIANT, TYPE
+from ..shared.name_styles import FUNCTION, TYPE, VARIABLE, VARIANT
 
 FIELD_PARENTS = {"struct"}
 VARIANT_PARENTS = {"enum"}

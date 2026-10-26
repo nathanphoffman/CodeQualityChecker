@@ -1,7 +1,7 @@
 from ..explanations import CHECK_EXPLANATIONS, GROUP_SUMMARIES, LANGUAGE_NOTES, NO_EXPLANATION
 from ..models import Status
 from .grouping import PERCENT, group_results, letter, overall_score
-from .text_output import BOLD, DIM, RESET, print_banner, print_total, print_project_header
+from .text_output import BOLD, DIM, RESET, print_banner, print_project_header, print_total
 
 INDENT = "    "
 SCALE_HELP = (
