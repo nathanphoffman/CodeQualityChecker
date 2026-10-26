@@ -18,6 +18,10 @@ json path=".":
 gate path="." min="80":
     uv run python -m codequality {{path}} --min-score {{min}}
 
+# Compare this project's score with an earlier commit, branch or tag, e.g. `just compare main`
+compare ref path=".":
+    uv run python -m codequality {{path}} --compare {{ref}}
+
 # Run the tests
 test:
     uv run python -m pytest tests

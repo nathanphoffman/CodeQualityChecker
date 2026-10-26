@@ -1,6 +1,6 @@
 import json
 
-from .grouping import PERCENT, group_results, letter, overall_score
+from .grouping import PERCENT, group_results, letter, overall_score, rounded_score
 
 SCORE_KEY = "score"
 
@@ -11,7 +11,7 @@ def to_json(project, results):
         "project": str(project.root),
         "languages": sorted(project.languages),
         "frameworks": sorted(project.frameworks),
-        SCORE_KEY: round(score, 1),
+        SCORE_KEY: rounded_score(score, 1),
         "grade": letter(score),
 
         "groups": [

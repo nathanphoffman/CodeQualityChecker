@@ -69,6 +69,17 @@ def overall_score(results):
 
     return PERCENT * sum(scores) / len(scores) if scores else PERCENT
 
+def rounded_score(percent, decimals=0):
+    """A 0-100 score rounded to `decimals` places, but never up to 100 unless it is exactly 100, so one leftover problem can't read as perfect."""
+    rounded = round(percent, decimals)
+
+    return PERCENT - 10 ** -decimals if percent < PERCENT <= rounded else rounded
+
+def shown_percent(percent, decimals=0):
+    """`rounded_score` as text, like 94.6 or 99.9."""
+
+    return f"{rounded_score(percent, decimals):.{decimals}f}"
+
 def grade_sign(points_into_band):
     """"-" for the bottom of a band, "+" for the top, nothing between."""
 

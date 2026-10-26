@@ -1,6 +1,6 @@
 from ..explanations import CHECK_EXPLANATIONS, GROUP_SUMMARIES, LANGUAGE_NOTES, NO_EXPLANATION
 from ..models import Status
-from .grouping import PERCENT, group_results, letter, overall_score
+from .grouping import PERCENT, group_results, letter, overall_score, shown_percent
 from .text_output import BOLD, DIM, RESET, print_banner, print_project_header, print_total
 
 INDENT = "    "
@@ -14,14 +14,14 @@ SCALE_HELP = (
 )
 
 def percent_text(result):
-    return result.status.value if result.status in (Status.MANUAL, Status.SKIPPED) else f"{result.score:.1%}"
+    return result.status.value if result.status in (Status.MANUAL, Status.SKIPPED) else f"{shown_percent(result.score * PERCENT, 1)}%"
 
 def print_quick(project, results):
     """One line per numbered rule, then the total. No detail on where the problems are."""
     print_project_header(project)
 
     for group in group_results(results):
-        score = "needs human review" if group.score is None else f"{group.score * PERCENT:5.1f}%  {letter(group.score * PERCENT)}"
+        score = "needs human review" if group.score is None else f"{shown_percent(group.score * PERCENT, 1):>5}%  {letter(group.score * PERCENT)}"
         print(f"{group.title:40}{score}")
 
     print()
@@ -53,7 +53,7 @@ def print_language_notes(group_key, languages):
 
 def print_full_group(group, languages):
     percent = None if group.score is None else group.score * PERCENT
-    print_banner(group.title.upper(), "needs human review" if percent is None else f"{percent:.0f}%  {letter(percent)}", percent or 0)
+    print_banner(group.title.upper(), "needs human review" if percent is None else f"{shown_percent(percent)}%  {letter(percent)}", percent or 0)
     print(f"{DIM}{GROUP_SUMMARIES.get(group.key, '')}{RESET}\n")
     print_language_notes(group.key, languages)
 

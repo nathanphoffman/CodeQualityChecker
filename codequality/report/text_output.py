@@ -1,7 +1,7 @@
 import sys
 
 from ..models import Status
-from .grouping import PERCENT, group_results, letter, overall_score
+from .grouping import PERCENT, group_results, letter, overall_score, shown_percent
 
 # ANSI styles, left empty when output is piped or redirected so files stay clean.
 USE_COLOR = sys.stdout.isatty()
@@ -27,12 +27,12 @@ def print_banner(left, right, score):
 
 def print_total(score):
     """The most important line: a double-line box with arrows pointing at the score."""
-    text = f"▶▶▶   TOTAL SCORE   {score:.1f} / 100   {letter(score)}   ◀◀◀".center(BOX_INNER_WIDTH)
+    text = f"▶▶▶   TOTAL SCORE   {shown_percent(score, 1)} / 100   {letter(score)}   ◀◀◀".center(BOX_INNER_WIDTH)
     print(f"{BOLD}{score_color(score)}╔{'═' * BOX_INNER_WIDTH}╗\n║{text}║\n╚{'═' * BOX_INNER_WIDTH}╝{RESET}\n")
 
 def print_check(rule, result):
     """One sub-rule: small and dim, so the headings stand out."""
-    mark = f"{result.score:.0%}" if result.status not in (Status.MANUAL, Status.SKIPPED) else result.status.value
+    mark = f"{shown_percent(result.score * PERCENT)}%" if result.status not in (Status.MANUAL, Status.SKIPPED) else result.status.value
     print(f"{DIM}    {result.status.value.upper():8}{rule.id}  {rule.title}  ({mark}){RESET}")
 
     if result.message:
@@ -43,7 +43,7 @@ def print_group(group):
         print_banner(group.title.upper(), "needs human review", 0)
     else:
         percent = group.score * PERCENT
-        print_banner(group.title.upper(), f"{percent:.0f}%  {letter(percent)}", percent)
+        print_banner(group.title.upper(), f"{shown_percent(percent)}%  {letter(percent)}", percent)
 
     for rule, result in group.entries:
         print_check(rule, result)

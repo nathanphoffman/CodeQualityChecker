@@ -7,6 +7,10 @@ Your coding rules in `RULES.md`, plus a script that grades any project against t
     python -m codequality /path/to/project
     python -m codequality /path/to/project --json
     python -m codequality /path/to/project --min-score 80   # exit 1 if below
+    python -m codequality /path/to/project --compare main    # what got better or worse since main (any branch, tag or commit)
+    python -m codequality /path/to/project --compare HEAD~3 --fail-if-worse   # exit 1 if the score dropped
+
+`--compare` grades the project as it was at that commit (in a throwaway checkout, your files are never touched) and again as it is on disk now, uncommitted changes included, then shows the score then and now, the groups that moved and the checks that moved, worst first.
 
 ## Ignoring files
 
@@ -31,6 +35,7 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
     RULES.md                    the rules, written for humans
     codequality/
       cli.py                    command line entry
+      compare/                  --compare: grade an earlier commit and show the differences
       detect.py                 language + framework detection
       models.py                 Rule, Result, Status
       registry.py               @rule decorator and rule lookup
