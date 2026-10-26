@@ -5,6 +5,7 @@ from collections import Counter
 from ...models import MAX_LISTED_OFFENDERS, Result
 from .shared.find_names import kinded_names_by_language, names_in_project
 from .shared.name_styles import best_convention, follows
+from .shared.path_names import path_names_by_language
 from .shared.judge_names import grade_names, has_unknown_acronym, is_too_short
 
 @rule("RULE-02-NAME-LENGTH", "Names are long enough to explain themselves")
@@ -23,7 +24,8 @@ def check_acronyms(project):
 
 @rule("RULE-02-NAMING-STYLE", "Names follow the language's naming style, or yours")
 def check_naming_style(project):
-    by_language = kinded_names_by_language(project)
+    paths = path_names_by_language(project)
+    by_language = {language: kinded + paths[language] for language, kinded in kinded_names_by_language(project).items()}
     total = sum(len(kinded) for kinded in by_language.values())
 
     if not total:

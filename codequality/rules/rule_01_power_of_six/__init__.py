@@ -2,7 +2,7 @@
 from ...registry import rule
 from .call_depth.call_graph import call_depths
 from .call_depth.grade_depth import grade_depths
-from .shared.measure import functions_per_file, items_per_folder, per_function
+from .shared.measure import functions_per_file, items_per_folder, per_function, per_type
 from .shared.scoring import function_length_credit, grade, strict_credit
 
 @rule("RULE-01-FUNCTIONS-PER-FILE", "At most 6 functions per file")
@@ -16,6 +16,14 @@ def check_arguments(project):
 @rule("RULE-01-FUNCTION-LENGTH", "Functions are 6 lines or fewer (hard cap 36)")
 def check_function_length(project):
     return grade(per_function(project, "line_count"), function_length_credit, "functions")
+
+@rule("RULE-01-FIELDS", "At most 6 fields per type (class and struct fields, enum variants, component props)")
+def check_fields(project):
+    return grade(per_type(project, "fields"), strict_credit, "types")
+
+@rule("RULE-01-METHODS", "At most 6 methods per type")
+def check_methods(project):
+    return grade(per_type(project, "methods"), strict_credit, "types")
 
 @rule("RULE-01-FOLDER-ITEMS", "At most 6 items per folder")
 def check_folder_items(project):

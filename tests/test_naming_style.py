@@ -5,7 +5,8 @@ from codequality.detect import detect
 from codequality.models import Status
 from codequality.registry import all_rules
 from codequality.rules.rule_02_clear_names.shared.find_names import find_kinded_names
-from codequality.rules.rule_02_clear_names.shared.name_styles import CONSTANT, FUNCTION, TYPE, VALUE, VARIABLE, VARIANT, best_convention, follows, MY_CONVENTION
+from codequality.rules.rule_02_clear_names.shared.path_names import path_names_by_language
+from codequality.rules.rule_02_clear_names.shared.name_styles import CONSTANT, FILE, FOLDER, FUNCTION, TYPE, TYPE_FILE, VALUE, VARIABLE, VARIANT, best_convention, follows, MY_CONVENTION
 
 RULE_ID = "RULE-02-NAMING-STYLE"
 
@@ -112,3 +113,43 @@ def test_mixed_projects_are_graded_by_the_share_of_all_names(tmp_path: Path):
     result = grade(tmp_path, "bad.py", "def FetchUser(UserId):\n    return UserId\n")
 
     assert 0.0 < result.score < 1.0
+
+def test_member_fields_are_found_in_rust_typescript_and_hare():
+    assert ("inner_field", VARIABLE) in find_kinded_names("enum E { A { inner_field: i32 } }\n", "rust")
+    assert ("z", VARIABLE) in find_kinded_names("class C { z = 1; private w: number }\n", "typescript")
+    assert ("nested_one", VARIABLE) in find_kinded_names("type q = struct { a: struct { nested_one: int } };\n", "hare")
+
+def path_names(root: Path, files: dict[str, str]):
+    for name, source in files.items():
+        (root / name).parent.mkdir(parents=True, exist_ok=True)
+        (root / name).write_text(source)
+
+    return path_names_by_language(detect(root))
+
+def test_a_file_named_for_the_type_it_defines_is_a_type_file(tmp_path: Path):
+    found = path_names(tmp_path, {"user_account.py": "class User_Account:\n    pass\n", "helpers.py": "def tidy():\n    pass\n"})
+
+    assert set(found["python"]) == {("user_account", TYPE_FILE), ("helpers", FILE)}
+
+def test_folders_are_listed_once_and_dotted_or_odd_names_are_skipped(tmp_path: Path):
+    found = path_names(tmp_path, {"api/v1/one.py": "x = 1\n", "api/v1/two.py": "y = 2\n", "api/app.test.py": "z = 3\n", "+odd.py": "w = 4\n"})
+    folders = [name for name, kind in found["python"] if kind == FOLDER]
+    files = {name for name, kind in found["python"] if kind != FOLDER}
+
+    assert sorted(folders) == ["api", "v1"]
+    assert files == {"one", "two", "app"}
+
+def test_files_follow_the_language_style_or_yours():
+    python_files = [("user_account", TYPE_FILE), ("helpers", FILE)]
+    csharp_files = [("UserAccount", TYPE_FILE), ("Program", FILE)]
+
+    assert best_convention(python_files, "python")[2] == 1.0  # Python's own style fits even though yours wants Pascal_Snake for the type file
+    assert best_convention(csharp_files, "csharp")[2] == 1.0
+    assert best_convention([("User_Account", TYPE_FILE), ("helpers", FILE)], "python")[2] == 1.0  # and so does yours
+
+def test_a_badly_named_folder_lowers_the_score(tmp_path: Path):
+    path_names(tmp_path, {"Bad-Folder/app.py": "x = 1\n"})
+    result = grade(tmp_path, "good.py", "y = 2\n")
+
+    assert result.score < 1.0
+    assert "Bad-Folder" in result.message

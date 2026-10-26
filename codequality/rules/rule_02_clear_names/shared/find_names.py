@@ -92,21 +92,22 @@ def typescript_enum_members(node):
 def first_identifier(node):
     return node.named_children[:1]
 
-# Enum members, which the patterns and declaration fields above don't reach: node type -> how to find the member name nodes in it.
-VARIANT_NODES = {
-    "rust": {"enum_variant": named_part},
-    "typescript": {"enum_assignment": named_part, "enum_body": typescript_enum_members},  # `Green = 2` is an assignment, `Red` is a bare name
-    "hare": {"enum_field": first_identifier},
+# Enum members and struct fields, which the patterns and declaration fields above don't reach: node type -> (how to find the name nodes in it, what kind they are).
+MEMBER_NODES = {
+    "rust": {"enum_variant": (named_part, VARIANT), "field_declaration": (named_part, VARIABLE)},
+    "typescript": {"enum_assignment": (named_part, VARIANT), "enum_body": (typescript_enum_members, VARIANT),  # `Green = 2` is an assignment, `Red` is a bare name
+                   "property_signature": (named_part, VARIABLE), "public_field_definition": (named_part, VARIABLE)},
+    "hare": {"enum_field": (first_identifier, VARIANT), "field": (first_identifier, VARIABLE)},
 }
 
-def variant_names(source, language):
-    """(name, VARIANT) for every enum member in a language that VARIANT_NODES knows."""
+def member_names(source, language):
+    """(name, kind) for every enum member and struct field in a language that MEMBER_NODES knows."""
     found = []
 
     for node in walk(parse_tree(source, language)):
-        finder = VARIANT_NODES[language].get(node.type)
+        finder, kind = MEMBER_NODES[language].get(node.type, (None, None))
 
-        found += [(part.text.decode(), VARIANT) for part in finder(node)] if finder else []
+        found += [(part.text.decode(), kind) for part in finder(node)] if finder else []
 
     return found
 
@@ -144,20 +145,28 @@ def find_kinded_names(source, language):
         # one (name, kind) per match of every pattern, so each kind of declaration is found by its own pattern
         found = [(match.group(NAME_GROUP), kind) for kind, pattern in NAME_PATTERNS[language] for match in pattern.finditer(text)]
         found += [(name, VARIABLE) for name in parameter_names(source, language)]
-        found += variant_names(source, language)
+        found += member_names(source, language)
 
     return [(name, kind) for name, kind in found if name != "_"]
 
 def find_names(source, language):
     return [name for name, _ in find_kinded_names(source, language)]
 
+def kinded_names_by_file(project):
+    """{path: (language, [(name, kind), ...])} for every source file in the project."""
+
+    def read_all():
+        return {path: (SUFFIX_LANGUAGE[path.suffix], find_kinded_names(read_source(path), SUFFIX_LANGUAGE[path.suffix]))
+                for path in project.files(*SUFFIX_LANGUAGE)}
+
+    return project.remember("kinded_names_by_file", read_all)
+
 def kinded_names_by_language(project):
     """{language: [(name, kind), ...]} for every source file in the project."""
     found = {}
 
-    for path in project.files(*SUFFIX_LANGUAGE):
-        language = SUFFIX_LANGUAGE[path.suffix]
-        found.setdefault(language, []).extend(find_kinded_names(read_source(path), language))
+    for language, kinded in kinded_names_by_file(project).values():
+        found.setdefault(language, []).extend(kinded)
 
     return found
 

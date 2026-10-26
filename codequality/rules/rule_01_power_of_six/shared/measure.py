@@ -3,6 +3,7 @@ from pathlib import Path
 
 from ....source_code import SUFFIX_LANGUAGE, read_source
 from .find_functions import find_functions
+from .find_types import find_types
 
 def parse_source_files(project):
     """Maps each Rust/TypeScript/Deor file to the functions found in it (Deor macros count as functions)."""
@@ -23,6 +24,12 @@ def per_function(project, attribute):
             values[f"{file}:{info.line_number} {info.name}"] = getattr(info, attribute)
 
     return values
+
+def per_type(project, attribute):
+    """{"file:line name": count} of the fields or methods of every type."""
+
+    return {f"{project.label_for(path)}:{info.line_number} {info.name}": getattr(info, attribute)
+            for path in project.files(*SUFFIX_LANGUAGE) for info in find_types(read_source(path), SUFFIX_LANGUAGE[path.suffix])}
 
 def items_per_folder(project):
     counts = {}

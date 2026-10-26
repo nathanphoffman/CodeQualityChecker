@@ -3,7 +3,8 @@ import re
 from ....source_code import C_LANG, CSHARP, GO, HARE, MOJO, PYTHON, RUST, TYPESCRIPT
 
 FUNCTION, TYPE, CONSTANT, VARIABLE, VALUE, VARIANT = "function", "type", "constant", "variable", "value", "variant"
-# VALUE is an assignment that may be a constant or a variable, and VARIANT is a member of an enum
+FILE, TYPE_FILE, FOLDER = "file", "type file", "folder"
+# VALUE is an assignment that may be a constant or a variable, VARIANT is a member of an enum, and TYPE_FILE is a file named after the type it defines
 
 # Clever on purpose: one pattern per naming style, tested on a name with its leading and trailing underscores removed.
 # A word is one letter followed by lower case letters and digits, so `UserAccount` is two words and `user_id` is two.
@@ -13,6 +14,7 @@ NAME_STYLES = {
     "Pascal_Snake": re.compile(r"[A-Z][a-z0-9]*(_[A-Z][a-z0-9]*)*"),  # Capitalized words joined by "_"
     "camelCase": re.compile(r"[a-z][a-z0-9]*([A-Z][a-z0-9]*)*"),  # a lower case word, then Capitalized words joined with no "_"
     "PascalCase": re.compile(r"[A-Z][a-z0-9]*([A-Z][a-z0-9]*)*"),  # Capitalized words joined with no "_"
+    "kebab-case": re.compile(r"[a-z][a-z0-9]*(-[a-z0-9]+)*"),  # lower case words joined by "-"
     "mixedCaps": re.compile(r"[A-Za-z][A-Za-z0-9]*"),  # Go: letters and digits only, no underscores
 }
 
@@ -27,6 +29,9 @@ MY_CONVENTION = {
     VARIABLE: style("lower_snake"),
     VALUE: style("lower_snake", "SCREAMING_SNAKE"),
     VARIANT: style("Pascal_Snake", "SCREAMING_SNAKE"),  # your rules name neither case, and a variant is both a constant and a structure
+    FILE: style("lower_snake"),
+    TYPE_FILE: style("Pascal_Snake"),  # "files that define them": a file named for the one structure it defines
+    FOLDER: style("lower_snake"),
 }
 
 PYTHON_CONVENTION = {
@@ -77,6 +82,21 @@ LANGUAGE_CONVENTIONS = {
         VARIANT: style("PascalCase"),
     },
 }
+
+# How each language's files and folders are named. Languages that name them freely list the common styles; languages with no standard are missing.
+PATH_STYLES = {
+    PYTHON: style("lower_snake"),
+    MOJO: style("lower_snake"),
+    RUST: style("lower_snake"),
+    C_LANG: style("lower_snake"),
+    HARE: style("lower_snake"),  # the Hare style guide: "Hare source files SHOULD be named in lower_underscore_case"
+    GO: style("lower_snake"),
+    TYPESCRIPT: style("camelCase", "PascalCase", "kebab-case", "lower_snake"),
+    CSHARP: style("PascalCase"),
+}
+
+for _language, _convention in LANGUAGE_CONVENTIONS.items():
+    _convention.update({kind: PATH_STYLES[_language] for kind in (FILE, TYPE_FILE, FOLDER)})
 
 def follows(name, kind, convention):
     """True when the name is written in a style the convention allows for this kind of name. Leading and trailing underscores (`_private`, `__init__`) don't count."""
