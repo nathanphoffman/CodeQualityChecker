@@ -94,3 +94,38 @@ def test_project_level_rules_see_unused_private_functions_plus_commented_code(tm
     results = {rule.id: result for rule, result in report.run(detect(tmp_path), all_rules())}
     assert "_never_called" in results["RULE-12-UNUSED-PRIVATE-FUNCTIONS"].message
     assert results["RULE-12-COMMENTED-OUT-CODE"].score < 1.0
+
+def exports_in(tmp_path, files):
+    from codequality.detect import detect
+    from codequality.rules.rule_12_clean_up.shared.unused_exports import unused_exports
+
+    for name, text in files.items():
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_text(text)
+
+    return unused_exports(detect(tmp_path))
+
+def test_exports_nothing_imports_are_found(tmp_path):
+    total, unused = exports_in(tmp_path, {
+        "used.ts": "export function used() {}\nexport const orphan = () => 1;\nexport class Lonely {}\nexport const NUMBER = 5;\n",
+        "app.ts": 'import { used } from "./used";\nused();\n',
+    })
+    assert total == 3
+    assert [entry.split()[-1] for entry in unused] == ["orphan", "Lonely"]
+
+def test_default_namespace_dynamic_and_star_imports_count(tmp_path):
+    total, unused = exports_in(tmp_path, {
+        "Card.tsx": "export default function Card() {}\n",
+        "tools.ts": "export function sharpen() {}\n",
+        "lazy/Chart.tsx": "export default function Chart() {}\n",
+        "all/index.ts": "export function everything() {}\n",
+        "app.tsx": 'import Panel from "./Card";\nimport * as tools from "./tools";\nconst Chart = React.lazy(() => import("./lazy/Chart"));\nexport * from "./all";\n',
+    })
+    assert (total, unused) == (4, [])
+
+def test_entry_files_and_tests_are_not_judged(tmp_path):
+    total, unused = exports_in(tmp_path, {
+        "page.tsx": "export default function Page() {}\n",
+        "tests/helper.ts": "export function helper() {}\n",
+    })
+    assert (total, unused) == (0, [])

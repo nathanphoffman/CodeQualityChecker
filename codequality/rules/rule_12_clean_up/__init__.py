@@ -6,6 +6,7 @@ from ..rule_09_comment_why.shared.extract import python_comments, tree_comments
 from ..rule_09_comment_why.shared.judging.signals import is_commented_out_code
 
 from .shared.project_cleanup import analyze_project, unused_private_definitions
+from .shared.unused_exports import unused_exports
 
 def grade_leftovers(total, places, noun):
     """Score is the share of items that are clean. `places` are "file:line" strings, one per leftover."""
@@ -50,6 +51,12 @@ def check_unused_private_functions(project):
     unused = [f"{label}:{line} {name}" for label, line, name in unused_private_definitions(analyzed)]
 
     return grade_leftovers(total, unused, "private functions and classes are never used")
+
+@rule("RULE-12-UNUSED-EXPORTS", "Every exported function and component is imported somewhere")
+def check_unused_exports(project):
+    total, unused = unused_exports(project)
+
+    return grade_leftovers(total, unused, "exported functions, components and classes are imported nowhere")
 
 @rule("RULE-12-COMMENTED-OUT-CODE", "No code left in comments")
 def check_commented_out_code(project):

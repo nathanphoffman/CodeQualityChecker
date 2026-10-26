@@ -67,6 +67,24 @@ BRANCH_TYPES = {
     "rexx": {IF_STATEMENT, "for_statement", "when_clause", "otherwise_clause", "boolean_operator"},  # `&` and `|` join conditions
 }
 
+# Each of these opens a block that sits one level deeper than the code around it. `else if` is not one: it is told apart from a
+# nested `if` by its parent (`else_clause`, or the `alternative` field in Go).
+NESTING_TYPES = {
+    "rust": {"if_expression", "for_expression", "while_expression", "loop_expression", "match_expression"},
+    "typescript": {IF_STATEMENT, "for_statement", "for_in_statement", "while_statement", "do_statement", "try_statement", "switch_statement"},
+    "hare": {IF_STATEMENT, "for_statement", "match_expression", "switch_expression"},
+    "c": {IF_STATEMENT, "for_statement", "while_statement", "do_statement", "switch_statement"},
+    "go": {IF_STATEMENT, "for_statement", "expression_switch_statement", "type_switch_statement", "select_statement"},
+    "mojo": {IF_STATEMENT, "for_statement", "while_statement", "try_statement", "with_statement"},
+    "fortran": {IF_STATEMENT, "do_loop", "select_case_statement"},
+    "csharp": {IF_STATEMENT, "for_statement", "foreach_statement", "while_statement", "do_statement", "switch_statement", "try_statement",
+               "using_statement", "lock_statement"},
+    "rexx": {IF_STATEMENT, "for_statement", "select_statement"},
+}
+
+# Languages whose parameters are written with a type, so a `bool` can be seen in them.
+BOOLEAN_TYPED_LANGUAGES = {"rust", "typescript", "hare", "c", "go", "mojo", "csharp"}
+
 BRANCH_OPERATORS = {"&&", "||", "??"}
 
 # Fortran does not care about case: `Total` and `total` are the same variable.

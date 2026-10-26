@@ -18,8 +18,21 @@ def branch_count(function):
 
     return count
 
+def max_nesting(function):
+    """How many `if` and `for` statements sit inside one another at the deepest point. An `else if` is not one more level."""
+    deepest, pending = 0, [(function, 0)]
+
+    while pending:
+        statement, depth = pending.pop()
+        deepest = max(deepest, depth)
+
+        for child in statement.children:
+            pending.append((child, depth + (child.keyword in BRANCH_STATEMENTS and not child.text.startswith("else if"))))
+
+    return deepest
+
 def deor_bodies(source):
-    """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function and macro."""
+    """(name, line_number, statement_variables, branch_count, last_line, has_docstring, max_nesting) for every function and macro."""
     bodies = []
 
     for declaration in declarations_in(parse_deor(source).roots, FUNCTION_KINDS):
@@ -27,6 +40,6 @@ def deor_bodies(source):
         local_names = set(declaration.parameter_names) | set(variables_in(function))
         used = [set(used_names(child)) & local_names for child in function.children]
 
-        bodies.append((declaration.label, function.first_line, used, branch_count(function), function.end_line, False))
+        bodies.append((declaration.label, function.first_line, used, branch_count(function), function.end_line, False, max_nesting(function)))
 
     return bodies

@@ -12,6 +12,8 @@
    - Simple is over 6x as long: use clever.
    Regex always counts as clever. Always add a comment explaining how clever code works.
 4. One job per function. Functions should avoid mutating or processing anything outside their core concern.
+   - Nest blocks (if, loops, try, switch) at most 3 levels deep.
+   - Avoid true/false flag parameters; write one function per behavior.
 5. Be secure. Follow security best practices. Never put secrets like keys or passwords in code; keep them in configuration or environment variables.
 6. Don't repeat yourself. Shared logic lives in one place.
 7. No magic numbers. Name constants instead of hardcoding values.
@@ -19,7 +21,7 @@
 9. Add comments. Modest commentary is better than none or tons but why is better than what. Except clever code from rule 3, where comments should explain how it works.
 10. Test what matters. Verify every change. Write simple unit and integration tests for critical logic only; skip trivial code.
 11. Fail loudly but directedly. Never hide errors, don't over report or over-throw.
-12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables.
+12. Clean up. In code you touch, remove dead code, unused imports, and leftover variables, and exports nothing imports.
 13. The total project line count as n^n should be roughly 6 or below (rule of 6 scaling).
 14. 14. Space it out. Blank lines separate ideas like paragraphs.
    - Max 6 lines in a row without a blank line.

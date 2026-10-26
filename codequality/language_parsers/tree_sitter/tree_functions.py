@@ -1,6 +1,9 @@
+import re
+
 from .parse_tree import parse_tree
 from ...source_code import FORTRAN
-from .syntax_shapes import BINDING_FIELDS, BODY_FIELD, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, NAME_FIELD, OPERATOR_FIELD
+from .syntax_shapes import (BINDING_FIELDS, BODY_FIELD, BOOLEAN_TYPED_LANGUAGES, BRANCH_OPERATORS, BRANCH_TYPES, FUNCTION_TYPES, IF_STATEMENT,
+                            NAME_FIELD, NESTING_TYPES, OPERATOR_FIELD, PARAMETERS)
 from .tree_walk import bound_nodes, declarator_name, identifiers_in, normalized, walk
 
 # Fortran has no block around a body: the statements sit directly inside the function, between its header and its end line,
@@ -11,6 +14,12 @@ FRAME_TYPES = {"function_statement", "subroutine_statement", "program_statement"
 
 HEADER_TYPES = {"function_statement", "subroutine_statement", "program_statement"}
 BLOCK_ENDINGS = ("block", "_block", "compound_statement")
+
+RECEIVERS = {"self", "&self", "&mut self", "mut self", "this"}
+
+# Clever on purpose: a parameter is a boolean when it names the type `bool`, `boolean` or `Bool` on its own (not inside `Vec<bool>` or
+# `boolean[]`), or when it defaults to true or false.
+BOOLEAN_PARAMETER = re.compile(r"(?<![<\[\w])(?:bool|boolean|Bool)\b(?![\[<])|=\s*(?:true|false|True|False)\b")
 
 def fortran_name(function):
     """The name in a Fortran function, subroutine or program header."""
@@ -70,8 +79,51 @@ def statements_of(body):
     return [statement for statement in statements
             if "comment" not in statement.type and statement.type not in FRAME_TYPES and not statement.type.startswith("end_")]
 
+def is_else_if(node):
+    """An `if` that is the else branch of another `if` is one more path, not one more level."""
+    parent = node.parent
+
+    return parent is not None and (parent.type.endswith("else_clause") or parent.type == "else_statement"
+                                   or (parent.type == IF_STATEMENT and parent.child_by_field_name("alternative") == node))
+
+def max_nesting(function, language):
+    """How many blocks sit inside one another at the deepest point. Functions inside this one are measured on their own."""
+    deepest, pending = 0, [(function, 0)]
+
+    while pending:
+        node, depth = pending.pop()
+        deepest = max(deepest, depth)
+
+        for child in node.named_children:
+            if child.type not in FUNCTION_TYPES[language]:
+                pending.append((child, depth + (child.type in NESTING_TYPES[language] and not is_else_if(child))))
+
+    return deepest
+
+def parameter_nodes(function):
+    """The parameters in the function's header. C wraps its parameter list in the declarator."""
+    node = function
+
+    while node is not None and node.child_by_field_name(PARAMETERS) is None:
+        node = node.child_by_field_name("declarator")
+
+    parameters = node.child_by_field_name(PARAMETERS).named_children if node is not None else []
+
+    return [parameter for parameter in parameters if "comment" not in parameter.type and parameter.text.decode().strip() not in RECEIVERS]
+
+def boolean_parameters(parameters, language):
+    """How many parameters are booleans. An object or array pattern (React props) is one parameter, whatever is inside."""
+
+    if language not in BOOLEAN_TYPED_LANGUAGES:
+        return 0
+
+    texts = [parameter.text.decode() for parameter in parameters]
+
+    return len([text for text in texts if not text.startswith(("{", "[")) and BOOLEAN_PARAMETER.search(text)])
+
 def tree_bodies(source, language):
-    """(name, line_number, statement_variables, branch_count, last_line, has_docstring) for every function with a block body."""
+    """(name, line_number, statement_variables, branch_count, last_line, has_docstring, max_nesting, boolean_parameters, parameter_count)
+    for every function with a block body."""
     bodies = []
 
     for function in walk(parse_tree(source, language)):
@@ -83,7 +135,9 @@ def tree_bodies(source, language):
         locals_ = local_names(function, language)
         used = [identifiers_in(statement, language) & locals_ for statement in statements_of(body)]
 
-        bodies.append((function_name(function), function.start_point.row + 1, used, branch_count(function, language),
-                       function.end_point.row + 1, False))
+        parameters = parameter_nodes(function)
+
+        bodies.append((function_name(function), function.start_point.row + 1, used, branch_count(function, language), function.end_point.row + 1,
+                       False, max_nesting(function, language), boolean_parameters(parameters, language), len(parameters)))
 
     return bodies
