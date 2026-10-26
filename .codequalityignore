@@ -1,2 +1,6 @@
 # the grammar is generated code that is copied in, not ours to grade
 vendor/
+
+# add rule IDs after a path to skip it for those rules only, for example:
+# tests RULE-09
+# scripts/* RULE-02 RULE-04
