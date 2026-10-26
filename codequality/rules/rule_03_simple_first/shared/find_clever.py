@@ -1,6 +1,6 @@
 from ....language_parsers.deor.rust_blocks import rust_only_source
 from ..python.python_clever import python_clever
-from ....source_code import C_LANG, CSHARP, DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, read_source
+from ....source_code import C_LANG, CSHARP, DEOR, PYTHON, RUST, SUFFIX_LANGUAGE, TYPESCRIPT, blank_out_text, non_test_files, read_source
 from .Clever_Hit import Clever_Hit
 from ..tree_sitter.clever_patterns import pattern_hits
 from .find_structures import long_chain_hits, nested_closure_hits, ternary_hits
@@ -36,10 +36,10 @@ def find_clever(source, language, file_label):
             for kind, line in clever_constructs(source, language)]
 
 def scan_project(project):
-    """Returns (all clever hits, total source lines)."""
+    """Returns (all clever hits, total source lines). Test files are left out: their describe/it wrappers are not clever code."""
     hits, line_count = [], 0
 
-    for path in project.files(*SUFFIX_LANGUAGE):
+    for path in non_test_files(project, SUFFIX_LANGUAGE):
         source = read_source(path)
         hits += find_clever(source, SUFFIX_LANGUAGE[path.suffix], project.label_for(path))
         line_count += source.count("\n") + 1

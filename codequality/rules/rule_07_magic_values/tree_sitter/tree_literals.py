@@ -21,6 +21,15 @@ NOT_VALUE_PARENTS = {"import_statement", "export_statement", "use_declaration", 
                      "preproc_include", "import_spec", "field_declaration",  # #include paths, Go imports and Go struct tags
                      "expression_statement"}  # a string standing alone is a Mojo docstring
 
+# Rendering values are positions and sizes, not rules: SVG shapes and attributes, inline styles, and canvas draw calls.
+SVG_TAGS = {"svg", "path", "circle", "rect", "line", "polyline", "polygon", "ellipse", "g", "text", "tspan", "use", "defs", "image",
+            "linearGradient", "radialGradient", "stop", "clipPath", "mask", "pattern", "foreignObject", "marker", "filter"}
+LAYOUT_ATTRIBUTES = {"style", "viewBox", "d", "x", "y", "cx", "cy", "r", "rx", "ry", "x1", "y1", "x2", "y2", "points", "transform",
+                     "strokeWidth", "strokeDasharray", "strokeDashoffset", "fontSize", "offset"}
+CANVAS_CALLS = {"moveTo", "lineTo", "arc", "arcTo", "rect", "fillRect", "strokeRect", "clearRect", "ellipse", "bezierCurveTo",
+                "quadraticCurveTo", "translate", "scale", "rotate", "transform", "setTransform", "fillText", "strokeText", "drawImage",
+                "setLineDash", "createLinearGradient", "createRadialGradient", "roundRect"}
+
 TRIPLE_QUOTE_LENGTH = 3
 STRING_PREFIXES = "fFrRbB@$"  # Mojo writes f"..." and r"...", C# writes @"..." and $"..."
 
@@ -63,6 +72,27 @@ def is_constant_declarator(node):
 
     return name is not None and name.text.decode().isupper()
 
+def jsx_tag_name(attribute):
+    """The tag an attribute belongs to, like `path` in `<path d="..." />`."""
+    element = attribute.parent
+    name = element.child_by_field_name(NAME_FIELD) if element is not None else None
+
+    return name.text.decode() if name is not None else ""
+
+def is_layout_value(node):
+    """An SVG attribute, an inline JSX style, or the arguments of a canvas call like ctx.lineTo(10, 20)."""
+
+    if node.type == "jsx_attribute":
+        return node.children[0].text.decode() in LAYOUT_ATTRIBUTES or jsx_tag_name(node) in SVG_TAGS
+
+    if node.type == "call_expression":
+        function = node.child_by_field_name("function")
+        method = function.child_by_field_name("property") if function is not None and function.type == "member_expression" else None
+
+        return method is not None and method.text.decode() in CANVAS_CALLS
+
+    return False
+
 def literal_of(node, in_constant):
     line = node.start_point.row + 1
     text = node.text.decode()
@@ -85,7 +115,7 @@ def tree_literals(source, language):
 
     while pending:
         node, in_constant = pending.pop()
-        in_constant = in_constant or node.type in NAMED_TYPES or is_constant_declarator(node)
+        in_constant = in_constant or node.type in NAMED_TYPES or is_constant_declarator(node) or is_layout_value(node)
         literal = literal_of(node, in_constant)
 
         if literal:

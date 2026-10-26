@@ -29,3 +29,9 @@ def test_clever_line_with_a_comment_is_fine(tmp_path: Path):
 
 def test_clever_code_still_counts_against_the_amount_even_when_explained(tmp_path: Path):
     assert grade(tmp_path, EXPLAINED, "RULE-03-LITTLE-CLEVERNESS").score < 1.0
+
+def test_clever_code_in_test_files_is_not_flagged(tmp_path: Path):
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "wrapper.py").write_text(UNEXPLAINED)
+    result = grade(tmp_path, SIMPLE, "RULE-03-CLEVER-IS-EXPLAINED")
+    assert result.message == "no clever code found" and result.score == 1.0

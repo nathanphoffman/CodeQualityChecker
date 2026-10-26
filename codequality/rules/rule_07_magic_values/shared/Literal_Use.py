@@ -6,4 +6,4 @@ class Literal_Use(NamedTuple):
     kind: str  # "number" or "string"
     value: object  # the number, or the text between the quotes
     line_number: int
-    in_constant: bool  # already named: inside a SCREAMING_SNAKE definition, a docstring or an f-string
+    in_constant: bool  # already named: inside a SCREAMING_SNAKE definition, a docstring, an f-string, or a rendering value like an SVG attribute or canvas call

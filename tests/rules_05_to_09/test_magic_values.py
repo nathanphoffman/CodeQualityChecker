@@ -60,3 +60,34 @@ TYPE_KEYWORDS = "".join(f"function f{n}(x: string): string[] {{ return [x]; }}\n
 def test_typescript_string_type_is_not_a_repeated_string(tmp_path: Path):
     result = grade(tmp_path, "a.ts", TYPE_KEYWORDS, "RULE-07-REPEATED-STRINGS")
     assert result.message == "no strings found" and result.score == 1.0
+
+LAYOUT = '''
+export const Chart = () => (
+  <svg viewBox="0 0 640 480">
+    <circle cx={320} cy={240} r={77} />
+    <div style={{ marginTop: 13, width: 421 }} />
+  </svg>
+);
+export function draw(ctx: CanvasRenderingContext2D) {
+  ctx.moveTo(37, 91);
+  ctx.arc(55, 66, 29, 0, 3.14);
+}
+'''
+
+def test_svg_style_and_canvas_numbers_are_not_flagged(tmp_path: Path):
+    result = grade(tmp_path, "chart.tsx", LAYOUT, "RULE-07-MAGIC-NUMBERS")
+    assert result.message == "" and result.score == 1.0
+
+def test_numbers_outside_layout_are_still_flagged(tmp_path: Path):
+    source = LAYOUT + "export const wait = (ms: number) => ms * 4242;\n"
+    result = grade(tmp_path, "chart.tsx", source, "RULE-07-MAGIC-NUMBERS")
+    assert "4242" in result.message
+
+def test_number_in_two_files_is_a_shared_number(tmp_path: Path):
+    (tmp_path / "a.py").write_text("def a(x):\n    return x * 7919 + 100 + 2\n")
+    result = grade(tmp_path, "b.py", "def b(x):\n    return x + 7919 + 100 + 2\n", "RULE-07-SHARED-NUMBERS")
+    assert "7919 (2 files)" in result.message and "100" not in result.message
+
+def test_number_repeated_in_one_file_is_not_shared(tmp_path: Path):
+    result = grade(tmp_path, "a.py", "def a(x):\n    return x * 7919 + 7919\n", "RULE-07-SHARED-NUMBERS")
+    assert result.score == 1.0 and result.message == ""
