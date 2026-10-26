@@ -8,11 +8,12 @@ from pathlib import Path
 from .models import Project
 from .source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
 
-RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri", "rocket": "rocket"}
-TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest", "vue": "vue", "@angular/core": "angular"}
-PYTHON_FRAMEWORKS = {"django": "django", "flask": "flask", "fastapi": "fastapi"}
+RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri", "rocket": "rocket", "diesel": "diesel", "sqlx": "sqlx", "bevy": "bevy"}
+TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest", "vue": "vue", "@angular/core": "angular",
+                "svelte": "svelte", "@sveltejs/kit": "svelte", "nuxt": "nuxt", "fastify": "fastify"}
+PYTHON_FRAMEWORKS = {"django": "django", "flask": "flask", "fastapi": "fastapi", "sqlalchemy": "sqlalchemy", "pydantic": "pydantic"}
 PYTHON_DEPENDENCY_FILES = ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile")
-GO_FRAMEWORKS = {"github.com/gin-gonic/gin": "gin", "github.com/labstack/echo": "echo", "github.com/gofiber/fiber": "fiber"}
+GO_FRAMEWORKS = {"github.com/gin-gonic/gin": "gin", "github.com/labstack/echo": "echo", "github.com/gofiber/fiber": "fiber", "gorm.io/gorm": "gorm"}
 CSHARP_FRAMEWORKS = {"Microsoft.NET.Sdk.Web": "aspnet", "Microsoft.AspNetCore": "aspnet", "Microsoft.EntityFrameworkCore": "efcore",
                      "Microsoft.AspNetCore.Components": "blazor", "Microsoft.NET.Sdk.BlazorWebAssembly": "blazor"}
 
@@ -95,6 +96,10 @@ def _detect_go(project: Project) -> None:
     text = read_source(go_mod) if go_mod.exists() else ""
     project.frameworks.update(name for module, name in GO_FRAMEWORKS.items() if module in text)
 
+    # net/http is part of Go itself, so it is found by an import of it in any .go file
+    if any('"net/http"' in read_source(path) for path in project.files(".go")):
+        project.frameworks.add("nethttp")
+
 def _detect_csharp(project: Project) -> None:
     """C# when any .cs or .csproj file exists; frameworks are named by the SDK or packages in the .csproj files."""
 
@@ -103,6 +108,10 @@ def _detect_csharp(project: Project) -> None:
 
     project_text = "\n".join(read_source(path) for path in project.files(".csproj"))
     project.frameworks.update(name for marker, name in CSHARP_FRAMEWORKS.items() if marker in project_text)
+
+    # Unity projects have a ProjectSettings folder, and their .csproj files reference UnityEngine
+    if (project.root / "ProjectSettings" / "ProjectVersion.txt").exists() or "UnityEngine" in project_text:
+        project.frameworks.add("unity")
 
 def _detect_mojo(project: Project) -> None:
     if project.files(".mojo", ".🔥"):

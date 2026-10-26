@@ -24,12 +24,12 @@ GROUP_SUMMARIES = {
 TOOLING_SUMMARY = "Checks for the formatter and linter a language's community expects, and for the language's popular frameworks. A framework's checks only run when the project depends on it."
 GROUP_SUMMARIES.update({
     "COMMON": "Basics every project should have: a README, a .gitignore and tests.",
-    "RUST": "Rust-specific checks: Cargo.lock, rustfmt and clippy config, few unwrap/expect calls, and the axum, actix, rocket and tauri frameworks.",
-    "TS": "TypeScript-specific checks: strict mode, few `any` types, an eslint or biome config, and the react, next, express, nest, vue and angular frameworks.",
-    "PYTHON": "Python-specific checks: a formatter or linter config, and the django, flask and fastapi frameworks.",
-    "GO": "Go-specific checks: a golangci-lint config, and the gin, echo and fiber frameworks.",
+    "RUST": "Rust-specific checks: Cargo.lock, rustfmt and clippy config, few unwrap/expect calls, and the axum, actix, rocket, tauri, diesel, sqlx and bevy frameworks.",
+    "TS": "TypeScript-specific checks: strict mode, few `any` types, an eslint or biome config, and the react, next, express, nest, vue, angular, svelte, nuxt and fastify frameworks.",
+    "PYTHON": "Python-specific checks: a formatter or linter config, and the django, flask, fastapi, sqlalchemy and pydantic frameworks.",
+    "GO": "Go-specific checks: a golangci-lint config, and the gin, echo, fiber, net/http and gorm frameworks.",
     "C": "C-specific checks: clang-format and clang-tidy config.",
-    "CSHARP": "C#-specific checks: an .editorconfig, and the ASP.NET Core, Entity Framework Core and Blazor frameworks.",
+    "CSHARP": "C#-specific checks: an .editorconfig, and the ASP.NET Core, Entity Framework Core, Blazor and Unity frameworks.",
     "FORTRAN": "Fortran-specific checks: a fprettify or fortitude config.",
 })
 
@@ -275,4 +275,23 @@ CHECK_EXPLANATIONS = {
     "TS-VUE-002": ("Vue: finds v-for elements with no :key, so list items get mixed up when the list changes.", "Add a :key with a stable id from the data, like :key=\"item.id\"."),
     "TS-ANGULAR-001": ("Angular: finds bypassSecurityTrustHtml, Script, Style, Url and ResourceUrl, which tell Angular to stop cleaning a value.", "Remove the bypass and let Angular sanitize, or sanitize the value yourself first with a trusted library."),
     "TS-ANGULAR-002": ("Angular: checks that each @Component uses ChangeDetectionStrategy.OnPush, so Angular only re-checks it when its inputs change.", "Add `changeDetection: ChangeDetectionStrategy.OnPush` to the component."),
+
+    "PYTHON-SQLALCHEMY-001": ("SQLAlchemy: finds text() whose SQL is an f-string or is joined with +, % or .format, which lets input change the query.", "Write the SQL with :name placeholders and pass the values as parameters."),
+    "PYTHON-SQLALCHEMY-002": ("SQLAlchemy: finds session.query(...), the old 1.x style that 2.0 replaced.", "Use select(...) with session.scalars or session.execute."),
+    "PYTHON-PYDANTIC-001": ("Pydantic: finds the v1 methods parse_obj, parse_raw, from_orm and update_forward_refs, and the v1-style `class Config:`.", "Use model_validate, model_validate_json, from_attributes and model_config = ConfigDict(...)."),
+    "PYTHON-PYDANTIC-002": ("Pydantic: finds extra=\"allow\", which keeps fields nobody declared instead of rejecting them.", "Use extra=\"forbid\" (or leave the default, which ignores them)."),
+    "TS-SVELTE-001": ("Svelte: finds {@html ...} in .svelte files, which shows raw HTML so any script in the text runs.", "Show the text with {value}, which escapes it, or clean the HTML with a sanitizer first."),
+    "TS-SVELTE-002": ("Svelte: finds {#each} blocks with no (key), so list items get mixed up when the list changes.", "Add a key with a stable id, like {#each items as item (item.id)}."),
+    "TS-NUXT-001": ("Nuxt: finds names like secret, token, password, private or apiKey inside `public` in nuxt.config, which is sent to every browser.", "Move the value out of `public` so it stays on the server, and read it there with useRuntimeConfig."),
+    "TS-NUXT-002": ("Nuxt: finds readBody and getQuery, which hand back whatever the client sent.", "Use readValidatedBody and getValidatedQuery with a schema (zod, valibot...)."),
+    "TS-FASTIFY-001": ("Fastify: checks that routes with a /path pass an options object with a schema, which checks input and speeds up output. Scored by the share of routes that do.", "Add `{ schema: { body: ..., response: ... } }` as the second argument of each route."),
+    "TS-FASTIFY-002": ("Fastify: checks that a `logger:` option is set, since Fastify logs nothing by default.", "Create the app with fastify({ logger: true })."),
+    "RUST-DIESEL-001": ("Diesel: finds sql_query(format!(...)), raw SQL built from variables.", "Write the SQL with $1, $2 placeholders and pass values with .bind."),
+    "RUST-SQLX-001": ("SQLx: finds query, query_as and query_scalar given format!(...), SQL built from variables.", "Write the SQL with $1 (or ?) placeholders and pass values with .bind, or use the query! macros."),
+    "RUST-BEVY-001": ("Bevy: finds std::thread::sleep, which freezes the thread that runs the whole game.", "Use a Timer resource and check it each frame."),
+    "GO-NETHTTP-001": ("net/http: finds http.ListenAndServe and ListenAndServeTLS, which start a server with no timeouts, so slow clients can hold connections open forever.", "Build an http.Server with ReadHeaderTimeout, ReadTimeout and WriteTimeout, and call its ListenAndServe."),
+    "GO-NETHTTP-002": ("net/http: finds http.Get, Post, Head, PostForm and http.DefaultClient, which have no timeout, so one slow server hangs the caller.", "Make an http.Client{Timeout: ...} and use it."),
+    "GO-GORM-001": ("GORM: finds Raw, Exec, Where and Order given fmt.Sprintf(...) or a string joined with +, SQL built from variables.", "Use ? placeholders and pass values as arguments, like db.Where(\"name = ?\", name)."),
+    "CSHARP-UNITY-001": ("Unity: finds GameObject.Find, FindObjectOfType, FindObjectsOfType and GetComponent< inside Update, FixedUpdate or LateUpdate, which run every frame.", "Look the object up once in Awake or Start and keep it in a field."),
+    "CSHARP-UNITY-002": ("Unity: finds Debug.Log calls, which slow the game down and fill the console.", "Remove them, or wrap them in a method marked [Conditional(\"UNITY_EDITOR\")]."),
 }

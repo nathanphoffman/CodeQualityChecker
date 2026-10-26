@@ -26,6 +26,20 @@ def blocking_wait(project: Project) -> Result:
 rule("CSHARP-ASPNET-003", "aspnet: no blocking waits on async work", language=CSHARP, framework="aspnet", severity=SEVERITY_INFO)(blocking_wait)
 rule("CSHARP-BLAZOR-001", "blazor: no blocking waits on async work", language=CSHARP, framework="blazor", severity=SEVERITY_INFO)(blocking_wait)
 
+# An Update / FixedUpdate / LateUpdate method whose body (braces nested one level deep) searches for objects: GameObject.Find, FindObjectOfType or GetComponent<
+UNITY_FRAME_SEARCH = re.compile(r"void\s+(?:Update|FixedUpdate|LateUpdate)\s*\(\)\s*\{(?:[^{}]|\{[^{}]*\})*?(?:GameObject\.Find|FindObjectsOfType|FindObjectOfType|GetComponent<)")
+
+# Debug.Log( calls, which are left in and slow the game down
+UNITY_DEBUG_LOG = re.compile(r"\bDebug\.Log\(")
+
+@rule("CSHARP-UNITY-001", "unity: no object searches inside Update", language=CSHARP, framework="unity", severity=SEVERITY_INFO)
+def unity_frame_searches(project: Project) -> Result:
+    return fail_on_hits(pattern_hits(project, (".cs",), UNITY_FRAME_SEARCH), "Find / GetComponent run every frame (look it up once in Awake or Start)")
+
+@rule("CSHARP-UNITY-002", "unity: no Debug.Log left in", language=CSHARP, framework="unity", severity=SEVERITY_INFO)
+def unity_debug_log(project: Project) -> Result:
+    return fail_on_hits(pattern_hits(project, (".cs",), UNITY_DEBUG_LOG), "Debug.Log calls slow the game down")
+
 @rule("CSHARP-ASPNET-001", "aspnet: HTTP is redirected to HTTPS", language=CSHARP, framework="aspnet")
 def aspnet_https(project: Project) -> Result:
     return fail_unless_found(project, CSHARP_FILES, HTTPS_REDIRECT, "app.UseHttpsRedirection() is never called")

@@ -1,9 +1,10 @@
 import re
 
-from ...models import SEVERITY_ERROR, Project, Result
-from ...registry import rule
-from ...source_code import RUST
-from ..check_helpers import fail_on_hits, named_file_hits, pattern_hits
+from ....models import SEVERITY_ERROR, Project, Result
+from ....registry import rule
+from ....source_code import RUST
+from ...check_helpers import fail_on_hits, named_file_hits, pattern_hits
+from . import data_and_games  # noqa: F401  (importing registers the rules)
 
 # DefaultBodyLimit::disable(), which lets a client upload a body of any size
 BODY_LIMIT_OFF = re.compile(r"DefaultBodyLimit::disable\(\)")

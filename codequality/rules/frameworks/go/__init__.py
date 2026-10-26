@@ -1,9 +1,10 @@
 import re
 
-from ...models import SEVERITY_INFO, Project, Result
-from ...registry import rule
-from ...source_code import GO
-from ..check_helpers import fail_on_hits, fail_unless_found, pattern_hits
+from ....models import SEVERITY_INFO, Project, Result
+from ....registry import rule
+from ....source_code import GO
+from ...check_helpers import fail_on_hits, fail_unless_found, pattern_hits
+from . import data_and_http  # noqa: F401  (importing registers the rules)
 
 GO_FILES = (".go",)
 

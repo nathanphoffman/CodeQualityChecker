@@ -4,6 +4,7 @@ from ....models import SEVERITY_ERROR, SEVERITY_INFO, Project, Result
 from ....registry import rule
 from ....source_code import PYTHON, non_test_files, read_source
 from ...check_helpers import fail_on_hits, pattern_hits
+from . import data_libraries  # noqa: F401  (importing registers the rules)
 from .blocking_calls import blocking_calls
 
 PYTHON_FILES = (".py",)
