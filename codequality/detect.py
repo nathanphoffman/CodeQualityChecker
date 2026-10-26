@@ -13,28 +13,28 @@ TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestj
 
 IGNORE_FILE = ".codequalityignore"
 
+def ignore_lines(root: Path) -> list[list[str]]:
+    """The words on each meaningful line of the project's .codequalityignore. Blank lines and # comments are skipped."""
+    path = root / IGNORE_FILE
+
+    if not path.exists():
+        return []
+
+    words_by_line = [line.split() for line in read_source(path).splitlines()]
+
+    return [words for words in words_by_line if words and not words[0].startswith("#")]
+
 def ignore_patterns(root: Path) -> tuple[list[str], dict[str, list[str]]]:
     """The project's .codequalityignore as (patterns for every rule, {pattern: rule ID prefixes}). A line is a wildcard, optionally followed by rule IDs
-    (`tests RULE-09`) to skip it for those rules only. Blank lines and # comments are skipped, and a trailing / is dropped."""
-    path = root / IGNORE_FILE
+    (`tests RULE-09`) to skip it for those rules only. A trailing / on the wildcard is dropped."""
     everywhere: list[str] = []
     per_rule: dict[str, list[str]] = {}
 
-    if not path.exists():
-        return everywhere, per_rule
-
-    for line in read_source(path).splitlines():
-        words = line.strip().split()
-
-        if not words or words[0].startswith("#"):
-            continue
-
-        pattern = words[0].rstrip("/")
-
-        if len(words) == 1:
-            everywhere.append(pattern)
+    for pattern, *rule_ids in ignore_lines(root):
+        if rule_ids:
+            per_rule.setdefault(pattern.rstrip("/"), []).extend(rule_ids)
         else:
-            per_rule.setdefault(pattern, []).extend(words[1:])
+            everywhere.append(pattern.rstrip("/"))
 
     return everywhere, per_rule
 

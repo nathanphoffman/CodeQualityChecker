@@ -153,3 +153,8 @@ def test_a_badly_named_folder_lowers_the_score(tmp_path: Path):
 
     assert result.score < 1.0
     assert "Bad-Folder" in result.message
+
+def test_a_language_with_only_unjudged_names_does_not_crash(tmp_path: Path):
+    (tmp_path / "+odd.py").write_text("")
+
+    assert grade(tmp_path, "+odd.py", "").status == Status.PASS

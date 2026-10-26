@@ -1,6 +1,6 @@
 from ....language_parsers.deor.declarations import declarations_in
 from ....language_parsers.deor.tree import parse_deor
-from ..shared.Type_Info import Type_Info
+from ..tree_sitter.type_members.Type_Info import Type_Info
 
 MEMBER_TYPES = ("struct", "enum")  # each indented line under one is a field or a variant
 

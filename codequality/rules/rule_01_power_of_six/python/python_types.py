@@ -1,7 +1,7 @@
 import ast
 
 from ....language_parsers.python.parse_python import parse_python
-from ..shared.Type_Info import Type_Info
+from ..tree_sitter.type_members.Type_Info import Type_Info
 
 FUNCTIONS = (ast.FunctionDef, ast.AsyncFunctionDef)
 CONSTRUCTOR = "__init__"  # a constructor is not counted as one of the type's methods

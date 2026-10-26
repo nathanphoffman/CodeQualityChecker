@@ -22,10 +22,20 @@ def check_name_length(project):
 def check_acronyms(project):
     return grade_names(names_in_project(project), has_unknown_acronym, "contain an acronym")
 
+def describe_style(notes, breakers):
+    listed = ", ".join(f"{name} ({count})" for name, count in breakers.most_common(MAX_LISTED_OFFENDERS))
+
+    return "; ".join(notes) + (f"; breaking it: {listed}" if listed else "")
+
+def names_with_paths(project):
+    """{language: [(name, kind), ...]} of the names in the code plus the names of its files and folders."""
+    paths = path_names_by_language(project)
+
+    return {language: kinded + paths[language] for language, kinded in kinded_names_by_language(project).items()}
+
 @rule("RULE-02-NAMING-STYLE", "Names follow the language's naming style, or yours")
 def check_naming_style(project):
-    paths = path_names_by_language(project)
-    by_language = {language: kinded + paths[language] for language, kinded in kinded_names_by_language(project).items()}
+    by_language = names_with_paths(project)
     total = sum(len(kinded) for kinded in by_language.values())
 
     if not total:
@@ -42,6 +52,4 @@ def check_naming_style(project):
         notes.append(f"{language} follows {label} style {share:.0%}")
         breakers.update(name for name, kind in kinded if not follows(name, kind, convention))
 
-    listed = ", ".join(f"{name} ({count})" for name, count in breakers.most_common(MAX_LISTED_OFFENDERS))
-
-    return Result.scored(following / total, "; ".join(notes) + (f"; breaking it: {listed}" if listed else ""))
+    return Result.scored(following / total, describe_style(notes, breakers))

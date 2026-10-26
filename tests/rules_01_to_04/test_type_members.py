@@ -4,7 +4,7 @@ from codequality import report
 from codequality.detect import detect
 from codequality.models import Status
 from codequality.registry import all_rules
-from codequality.rules.rule_01_power_of_six.shared.find_types import find_types
+from codequality.rules.rule_01_power_of_six.tree_sitter.type_members.find_types import find_types
 
 # language -> (source, {type name: (fields, methods)})
 TYPES_BY_LANGUAGE = {

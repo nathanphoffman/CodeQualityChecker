@@ -1,7 +1,7 @@
-from ....source_code import DEOR, PYTHON
-from ..deor.deor_types import deor_types
-from ..python.python_types import python_types
-from ..tree_sitter.tree_types import tree_types
+from .....source_code import DEOR, PYTHON
+from ...deor.deor_types import deor_types
+from ...python.python_types import python_types
+from .tree_types import tree_types
 
 def find_types(source, language):
     """A Type_Info for every type the source declares, with its field and method counts."""

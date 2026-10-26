@@ -38,4 +38,4 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
       rules/common.py           language-agnostic rules
       rules/rust.py             Rust rules + axum/actix/tauri
       rules/typescript.py       TS rules + react/next/express/nest
-    tests/
+    tests/                      grouped into folders: rules_01_to_04, rules_05_to_09, rules_10_to_14, languages, project

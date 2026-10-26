@@ -3,7 +3,7 @@ from pathlib import Path
 
 from ....source_code import SUFFIX_LANGUAGE, read_source
 from .find_functions import find_functions
-from .find_types import find_types
+from ..tree_sitter.type_members.find_types import find_types
 
 def parse_source_files(project):
     """Maps each Rust/TypeScript/Deor file to the functions found in it (Deor macros count as functions)."""
