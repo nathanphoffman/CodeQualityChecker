@@ -109,6 +109,8 @@ CHECK_EXPLANATIONS = {
                             "Rename them to say what they hold or do, like `user_count` instead of `n`."),
     "RULE-02-NO-ACRONYMS": ("Looks for names containing capital-letter acronyms other than well-known ones like ID, URL, HTTP, JSON, HTML, CSS, XML and API.",
                             "Spell the acronym out, like `request_timeout` instead of `RTO`."),
+    "RULE-02-NAMING-STYLE": ("Checks that function, type, constant and variable names are written in one consistent style. Each language is scored against its own standard style (like snake_case in Python or camelCase in TypeScript) and against yours (SCREAMING_SNAKE constants, Pascal_Snake types, lower_snake everything else). Whichever fits better is the one used, never both.",
+                             "Rename the names listed to match the style shown as winning for that language."),
     "RULE-03-CLEVER-IS-EXPLAINED": ("Finds clever code (regex, long method chains, nested ternaries) and checks that a comment sits on the same line or the line above.",
                                     "Add a comment above each clever line that explains how it works."),
     "RULE-03-LITTLE-CLEVERNESS": ("Measures how much of the code is clever (regex, chains of 3+ map/filter-style calls, more than one ternary in a statement). Each clever line counts as 6 normal lines.",
