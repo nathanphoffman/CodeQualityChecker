@@ -16,7 +16,7 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
 
 ## How it works
 
-1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, C#, Mojo, Fortran, Hare, Rexx, Deor) and frameworks in the project (Python: django, flask, fastapi; Rust: axum, actix, tauri; TypeScript: react, next, express, nest; Go: gin, echo, fiber; C#: aspnet, efcore, blazor).
+1. `detect.py` figures out the languages (Python, Rust, TypeScript, Go, C, C#, Mojo, Fortran, Hare, Rexx, Deor) and frameworks in the project (Python: django, flask, fastapi; Rust: axum, actix, rocket, tauri; TypeScript: react, next, express, nest, vue, angular; Go: gin, echo, fiber; C#: aspnet, efcore, blazor).
 2. Every rule that applies is run. Each returns a score from 0.0 to 1.0 plus a message.
 3. `report.py` prints per-rule grades and an overall weighted score.
 

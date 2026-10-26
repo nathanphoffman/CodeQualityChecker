@@ -11,6 +11,9 @@ BODY_LIMIT_OFF = re.compile(r"DefaultBodyLimit::disable\(\)")
 # Calls that hold up the whole thread: std::thread::sleep and anything from std::fs (tokio::fs is the async version)
 BLOCKING_CALL = re.compile(r"std::thread::sleep\(|std::fs::\w+\(")
 
+# Json<Value> or Json<serde_json::Value>, a request body with no fixed shape, so nothing checks it
+UNTYPED_JSON = re.compile(r"Json<\s*(?:serde_json::)?Value\s*>")
+
 # `"csp": null` in tauri.conf.json: no Content Security Policy, so injected scripts run freely
 CSP_OFF = re.compile(r'"csp"\s*:\s*null')
 
@@ -22,9 +25,10 @@ TAURI_CONFIG = ("tauri.conf.json",)
 def blocking_in_async(project: Project) -> Result:
     return fail_on_hits(pattern_hits(project, (".rs",), BLOCKING_CALL), "blocking std::thread::sleep or std::fs calls in an async server (use tokio's)")
 
-# Axum and Actix run on async runtimes, so one blocking call stalls every request on that thread.
+# Axum, Actix and Rocket run on async runtimes, so one blocking call stalls every request on that thread.
 rule("RUST-AXUM-002", "axum: no blocking calls in the async server", language=RUST, framework="axum")(blocking_in_async)
 rule("RUST-ACTIX-001", "actix: no blocking calls in the async server", language=RUST, framework="actix")(blocking_in_async)
+rule("RUST-ROCKET-001", "rocket: no blocking calls in the async server", language=RUST, framework="rocket")(blocking_in_async)
 
 @rule("RUST-AXUM-001", "axum: request body size limit is not switched off", language=RUST, framework="axum", severity=SEVERITY_ERROR)
 def axum_body_limit(project: Project) -> Result:
@@ -37,3 +41,7 @@ def tauri_csp(project: Project) -> Result:
 @rule("RUST-TAURI-002", "tauri: the allowlist doesn't switch everything on", language=RUST, framework="tauri", severity=SEVERITY_ERROR)
 def tauri_allowlist(project: Project) -> Result:
     return fail_on_hits(named_file_hits(project, TAURI_CONFIG, ALLOW_EVERYTHING), "every API is allowed in the Tauri config")
+
+@rule("RUST-ROCKET-002", "rocket: request bodies have a fixed type, not a loose JSON value", language=RUST, framework="rocket")
+def rocket_untyped_json(project: Project) -> Result:
+    return fail_on_hits(pattern_hits(project, (".rs",), UNTYPED_JSON), "Json<Value> accepts any shape of data")

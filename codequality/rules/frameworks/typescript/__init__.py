@@ -1,9 +1,10 @@
 import re
 
-from ...models import SEVERITY_INFO, Project, Result
-from ...registry import rule
-from ...source_code import TYPESCRIPT, TYPESCRIPT_SUFFIXES
-from ..check_helpers import fail_on_hits, fail_unless_found, pattern_hits
+from ....models import SEVERITY_INFO, Project, Result
+from ....registry import rule
+from ....source_code import TYPESCRIPT, TYPESCRIPT_SUFFIXES
+from ...check_helpers import fail_on_hits, fail_unless_found, pattern_hits
+from . import vue_and_angular  # noqa: F401  (importing registers the rules)
 
 # key={i}, key={idx}, key={index} or key={anythingIndex}: list items keyed by their position get mixed up when the list changes
 INDEX_KEY = re.compile(r"key=\{\s*(?:i|idx|\w*[iI]ndex)\s*\}")

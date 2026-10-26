@@ -8,8 +8,8 @@ from pathlib import Path
 from .models import Project
 from .source_code import C_LANG, CSHARP, DEOR, FORTRAN, GO, HARE, MOJO, PYTHON, REXX, RUST, TSCONFIG_FILE, TYPESCRIPT, TYPESCRIPT_SUFFIXES, read_source
 
-RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri"}
-TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest"}
+RUST_FRAMEWORKS = {"axum": "axum", "actix-web": "actix", "tauri": "tauri", "rocket": "rocket"}
+TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestjs/core": "nest", "vue": "vue", "@angular/core": "angular"}
 PYTHON_FRAMEWORKS = {"django": "django", "flask": "flask", "fastapi": "fastapi"}
 PYTHON_DEPENDENCY_FILES = ("pyproject.toml", "requirements.txt", "setup.py", "Pipfile")
 GO_FRAMEWORKS = {"github.com/gin-gonic/gin": "gin", "github.com/labstack/echo": "echo", "github.com/gofiber/fiber": "fiber"}

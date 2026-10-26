@@ -24,8 +24,8 @@ GROUP_SUMMARIES = {
 TOOLING_SUMMARY = "Checks for the formatter and linter a language's community expects, and for the language's popular frameworks. A framework's checks only run when the project depends on it."
 GROUP_SUMMARIES.update({
     "COMMON": "Basics every project should have: a README, a .gitignore and tests.",
-    "RUST": "Rust-specific checks: Cargo.lock, rustfmt and clippy config, few unwrap/expect calls, and the axum, actix and tauri frameworks.",
-    "TS": "TypeScript-specific checks: strict mode, few `any` types, an eslint or biome config, and the react, next, express and nest frameworks.",
+    "RUST": "Rust-specific checks: Cargo.lock, rustfmt and clippy config, few unwrap/expect calls, and the axum, actix, rocket and tauri frameworks.",
+    "TS": "TypeScript-specific checks: strict mode, few `any` types, an eslint or biome config, and the react, next, express, nest, vue and angular frameworks.",
     "PYTHON": "Python-specific checks: a formatter or linter config, and the django, flask and fastapi frameworks.",
     "GO": "Go-specific checks: a golangci-lint config, and the gin, echo and fiber frameworks.",
     "C": "C-specific checks: clang-format and clang-tidy config.",
@@ -268,4 +268,11 @@ CHECK_EXPLANATIONS = {
     "CSHARP-ASPNET-003": ("ASP.NET Core: finds .Result, .Wait() and .GetAwaiter().GetResult(), which freeze a thread while waiting for async work.", "Make the method async and use await."),
     "CSHARP-EFCORE-001": ("Entity Framework Core: finds FromSqlRaw, ExecuteSqlRaw and SqlQueryRaw with SQL built from an interpolated string or joined with +.", "Use FromSql or ExecuteSql with interpolation (which becomes parameters), or pass parameters separately."),
     "CSHARP-BLAZOR-001": ("Blazor: finds .Result, .Wait() and .GetAwaiter().GetResult() in .cs and .razor files, which freeze the UI while waiting.", "Make the method async and use await."),
+
+    "RUST-ROCKET-001": ("rocket: finds std::thread::sleep and std::fs calls, which block an async server's thread.", "Use tokio::time::sleep, tokio::fs, or rocket::tokio::task::spawn_blocking."),
+    "RUST-ROCKET-002": ("rocket: finds Json<Value> and Json<serde_json::Value>, request bodies with no fixed shape that nothing checks.", "Define a struct with #[derive(Deserialize)] for the body and use Json<ThatStruct>."),
+    "TS-VUE-001": ("Vue: finds v-html in .vue files, which shows raw HTML so any script in the text runs.", "Show the text with {{ }} (which escapes it), or clean the HTML with a sanitizer library first."),
+    "TS-VUE-002": ("Vue: finds v-for elements with no :key, so list items get mixed up when the list changes.", "Add a :key with a stable id from the data, like :key=\"item.id\"."),
+    "TS-ANGULAR-001": ("Angular: finds bypassSecurityTrustHtml, Script, Style, Url and ResourceUrl, which tell Angular to stop cleaning a value.", "Remove the bypass and let Angular sanitize, or sanitize the value yourself first with a trusted library."),
+    "TS-ANGULAR-002": ("Angular: checks that each @Component uses ChangeDetectionStrategy.OnPush, so Angular only re-checks it when its inputs change.", "Add `changeDetection: ChangeDetectionStrategy.OnPush` to the component."),
 }
