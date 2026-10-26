@@ -11,6 +11,7 @@ Your coding rules in `RULES.md`, plus a script that grades any project against t
 ## Ignoring files
 
 Put a `.codequalityignore` in the project root: one wildcard per line, `#` for comments, and a folder name skips everything inside it.
+Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests RULE-09` (an ID matches every rule that starts with it).
 `--exclude PATTERN` does the same from the command line. `.gitignore` is respected too.
 
 ## How it works

@@ -16,6 +16,8 @@ def run(project: Project, rules: list[Rule]) -> list[tuple[Rule, Result]]:
 
             continue
 
+        project.current_rule = rule.id
+
         try:
             results.append((rule, rule.check(project)))
         except Exception as error:  # a broken check shouldn't kill the whole run

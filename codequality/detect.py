@@ -13,19 +13,34 @@ TS_FRAMEWORKS = {"react": "react", "next": "next", "express": "express", "@nestj
 
 IGNORE_FILE = ".codequalityignore"
 
-def ignore_patterns(root: Path) -> list[str]:
-    """One wildcard per line of the project's .codequalityignore. Blank lines and # comments are skipped, and a trailing / is dropped."""
+def ignore_patterns(root: Path) -> tuple[list[str], dict[str, list[str]]]:
+    """The project's .codequalityignore as (patterns for every rule, {pattern: rule ID prefixes}). A line is a wildcard, optionally followed by rule IDs
+    (`tests RULE-09`) to skip it for those rules only. Blank lines and # comments are skipped, and a trailing / is dropped."""
     path = root / IGNORE_FILE
+    everywhere: list[str] = []
+    per_rule: dict[str, list[str]] = {}
 
     if not path.exists():
-        return []
+        return everywhere, per_rule
 
-    lines = [line.strip() for line in read_source(path).splitlines()]
+    for line in read_source(path).splitlines():
+        words = line.strip().split()
 
-    return [line.rstrip("/") for line in lines if line and not line.startswith("#")]
+        if not words or words[0].startswith("#"):
+            continue
+
+        pattern = words[0].rstrip("/")
+
+        if len(words) == 1:
+            everywhere.append(pattern)
+        else:
+            per_rule.setdefault(pattern, []).extend(words[1:])
+
+    return everywhere, per_rule
 
 def detect(root: Path, exclude: list[str] | None = None) -> Project:
-    project = Project(root=root, exclude=(exclude or []) + ignore_patterns(root))
+    everywhere, per_rule = ignore_patterns(root)
+    project = Project(root=root, exclude=(exclude or []) + everywhere, rule_exclude=per_rule)
     _detect_python(project)
     _detect_rust(project)
     _detect_ts(project)

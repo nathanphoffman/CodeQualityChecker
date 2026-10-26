@@ -71,13 +71,22 @@ class Project:
     languages: set[str] = field(default_factory=set)  # "rust", "typescript", "hare"
     frameworks: set[str] = field(default_factory=set)  # "axum", "react", ...
     exclude: list[str] = field(default_factory=list)  # wildcard patterns, e.g. "*out.rs*", matched against names and relative paths
+    rule_exclude: dict[str, list[str]] = field(default_factory=dict)  # wildcard pattern -> rule ID prefixes it is skipped for, e.g. {"tests": ["RULE-09"]}
+    current_rule: str = ""  # ID of the rule being checked, so rule_exclude patterns only apply to it
     _remembered: dict = field(default_factory=dict, repr=False)  # answers to slow questions, so each is worked out once per run
 
     def label_for(self, path) -> str:
         return str(Path(path).relative_to(self.root))
 
+    def patterns_for_current_rule(self) -> tuple[str, ...]:
+        """Every exclude pattern for the rule being checked: the ones for all rules, plus the ones aimed at this rule."""
+        aimed_here = tuple(pattern for pattern, prefixes in self.rule_exclude.items() if self.current_rule.startswith(tuple(prefixes)))
+
+        return tuple(self.exclude) + aimed_here
+
     def remember(self, key, compute):
         """The result of compute(), worked out the first time this key is asked for. Callers must not change what they get."""
+        key = (key, self.patterns_for_current_rule())  # rules with their own ignores must not share answers with the rest
 
         if key not in self._remembered:
             self._remembered[key] = compute()
@@ -85,12 +94,12 @@ class Project:
         return self._remembered[key]
 
     def is_ignored(self, path) -> bool:
-        """True for build/vendor folders, anything .gitignore hides (or sits inside something it hides), and anything (or anything inside a folder) matching an --exclude pattern or a line of .codequalityignore."""
+        """True for build/vendor folders, anything .gitignore hides (or sits inside something it hides), and anything (or anything inside a folder) matching an --exclude pattern or a line of .codequalityignore (a line naming rule IDs only counts while one of those rules runs)."""
         parts = Path(path).relative_to(self.root).parts
         hidden = git_ignored_paths(self.root)
 
         # true when a pattern matches one path part or the path up to any part, so excluding `vendor` also skips everything inside vendor/
-        if any(fnmatch(part, pattern) or fnmatch("/".join(parts[:end]), pattern) for end, part in enumerate(parts, start=1) for pattern in self.exclude):
+        if any(fnmatch(part, pattern) or fnmatch("/".join(parts[:end]), pattern) for end, part in enumerate(parts, start=1) for pattern in self.patterns_for_current_rule()):
             return True
 
         return bool(IGNORED_FOLDERS & set(parts)) or any("/".join(parts[:end]) in hidden for end in range(1, len(parts) + 1))
