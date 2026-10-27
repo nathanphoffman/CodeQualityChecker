@@ -10,7 +10,12 @@ SCALE_HELP = (
     "weighted by severity, and the total score is the average of the groups. Grades: A 90+, B 80+, C 70+, D 60+, F below.\n"
     "Checks marked 'manual' or 'skipped' are not scored. Only checks below 100% need work, and each one says how to improve it.\n"
     "The limits (like 6 per file) are targets, not exact demands. Going a little over costs a little, and the score only drops fast when\n"
-    "you are far over. Aim to be as close as is reasonable, and don't contort the code to hit an exact number. 6 is the ideal, 7 or 8 is fine."
+    "you are far over. Aim to be as close as is reasonable, and don't contort the code to hit an exact number. 6 is the ideal, 7 or 8 is fine.\n"
+    "\n"
+    "EXCLUDING FILES\n"
+    "Put a .codequalityignore in the project root: one wildcard per line, # for comments, and a folder name skips everything inside it.\n"
+    "Follow the wildcard with rule IDs to skip it for those rules only, e.g. 'tests RULE-09' (an ID matches every rule that starts with it).\n"
+    "--exclude PATTERN does the same from the command line. .gitignore is respected too."
 )
 
 def percent_text(result):
