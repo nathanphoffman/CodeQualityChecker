@@ -56,8 +56,7 @@ def test_own_line_comments_need_a_blank_line_above():
 
 def test_fix_spacing_adds_plus_removes_blank_lines():
     from codequality.fix_spacing import fix_source
-    from codequality.source_code import PYTHON
+    from codequality.source_code import PYTHON, TYPESCRIPT
 
-    fixed = fix_source("x = 1\nif x:\n    y = 2\n\n\n    z = 3\n", PYTHON)
-
-    assert fixed == "x = 1\n\nif x:\n    y = 2\n\n    z = 3\n"
+    assert fix_source("x = 1\nif x:\n    y = 2\n\n\n    z = 3\n", PYTHON) == "x = 1\n\nif x:\n    y = 2\n\n\n    z = 3\n"
+    assert fix_source("let x = 1;\nlet y = 2;\n\n\nlet z = 3;\n", TYPESCRIPT) == "let x = 1;\nlet y = 2;\n\nlet z = 3;\n"

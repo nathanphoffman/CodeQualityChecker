@@ -1,17 +1,15 @@
 import warnings
 
 from .rules.rule_14_space_out import file_gaps
-from .rules.rule_14_space_out.python.python_spacing import python_string_lines
 from .rules.rule_14_space_out.shared.limits import MAX_BLANK_LINES_IN_A_ROW
 from .rules.rule_14_space_out.shared.paragraphs import find_blank_runs
 from .source_code import PYTHON, SUFFIX_LANGUAGE, read_source
 
 def collapse_blank_lines(lines, language, source):
-    """The lines with every stretch of blank lines cut down to the allowed length. Blank lines inside Python strings stay."""
-    protected = python_string_lines(source) if language == PYTHON else frozenset()
+    """The lines with every stretch of blank lines cut down to the allowed length. Python is left alone, as PEP 8 wants two."""
     dropped = set()
 
-    for first, length in find_blank_runs(lines, protected):
+    for first, length in find_blank_runs(lines) if language != PYTHON else []:
         dropped |= set(range(first + MAX_BLANK_LINES_IN_A_ROW, first + length))
 
     return [line for number, line in enumerate(lines, start=1) if number not in dropped]

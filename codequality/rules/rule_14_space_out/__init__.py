@@ -7,7 +7,7 @@ from ...source_code import DEOR, PYTHON, SUFFIX_LANGUAGE, read_source
 from ..rule_01_power_of_six.shared.limits import MAX_ITEMS
 from ..rule_01_power_of_six.shared.scoring import function_length_credit
 from .deor.deor_spacing import deor_gaps
-from .python.python_spacing import python_gaps, python_string_lines
+from .python.python_spacing import python_gaps
 from .shared.limits import MAX_BLANK_LINES_IN_A_ROW
 from .shared.paragraphs import find_blank_runs, find_paragraphs, is_judged
 from .shared.Spacing_Gaps import Spacing_Gaps
@@ -69,9 +69,9 @@ def check_blank_after_blocks(project):
 def check_blank_lines(project):
     runs = []
 
+    # Python is exempt: PEP 8, black and ruff want two blank lines between top-level definitions
     for label, language, source in source_files(project):
-        protected = python_string_lines(source) if language == PYTHON else frozenset()
-        runs += [(label, first, length) for first, length in find_blank_runs(source.splitlines(), protected)]
+        runs += [(label, first, length) for first, length in find_blank_runs(source.splitlines())] if language != PYTHON else []
 
     if not runs:
         return Result.passed("no blank lines found")

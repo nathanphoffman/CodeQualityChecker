@@ -29,6 +29,6 @@
    - Max 6 lines in a row without a blank line.
    - A blank line before control statements, returns, line comments, and function/macro definitions, unless first in a block.
    - A blank line after function/macro definitions, closing brackets or multi-line statements, unless followed by another closing bracket, else, catch, or finally.
-   - Never have two blank lines in a row.
+   - Never have two blank lines in a row (Python is exempt, as PEP 8 wants two between top-level definitions).
 
 Short version: Power of 6s. Clear names. Simple first. One job. Be secure. No repetition. Test what matters. Fail loud. Leave it cleaner.
