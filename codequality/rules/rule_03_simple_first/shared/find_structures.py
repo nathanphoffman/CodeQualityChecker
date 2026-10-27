@@ -12,6 +12,10 @@ CLOSURE_START = {"rust": re.compile(r"(?:[(,=]|\bmove)\s*\|[^|\n]*\|"), "typescr
                  "fortran": re.compile(r"(?!)"), "rexx": re.compile(r"(?!)"),  # never matches: no closures
                  "go": re.compile(r"(?:[=(,:]|\breturn|\bgo|\bdefer)\s*func\s*\([^)]*\)[^{;]*(?=\{)")}  # Go: a `func(args)` after one of those, stopping at its "{"  # Rust: `(`, `,`, `=` or `move` then |args|; TypeScript: the arrow
 
+# React's built-in hooks take a callback by design, so an arrow handed straight to one is not clever
+REACT_HOOKS = ("useState", "useReducer", "useEffect", "useLayoutEffect", "useInsertionEffect", "useMemo", "useCallback", "useImperativeHandle", "useSyncExternalStore")
+HOOK_CALLBACK = re.compile(r"\b(?:" + "|".join(REACT_HOOKS) + r")\s*(?:<[^()]*>)?\s*\(\s*(?:async\s+)?(?:\([^()]*\)|\w+)\s*$")  # a hook's "(" then the arrow's parameters, ending where "=>" starts
+
 TERNARY = re.compile(r"\s\?\s")  # spaced, so "?." and "??" don't match
 STATEMENT = re.compile(r"[^;{}]+")  # one statement: everything up to the next ";" or brace
 
@@ -69,6 +73,9 @@ def closure_bodies(text, language):
     bodies = []
 
     for match in CLOSURE_START[language].finditer(text):
+        if language == "typescript" and HOOK_CALLBACK.search(text, max(0, match.start() - 200), match.start()):
+            continue
+
         start = match.end()
         first = CHAIN_GAP.match(text, start).end()
         braced = first < len(text) and text[first] == "{"

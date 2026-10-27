@@ -35,3 +35,21 @@ def test_clever_code_in_test_files_is_not_flagged(tmp_path: Path):
     (tmp_path / "tests" / "wrapper.py").write_text(UNEXPLAINED)
     result = grade(tmp_path, SIMPLE, "RULE-03-CLEVER-IS-EXPLAINED")
     assert result.message == "no clever code found" and result.score == 1.0
+
+def test_arrow_callbacks_given_to_react_hooks_are_not_clever():
+    from codequality.rules.rule_03_simple_first.shared.find_clever import clever_constructs
+
+    hooked = "function C() {\n  useEffect(() => { items.forEach(i => go(i)); }, []);\n  const [x] = useState(() => init());\n}\n"
+    plain = "const g = list.map(i => i.map(j => j));\n"
+
+    assert clever_constructs(hooked, "typescript") == []
+    assert [kind for kind, _ in clever_constructs(plain, "typescript")] == ["nested_closure"]
+
+def test_files_named_dot_test_or_dot_tests_are_left_out(tmp_path: Path):
+    from codequality.detect import detect
+    from codequality.source_code import non_test_files
+
+    for name in ("cart.ts", "cart.test.ts", "cart.tests.ts"):
+        (tmp_path / name).write_text("export const a = 1;\n")
+
+    assert [path.name for path in non_test_files(detect(tmp_path), (".ts",))] == ["cart.ts"]

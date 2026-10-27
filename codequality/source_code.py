@@ -19,6 +19,7 @@ NAME_GROUP, PAREN_GROUP = "name", "paren"  # names of the groups in the regexes 
 
 # Tests may fake secrets, call unsafe things and repeat themselves on purpose, so some rules only judge real code.
 TEST_FOLDERS = {"tests", "test", "__tests__", "fixtures"}
+TEST_FILE_MARKERS = (".test.", ".tests.")  # JavaScript-style names like cart.test.ts
 BRACKET_PAIRS = {"(": ")", "{": "}", "[": "]"}
 
 # Clever on purpose: matches comments and string literals so we can blank them out.
@@ -71,7 +72,8 @@ def non_test_files(project, suffixes):
     """Project files with these suffixes, outside test folders."""
 
     return [path for path in project.files(*suffixes)
-            if not TEST_FOLDERS & set(path.relative_to(project.root).parts) and not path.name.endswith(TEST_FILE_SUFFIXES)]
+            if not TEST_FOLDERS & set(path.relative_to(project.root).parts) and not path.name.endswith(TEST_FILE_SUFFIXES)
+            and not any(marker in path.name for marker in TEST_FILE_MARKERS)]
 
 def read_source(path):
     """The text of a file. A file that is not valid UTF-8 is skipped with a warning, not half-read."""
