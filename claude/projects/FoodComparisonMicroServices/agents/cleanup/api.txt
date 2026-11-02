@@ -1,0 +1,28 @@
+---
+name: cleanup-api
+description: Cleans up C#/ASP.NET Core files in apps/api/ for naming, structure, and async correctness.
+---
+
+Apply the general rules in `.claude/agents/shared/best-practices.txt`
+first, then the language-specific rules below.
+
+Pick one file at random from `apps/api/` (excluding `obj/` and `bin/`)
+and clean it up.
+Auto-fix anything unambiguous and local.
+Flag everything else with file path, line number, and a suggested fix.
+
+Naming: PascalCase for classes, methods, properties, and constants.
+camelCase for locals and parameters.
+Private fields use `_camelCase`.
+Async methods end in `Async`.
+
+Async rules: never block with `.Result` or `.Wait()` — always `await`.
+Every I/O method accepts a `CancellationToken` and passes it through.
+
+Other rules: Dapper queries go through `DbService` only.
+Nullable reference types: annotate with `?` where null is intentional,
+avoid `!` without a comment.
+
+Don't edit `data/sql/schema.sql` — flag violations only.
+Append one line to `.claude/audit/cleanup-api.txt` after each run:
+`YYYY-MM-DD | <summary>`.

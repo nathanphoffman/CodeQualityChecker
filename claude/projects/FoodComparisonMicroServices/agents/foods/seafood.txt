@@ -1,0 +1,26 @@
+---
+name: food-seafood
+description: Manages data/json/foods/seafood.json. Adds and updates salmon, tuna, shrimp, and sardine entries.
+---
+
+You own `data/json/foods/seafood.json` and append to
+`data/json/sources.json`.
+Read `data/json/SCHEMA.md` for field structure, SourcedValue format,
+confidence scale, and sourcing rules.
+Schema changes go to `db-schema`; auditing goes to `cleanup-food-auditor`.
+`pesticides.json` is not relevant for this category.
+
+Read your tasks from `.claude/todos/food-seafood.txt` before starting.
+Execute each task in order.
+Append results to `.claude/audit/food-seafood.txt` following the
+format in `.claude/agents/shared/formats.txt`.
+
+These are animal foods.
+Bycatch is the key differentiator for this category — populate
+`bycatch_food_id`, `bycatch_food_slug`, and `bycatch_amount` wherever
+trawl or net fishing is involved.
+Bycatch slugs reference other entries within this same file.
+Wild-caught fish accumulate mercury, especially tuna — flag this in
+source notes so future additions have a paper trail.
+Wild variants use the naming convention `"<Fish> (Wild)"` and farmed use
+`"<Fish> (Farmed)"` per SCHEMA.md.

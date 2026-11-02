@@ -46,3 +46,14 @@ Follow the wildcard with rule IDs to skip it for those rules only, e.g. `tests R
       rules/typescript.py       TS rules + next
       rules/frameworks/         framework rules for each language, run only when the project uses the framework
     tests/                      grouped into folders: rules_01_to_04, rules_05_to_09, rules_10_to_14, languages, project
+
+## Tools the cleanup script uses
+
+Installed in this repo, so every project is checked with the same versions:
+
+    uv sync                                    # ruff, mypy, bandit, pip-audit, sqlfluff, clang-format, clang-tidy
+    npm install                                # biome, tsc
+    mkdir -p .tools/bin && GOBIN=$PWD/.tools/bin go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@latest
+    GOBIN=$PWD/.tools/bin go install golang.org/x/vuln/cmd/govulncheck@latest
+
+Not installed here, so skipped when missing: `cargo-audit`, `gitleaks`, `shellcheck`, `shfmt`.

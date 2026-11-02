@@ -1,0 +1,26 @@
+{
+  "name": "codequality",
+  "version": "1.0.0",
+  "description": "Your coding rules in `RULES.md`, plus a script that grades any project against them.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathanphoffman/CodeQualityChecker.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nathanphoffman/CodeQualityChecker/issues"
+  },
+  "homepage": "https://github.com/nathanphoffman/CodeQualityChecker#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.2",
+    "typescript": "^7.0.2"
+  }
+}

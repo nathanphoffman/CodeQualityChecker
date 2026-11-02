@@ -19,6 +19,10 @@ CSHARP_FRAMEWORKS = {"Microsoft.NET.Sdk.Web": "aspnet", "Microsoft.AspNetCore": 
 
 IGNORE_FILE = ".codequalityignore"
 
+# Languages CodeQuality does not grade yet but the linters and formatters in claude/linters/ cover, found by file suffix.
+TOOLING_SUFFIXES = {"cpp": (".cpp", ".cc", ".cxx", ".hpp", ".hh", ".hxx"), "shell": (".sh", ".bash"), "javascript": (".js", ".mjs", ".cjs", ".jsx"),
+                    "css": (".css",), "html": (".html",), "vue": (".vue",), "sql": (".sql",)}
+
 def ignore_lines(root: Path) -> list[list[str]]:
     """The words on each meaningful line of the project's .codequalityignore. Blank lines and # comments are skipped."""
     path = root / IGNORE_FILE
@@ -43,6 +47,10 @@ def ignore_patterns(root: Path) -> tuple[list[str], dict[str, list[str]]]:
             everywhere.append(pattern.rstrip("/"))
 
     return everywhere, per_rule
+
+def tooling_languages(project: Project) -> set[str]:
+    """The graded languages plus the ones that only get linters and formatters (cpp, shell, javascript, css, html, vue, sql)."""
+    return set(project.languages) | {name for name, suffixes in TOOLING_SUFFIXES.items() if project.files(*suffixes)}
 
 def detect(root: Path, exclude: list[str] | None = None) -> Project:
     everywhere, per_rule = ignore_patterns(root)

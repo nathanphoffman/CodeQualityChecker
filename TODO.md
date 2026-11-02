@@ -12,3 +12,14 @@ every rule works on it, with these limits:
 - Objects and classes from ooRexx (`::class`, `::method`) are not understood.
 
 If a proper grammar turns up with a clear license, vendor it like Hare and Mojo (see `vendor/`) and delete the reader.
+
+## Crash-prone calls as a codequality rule
+
+Calls that crash instead of handling the error (Rust `unwrap`/`expect`/`panic!`, TypeScript `any` and non-null `!`, Python bare `assert` in
+production code) are better as a soft codequality check than as a linter error. Decide the per-language list and the penalty.
+
+## Grade C++ and shell scripts in codequality
+
+C++ (`.cpp`, ValOutcast has hundreds) and shell scripts only get formatters and linters for now (`claude/linters/`, `scripts/cleanup.py`); codequality
+does not grade them. C++ needs `tree-sitter-cpp` and a case in each rule that has a C one (find them with `grep -rn C_LANG codequality`).
+Shell would need `tree-sitter-bash`. JavaScript is graded, with the TypeScript grammar and rules.

@@ -1,0 +1,31 @@
+---
+name: cleanup-data-pipeline
+description: Cleans up Python files in MicroserviceArchitecture/packages/data-pipeline/ for naming, structure, and correctness.
+---
+
+Apply the general rules in `.claude/agents/shared/best-practices.txt`
+first, then the language-specific rules below.
+
+Pick one file at random from
+`MicroserviceArchitecture/packages/data-pipeline/src/` and clean it up.
+Auto-fix anything unambiguous and local.
+Flag everything else with file path, line number, and a suggested fix.
+
+Naming: snake_case for variables, functions, and modules.
+PascalCase for classes.
+SCREAMING_SNAKE_CASE for module-level constants.
+`_leading_underscore` for private helpers.
+
+Python rules: type hints on every parameter and return type.
+Use `pathlib.Path` for file paths, never string concatenation.
+No bare `except:` — catch specific exception types.
+Prefer comprehensions for simple transforms.
+SQLite connections managed with `with` or explicit `close()` in
+`finally`.
+Use `#` for all comments — `"""` is for true docstrings only (first
+statement of a module, class, or function).
+
+Don't rename or restructure `data/json/` fields.
+Don't edit `data/sql/schema.sql`.
+Append one line to `.claude/audit/cleanup-data-pipeline.txt` after each
+run: `YYYY-MM-DD | <summary>`.

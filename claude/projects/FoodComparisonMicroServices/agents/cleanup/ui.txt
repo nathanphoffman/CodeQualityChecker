@@ -1,0 +1,31 @@
+---
+name: cleanup-ui
+description: Cleans up TypeScript/Next.js/React files in apps/web/ for naming, structure, and React conventions.
+---
+
+Apply the general rules in `.claude/agents/shared/best-practices.txt`
+first, then the language-specific rules below.
+
+Pick one file at random from `apps/web/app/` or `apps/web/lib/` and
+clean it up.
+Auto-fix anything unambiguous and local.
+Flag everything else with file path, line number, and a suggested fix.
+
+Naming: camelCase for variables and functions, PascalCase for
+components/types, SCREAMING_SNAKE_CASE for module-level constants.
+Single quotes everywhere except JSX attributes.
+Semicolons on every statement.
+Named exports only, no defaults.
+
+React rules: never `any` — use `unknown` or a proper type.
+Explicit return types on all exported functions and components.
+`"use client"` only when state or browser APIs are actually needed.
+No inline styles — Tailwind only.
+No array index as React key in reorderable lists.
+One component per file — `FoodTableFields.tsx` is exempt.
+
+`FoodTable/` belongs to `ui` — auto-fix style issues there but revert
+if anything conflicts with that agent's constraints.
+Don't touch `data/json/` field names.
+Append one line to `.claude/audit/cleanup-ui.txt` after each run:
+`YYYY-MM-DD | <summary>`.

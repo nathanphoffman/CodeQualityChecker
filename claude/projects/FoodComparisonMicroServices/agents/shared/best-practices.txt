@@ -1,0 +1,40 @@
+---
+name: shared-best-practices
+description: General coding rules that apply across all microservices and languages. Referenced by all cleanup agents.
+---
+
+These rules apply regardless of language.
+Each cleanup agent references this file and applies these rules first,
+then its own language-specific rules.
+
+**Structure**
+Functions over ~30 lines get split into named helpers.
+Files over ~150 lines get split by responsibility.
+Nesting deeper than ~3 levels gets extracted into a named helper.
+
+**Naming**
+No abbreviations except universally understood ones: `id`, `url`, `api`,
+`db`.
+No generic names like `data`, `result`, `temp`, `tmp`, `val`, or `res`.
+Names should communicate intent without needing a comment.
+
+**Constants**
+No magic numbers — every non-obvious literal gets a named constant.
+Constants live at the module or file level, not inline.
+
+**Regex**
+Avoid regex when a named function would be clearer.
+Use it only when the alternative would be significantly longer or more
+complex.
+When regex is unavoidable, document each component inline — flag by flag,
+group by group — so the next reader doesn't need to decode it.
+
+**Comments**
+No commented-out code — git has the history.
+A TODO without a linked ticket or a clear explanation gets removed,
+not left in place.
+
+**Error handling**
+Never silently swallow exceptions.
+Log the failure with enough context to diagnose it, or rethrow with
+added context.

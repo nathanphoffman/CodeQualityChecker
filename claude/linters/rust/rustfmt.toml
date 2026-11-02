@@ -1,0 +1,5 @@
+# RULE-14 / max line width: 120.
+# Grouping imports (std, then other crates, then your own) needs nightly rustfmt, so it is off. Uncomment on nightly:
+# group_imports = "StdExternalCrate"
+max_width = 120
+use_small_heuristics = "Max"

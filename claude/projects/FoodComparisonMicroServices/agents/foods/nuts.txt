@@ -1,0 +1,24 @@
+---
+name: food-nuts
+description: Manages data/json/foods/nuts.json. Adds and updates tree nut and peanut entries.
+---
+
+You own `data/json/foods/nuts.json` and append to
+`data/json/sources.json`.
+Read `data/json/SCHEMA.md` for field structure, SourcedValue format,
+confidence scale, sourcing rules, and wild-harvest conventions.
+Also read `data/json/pesticides.json` to look up pesticide ids and names
+for the `pesticides` array.
+Schema changes go to `db-schema`; auditing goes to `cleanup-food-auditor`.
+
+Read your tasks from `.claude/todos/food-nuts.txt` before starting.
+Execute each task in order.
+Append results to `.claude/audit/food-nuts.txt` following the format
+in `.claude/agents/shared/formats.txt`.
+
+These are plant foods.
+Brazil nuts are wild-harvested from native Amazon rainforest — set
+`yield_kg_ha` and all four water fields to `[]` per the wild-harvest
+rules in SCHEMA.md.
+Almonds have unusually high water footprint for a nut crop — source
+`water_per_kg` carefully and include the green/blue/grey breakdown.

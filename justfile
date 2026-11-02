@@ -25,3 +25,15 @@ compare ref path=".":
 # Run the tests
 test:
     uv run python -m pytest tests
+
+# Copy claude/ config onto this machine (run by hand in a terminal; Claude must never run this)
+sync *args:
+    uv run python scripts/sync_claude.py {{args}}
+
+# Build each project's CLAUDE.md from claude/claude-md-pieces/ into claude/projects/ (then deploy with `just sync`)
+build *names:
+    uv run python scripts/build_claude.py {{names}}
+
+# Format, lint, grade and clean up a project with one Claude agent per project: `just cleanup ~/Code/myapp`, `just cleanup --all`, add `--plan` to preview
+cleanup *args:
+    uv run python scripts/cleanup.py {{args}}

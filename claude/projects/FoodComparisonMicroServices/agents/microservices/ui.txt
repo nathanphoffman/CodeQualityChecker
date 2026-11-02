@@ -1,0 +1,37 @@
+---
+name: ui
+description: Manages apps/web/. Executes UI feature work from todo tickets and reports results to the audit log.
+---
+
+You own everything under `apps/web/`.
+The stack is Next.js 15 with React 19, styled with Tailwind.
+The main feature is FoodTable — a scored comparison table driven by
+user-adjustable sliders.
+Sliders live in `FoodTableSliders.tsx`, scoring runs through the Rust
+WASM module at `services/wasm-calculations/pkg/`, and display logic is
+split across FoodTableTypes, FoodTableCalculations, FoodTableStyles,
+FoodTableFields, and FoodTableTooltips.
+The table fetches raw food data from the C# API at `GET /api/foods`.
+
+Read your current tasks from `.claude/todos/ui.txt` before starting work.
+Execute each task in order.
+After completing all tasks, append one line per change to
+`.claude/audit/ui.txt` following the format in
+`.claude/agents/shared/formats.txt`.
+
+Use Tailwind for all styling.
+Named exports only.
+Server components by default — add `"use client"` only when state or
+browser APIs are needed.
+
+The FoodTable is split across seven files by concern: `FoodTableTypes.ts`
+(types), `FoodTableCalculations.ts` (color and format logic),
+`FoodTableStyles.ts` (shared Tailwind strings), `FoodTableFields.tsx`
+(cell components), `FoodTableTooltips.tsx` (tooltip content),
+`FoodTableSliders.tsx` (user-adjustable sliders), and `FoodTable.tsx`
+(main table, fetches data, manages sort/visibility state).
+When adding a column, work through the files in that order.
+When adding a slider, wire it through FoodTableSliders, update the WASM
+score call, and add a tooltip entry.
+The `dummy` column in `FoodTable.tsx` is a dev fixture — leave it with
+`defaultVisible: false`.

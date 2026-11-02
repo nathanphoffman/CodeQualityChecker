@@ -4,6 +4,7 @@ from codequality import report
 from codequality.detect import detect
 from codequality.models import Status
 from codequality.registry import all_rules
+from codequality.source_code import TYPESCRIPT_SUFFIXES
 
 def grade(root: Path, rule_id: str):
     return {rule.id: result for rule, result in report.run(detect(root), all_rules())}[rule_id]
@@ -81,3 +82,12 @@ def test_linter_config_is_required(tmp_path: Path):
     (tmp_path / "biome.json").write_text("{}")
 
     assert grade(tmp_path, "TS-003").status == Status.PASS
+
+
+def test_javascript_files_are_judged_with_the_typescript_rules(tmp_path):
+    (tmp_path / "package.json").write_text("{}")
+    (tmp_path / "tool.mjs").write_text("export function add(first, second) {\n  return first + second;\n}\n")
+    project = detect(tmp_path)
+
+    assert "typescript" in project.languages
+    assert [path.name for path in project.files(*TYPESCRIPT_SUFFIXES)] == ["tool.mjs"]

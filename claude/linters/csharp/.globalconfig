@@ -1,0 +1,19 @@
+is_global = true
+
+# Loaded next to a project's own .editorconfig, so it never replaces it.
+max_line_length = 120
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# RULE-12: unused code
+dotnet_diagnostic.IDE0005.severity = warning   # unused using
+dotnet_diagnostic.IDE0051.severity = warning   # unused private member
+dotnet_diagnostic.IDE0052.severity = warning   # private member assigned but never read
+dotnet_diagnostic.IDE0060.severity = warning   # unused parameter
+
+# RULE-05: security analyzers
+dotnet_analyzer_diagnostic.category-Security.severity = warning
+
+# RULE-01 / RULE-04: size and nesting
+dotnet_diagnostic.CA1502.severity = warning    # excessive complexity
+dotnet_diagnostic.CA1505.severity = suggestion # maintainability

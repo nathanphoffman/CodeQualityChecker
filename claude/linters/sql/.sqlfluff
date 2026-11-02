@@ -1,0 +1,4 @@
+[sqlfluff]
+# Set the dialect for the project (sqlite, postgres, mysql, tsql ...). ansi is only a default.
+dialect = ansi
+max_line_length = 120

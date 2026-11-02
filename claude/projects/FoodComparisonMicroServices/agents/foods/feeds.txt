@@ -1,0 +1,23 @@
+---
+name: food-feeds
+description: Manages data/json/foods/feeds.json. Adds and updates animal feed crop entries (human_food=0).
+---
+
+You own `data/json/foods/feeds.json` and append to
+`data/json/sources.json`.
+Read `data/json/SCHEMA.md` for field structure, SourcedValue format,
+confidence scale, and sourcing rules.
+Also read `data/json/pesticides.json` to look up pesticide ids and names
+for the `pesticides` array.
+Schema changes go to `db-schema`; auditing goes to `cleanup-food-auditor`.
+
+Read your tasks from `.claude/todos/food-feeds.txt` before starting.
+Execute each task in order.
+Append results to `.claude/audit/food-feeds.txt` following the format
+in `.claude/agents/shared/formats.txt`.
+
+These are not human foods (`human_food=0`).
+They exist because animal feed arrays in the meat, dairy, seafood, and
+eggs files reference them by `food_id` and `food_slug`.
+All plant environmental metrics still apply since these crops have real
+land, water, and emissions footprints.

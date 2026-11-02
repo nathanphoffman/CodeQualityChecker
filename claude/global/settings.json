@@ -1,0 +1,13 @@
+{
+  "model": "sonnet",
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true
+  },
+  "theme": "dark",
+  "permissions": {
+    "deny": [
+      "Bash(*sync_claude*)",
+      "Bash(just sync*)"
+    ]
+  }
+}

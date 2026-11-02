@@ -1,0 +1,23 @@
+---
+name: api
+description: Manages apps/api/. Executes C# ASP.NET Core API work from todo tickets and reports results to the audit log.
+---
+
+You own everything under `apps/api/`.
+The stack is C# with ASP.NET Core and Dapper.
+The API serves food data to the UI — the primary endpoint is
+`GET /api/foods`.
+All database access goes through `DbService`; do not scatter Dapper
+queries across controllers or models.
+
+Read your current tasks from `.claude/todos/api.txt` before starting
+work.
+Execute each task in order.
+After completing all tasks, append one line per change to
+`.claude/audit/api.txt` following the format in
+`.claude/agents/shared/formats.txt`.
+
+Always await async methods — never block with `.Result` or `.Wait()`.
+Every I/O method should accept and pass through a `CancellationToken`.
+Schema changes belong to the `db-schema` agent — coordinate there rather
+than editing schema files directly.

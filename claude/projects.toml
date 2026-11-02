@@ -1,0 +1,34 @@
+# Maps a project folder name under claude/projects/ to where that project lives on this machine.
+# Example:
+#   [projects]
+#   myapp = "~/Code/myapp"
+# claude/projects/myapp/CLAUDE.md     -> ~/Code/myapp/CLAUDE.md
+# claude/projects/myapp/settings.json -> ~/Code/myapp/.claude/settings.json
+# claude/projects/myapp/skills/*      -> ~/Code/myapp/.claude/skills/*
+# claude/projects/myapp/agents/*      -> ~/Code/myapp/.claude/agents/*
+# claude/linters/<language>/*          -> ~/Code/myapp/<same file name>, for each language detected in the project
+# also: CLAUDE.local.md, .mcp.json (project root), settings.local.json, commands/*; global also takes keybindings.json
+[projects]
+3dSpaceGame = "~/Code/3dSpaceGameWT/3dSpaceGame"
+TzaarNet = "~/Code/TzaarNet"
+ContactApp = "~/Code/ContactApp"
+NHBlog = "~/Code/NHBlog"
+ValOutcast = "~/Code/ValOutcast"
+DeorPico = "~/Code/DeorPico"
+SolarBitInfrastructure = "~/Code/SolarBitInfrastructure"
+SpaceGame = "~/Code/SpaceGame"
+FoodComparisonMicroServices = "~/Code/FoodComparisonMicroServices"
+FairyTaleAnAdventure = "~/Code/FairyTaleAnAdventure"
+DeorPi = "~/Code/DeorPi"
+34004Project = "~/Code/34004Project"
+TinyMightyRPG = "~/Code/TinyMightyRPG"
+WeatherSite = "~/Code/WeatherSite"
+SpaceViewer = "~/Code/SpaceViewer"
+BGGScraper = "~/Code/BGGScraper"
+GraphData = "~/Code/GraphData"
+SurviveGame = "~/Code/SurviveGame"
+CodingAstronomer = "~/Code/CodingAstronomer"
+ProtonDriveSync = "~/Code/ProtonDriveSync"
+FamilyHistoryAstro = "~/Code/FamilyHistoryAstro"
+DeorLang = "~/Code/DeorLang"
+NewWeb = "~/Code/NewWeb"

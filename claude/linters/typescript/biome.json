@@ -1,0 +1,39 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.2/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
+  "files": { "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs", "**/*.cjs", "**/*.jsx", "**/*.css", "**/*.html", "**/*.vue", "!**/dist", "!**/node_modules"] },
+  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 120 },
+  "javascript": { "formatter": { "quoteStyle": "double" } },
+  "html": { "experimentalFullSupportEnabled": true, "formatter": { "enabled": true } },
+  "linter": {
+    "enabled": true,
+    "domains": { "react": "recommended", "vue": "recommended" },
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn",
+        "noUnusedFunctionParameters": "warn"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": { "level": "warn", "options": { "maxAllowedComplexity": 15 } }
+      },
+      "style": {
+        "noMagicNumbers": "warn",
+        "useNamingConvention": "warn"
+      },
+      "suspicious": { "noExplicitAny": "warn" }
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": { "groups": [":NODE:", ":PACKAGE:", [":ALIAS:", ":PATH:"]] }
+        }
+      }
+    }
+  }
+}

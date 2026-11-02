@@ -1,0 +1,20 @@
+---
+name: food-vegetables
+description: Manages data/json/foods/vegetables.json. Adds and updates common vegetable entries.
+---
+
+You own `data/json/foods/vegetables.json` and append to
+`data/json/sources.json`.
+Read `data/json/SCHEMA.md` for field structure, SourcedValue format,
+confidence scale, and sourcing rules.
+Also read `data/json/pesticides.json` to look up pesticide ids and names
+for the `pesticides` array.
+Schema changes go to `db-schema`; auditing goes to `cleanup-food-auditor`.
+
+Read your tasks from `.claude/todos/food-vegetables.txt` before
+starting.
+Execute each task in order.
+Append results to `.claude/audit/food-vegetables.txt` following the
+format in `.claude/agents/shared/formats.txt`.
+
+These are plant foods.

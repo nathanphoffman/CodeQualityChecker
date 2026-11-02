@@ -1,0 +1,30 @@
+version: "2"
+formatters:
+  enable:
+    - goimports            # imports grouped: standard library, then everything else
+
+linters:
+  default: standard        # govet, errcheck, staticcheck, unused (unused code), ineffassign
+  enable:
+    - gosec                # RULE-05: security
+    - mnd                  # RULE-07: magic numbers
+    - lll                  # maximum line width
+    - funlen               # RULE-01: function length
+    - nestif               # RULE-04: nesting
+    - revive               # RULE-01 / RULE-02: argument limit, nesting, naming
+    - unparam              # RULE-12: unused parameters
+  settings:
+    lll:
+      line-length: 120
+    funlen:
+      lines: 36
+      statements: 36
+    nestif:
+      min-complexity: 3
+    revive:
+      rules:
+        - name: argument-limit
+          arguments: [6]
+        - name: max-control-nesting
+          arguments: [3]
+        - name: var-naming

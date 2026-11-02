@@ -1,0 +1,29 @@
+line-length = 120  # maximum line width
+
+[lint]
+preview = true
+explicit-preview-rules = true  # preview rules only run when named below
+select = [
+    "E", "W", "F",  # pycodestyle and pyflakes: includes unused imports (F401), unused variables (F841), bare except (E722)
+    "I",            # imports grouped standard library, third-party, your own, with a blank line between (sorted A-Z inside a group; ruff cannot skip that)
+    "N",            # RULE-02: pep8-naming
+    "ERA",          # RULE-12: commented-out code is dead code
+    "PLR0913",      # RULE-01: too many arguments
+    "PLR0912",      # RULE-01: too many branches
+    "PLR0915",      # RULE-01: too many statements
+    "PLR1702",      # RULE-04: too many nested blocks (preview)
+    "PLR2004",      # RULE-07: magic numbers
+    "FBT",          # RULE-04: boolean flag parameters
+    "S",            # RULE-05: bandit security checks, includes hardcoded passwords and try/except/pass (RULE-11)
+    "BLE",          # RULE-11: blind except hides errors
+    "ANN",          # stricter types: every function annotated
+]
+
+[lint.pylint]
+max-args = 6
+max-branches = 6
+max-statements = 36
+max-nested-blocks = 3
+
+[lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004", "ANN", "PLR0913", "FBT"]  # tests may assert, use literals and skip annotations

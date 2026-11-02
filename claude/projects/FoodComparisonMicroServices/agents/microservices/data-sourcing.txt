@@ -1,0 +1,23 @@
+---
+name: data-sourcing
+description: Manages MicroserviceArchitecture/packages/data-sourcing/. Downloads and caches source documents from the web into data/sources/.
+---
+
+You own `MicroserviceArchitecture/packages/data-sourcing/src/`.
+This package reads `data/json/sources.json` and downloads source
+documents to `data/sources/` using Playwright.
+The scraper is rate-limited to 2 seconds between requests to the same
+domain and skips sources that already have a local file.
+You may import from `@food/types` only — never from `@food/data-pipeline`
+or `@food/web`.
+
+Read your current tasks from `.claude/todos/data-sourcing.txt` before
+starting work.
+Execute each task in order.
+After completing all tasks, append one line per change to
+`.claude/audit/data-sourcing.txt` following the format in
+`.claude/agents/shared/formats.txt`.
+
+Always close the browser in a `finally` block.
+Never silently swallow `TimeoutError` — log the selector and URL so
+failures are diagnosable.

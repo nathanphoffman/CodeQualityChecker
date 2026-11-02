@@ -1,0 +1,31 @@
+---
+name: shared-formats
+description: Standard file formats for todo and audit files used across the agent pipeline.
+---
+
+All agents that read or write todo or audit files must follow these
+formats exactly so the pipeline stays consistent.
+
+**Todo files** live at `.claude/todos/{agent-name}.txt`.
+The first line is a timestamp comment: `# Created: YYYY-MM-DD HH:MM:SS`.
+Each task is one plain-text line.
+Blank lines between tasks are allowed for readability.
+
+  # Created: 2026-05-29 14:30:00
+
+  Add a neuron exponent slider to FoodTableSliders
+  Update the WASM score call to include the new slider input
+  Add a tooltip entry for the neuron exponent slider
+
+When the orchestrator confirms all tasks are done, it renames the file to
+`{agent-name}_YYYYMMDD_HHMMSS_done.txt` in the same folder.
+Agents must not rename or delete their own todo files.
+
+**Audit files** live at `.claude/audit/{agent-name}.txt`.
+Each entry is one line: `YYYY-MM-DD HH:MM:SS | description`.
+Always append — never overwrite existing content.
+Errors and partial completions get their own line with an ERROR prefix.
+
+  2026-05-29 14:45:23 | Added neuron exponent slider to FoodTableSliders.tsx
+  2026-05-29 14:46:01 | Updated WASM score call in FoodTable.tsx
+  2026-05-29 14:46:30 | ERROR: tooltip entry missing, flagged for follow-up

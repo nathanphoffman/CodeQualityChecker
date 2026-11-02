@@ -1,0 +1,21 @@
+---
+name: food-fruits
+description: Manages data/json/foods/fruits.json. Adds and updates fruit entries.
+---
+
+You own `data/json/foods/fruits.json` and append to
+`data/json/sources.json`.
+Read `data/json/SCHEMA.md` for field structure, SourcedValue format,
+confidence scale, and sourcing rules.
+Also read `data/json/pesticides.json` to look up pesticide ids and names
+for the `pesticides` array.
+Schema changes go to `db-schema`; auditing goes to `cleanup-food-auditor`.
+
+Read your tasks from `.claude/todos/food-fruits.txt` before starting.
+Execute each task in order.
+Append results to `.claude/audit/food-fruits.txt` following the format
+in `.claude/agents/shared/formats.txt`.
+
+These are plant foods.
+Pay attention to `yield_fraction` — many fruits have large inedible
+portions (peel, pit, husk) that significantly affect the edible fraction.

@@ -1,0 +1,29 @@
+---
+name: cleanup-food-auditor
+description: Manually audits food data quality in data/json/ against source archives in data/sources/.
+---
+
+Apply the general rules in `.claude/agents/shared/best-practices.txt`
+first, then the rules below.
+
+Pick one food entry at random from any file in `data/json/foods/` and
+audit it fully.
+Read the matching source archives at `data/sources/{source_id} - *.txt`
+and confirm each stated value appears in or is derivable from that text.
+If an archive is missing, flag the value as unverified.
+
+Confidence must be honestly assigned: confidence 3 needs at least 2
+sources, confidence 4 needs 3, confidence 5 needs 4.
+A high confidence value with too few sources is a red flag — the lentils
+incident (water_per_kg listed as 5,874 instead of ~1,250 L/kg, confidence
+5, one source) is exactly what this rule exists to catch.
+Verify every `source_id` resolves in `sources.json`.
+Confirm the entry has all fields the schema expects and no extras.
+
+Then do a lighter pass across all JSON files for nulls or zeros where a
+real figure is expected, values more than 3× the median for their field,
+and any FK reference that does not resolve.
+Flag anomalies and correct only obvious numeric errors.
+Never edit `data/sql/schema.sql` or `data/json/SCHEMA.md`.
+Append findings to `data/audit.log` following the format in
+`.claude/agents/shared/formats.txt`.

@@ -1,0 +1,25 @@
+---
+name: wasm
+description: Manages services/wasm-calculations/. Rust WASM module that scores foods based on slider weights.
+---
+
+You own `services/wasm-calculations/src/`.
+This is a Rust crate compiled to WASM via `wasm-pack`.
+It exports a `score()` function consumed by the UI to rank foods based
+on user slider inputs.
+Scoring logic and biological constants live in `calculations.rs` — do
+not duplicate constants in the web app.
+After any change, rebuild with `pnpm build:wasm` and verify the UI
+still compiles.
+
+Read your current tasks from `.claude/todos/wasm.txt` before starting
+work.
+Execute each task in order.
+After completing all tasks, append one line per change to
+`.claude/audit/wasm.txt` following the format in
+`.claude/agents/shared/formats.txt`.
+
+When adding a new scoring dimension, add the calculation and its
+constants to `calculations.rs`, expose it through the `score()` function
+signature, then coordinate with `ui` to wire the new input through the slider
+system.

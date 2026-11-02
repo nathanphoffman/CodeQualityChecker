@@ -6,8 +6,8 @@ from .language_parsers.rexx.tokens import text_spans
 PYTHON, RUST, TYPESCRIPT, DEOR, HARE, C_LANG, GO, MOJO, FORTRAN, CSHARP, REXX = ("python", "rust", "typescript", "deor", "hare", "c", "go",
                                                                                "mojo", "fortran", "csharp", "rexx")
 
-TYPESCRIPT_SUFFIXES = (".ts", ".tsx")
-SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE, ".c": C_LANG, ".h": C_LANG,
+TYPESCRIPT_SUFFIXES = (".ts", ".tsx", ".js", ".mjs", ".cjs", ".jsx")  # JavaScript is read with the TypeScript grammar and judged by the same rules
+SUFFIX_LANGUAGE = {".py": PYTHON, ".rs": RUST, ".ts": TYPESCRIPT, ".tsx": TYPESCRIPT, ".js": TYPESCRIPT, ".mjs": TYPESCRIPT, ".cjs": TYPESCRIPT, ".jsx": TYPESCRIPT, ".deor": DEOR, ".ha": HARE, ".c": C_LANG, ".h": C_LANG,
                    ".go": GO, ".cs": CSHARP, ".mojo": MOJO, ".🔥": MOJO,
                    ".f90": FORTRAN, ".F90": FORTRAN, ".f95": FORTRAN, ".f03": FORTRAN, ".f08": FORTRAN,
                    ".rexx": REXX, ".rex": REXX, ".exec": REXX}

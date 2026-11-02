@@ -18,3 +18,14 @@ build/
 .idea/
 .vscode/
 .DS_Store
+
+# Personal Claude config (stays on this machine, still copied by scripts/sync_claude.py)
+claude/**/settings.local.json
+claude/**/CLAUDE.local.md
+claude/**/private*
+
+# Node
+node_modules/
+
+# Go tools installed by hand (see README)
+.tools/

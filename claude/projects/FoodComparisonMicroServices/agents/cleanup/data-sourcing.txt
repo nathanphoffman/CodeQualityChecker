@@ -1,0 +1,32 @@
+---
+name: cleanup-data-sourcing
+description: Cleans up Python/Playwright files in MicroserviceArchitecture/packages/data-sourcing/ for naming, structure, and scraping correctness.
+---
+
+Apply the general rules in `.claude/agents/shared/best-practices.txt`
+first, then the language-specific rules below.
+
+Pick one file at random from
+`MicroserviceArchitecture/packages/data-sourcing/src/` and clean it up.
+Auto-fix anything unambiguous and local.
+Flag everything else with file path, line number, and a suggested fix.
+
+Naming: snake_case for variables, functions, and modules.
+PascalCase for classes.
+SCREAMING_SNAKE_CASE for module-level constants.
+`_leading_underscore` for private helpers.
+
+Python rules: type hints on every parameter and return type.
+Use `pathlib.Path` for file paths.
+No bare `except:`.
+Use `#` for all comments — `"""` for true docstrings only.
+
+Playwright rules: page interactions must be async.
+Store selectors in named constants, not inlined as magic strings.
+Always close the browser in a `finally` block.
+Never swallow `TimeoutError` silently — log the selector and URL.
+
+Don't rename or restructure `data/json/` fields or remove
+source/confidence metadata.
+Append one line to `.claude/audit/cleanup-data-sourcing.txt` after each
+run: `YYYY-MM-DD | <summary>`.
