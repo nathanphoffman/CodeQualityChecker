@@ -88,7 +88,7 @@ def run_with_scores(cleanup_script, monkeypatch, tmp_path, scores):
     started = []
     monkeypatch.setattr(cleanup_script, "is_ready", lambda name, project: True)
     monkeypatch.setattr(cleanup_script, "run_formatters", lambda name, project, plan: None)
-    monkeypatch.setattr(cleanup_script, "start_agent", lambda name, project, plan: started.append(name))
+    monkeypatch.setattr(cleanup_script, "start_agent", lambda name, project, plan, attempt=1: started.append(name))
     remaining = list(scores)
     monkeypatch.setattr(cleanup_script, "grade_score", lambda project: remaining.pop(0))
     cleanup_script.clean_project("demo", tmp_path, plan=False)
@@ -113,3 +113,45 @@ def test_no_second_agent_when_the_first_reaches_the_floor(tmp_path, monkeypatch,
 
 def test_the_score_goals_are_ordered(cleanup_script):
     assert cleanup_script.SCORE_FLOOR < cleanup_script.SCORE_TARGET_LOW <= cleanup_script.SCORE_TARGET_HIGH < cleanup_script.SCORE_IDEAL
+
+
+def with_git_identity(monkeypatch):
+    for name in ("GIT_AUTHOR_NAME", "GIT_COMMITTER_NAME"):
+        monkeypatch.setenv(name, "Tester")
+    for name in ("GIT_AUTHOR_EMAIL", "GIT_COMMITTER_EMAIL"):
+        monkeypatch.setenv(name, "tester@example.com")
+
+def test_changes_made_by_the_cleanup_are_committed(tmp_path, monkeypatch, cleanup_script):
+    with_git_identity(monkeypatch)
+    git(tmp_path, "init", "-q")
+    (tmp_path / "a.txt").write_text("one")
+    git(tmp_path, "add", "-A")
+    git(tmp_path, "commit", "-q", "-m", "first")
+    (tmp_path / "a.txt").write_text("two")
+    (tmp_path / "new.txt").write_text("new")
+
+    cleanup_script.commit_changes("demo", tmp_path, "cleanup: test")
+
+    assert subprocess.run(["git", "status", "--porcelain"], cwd=tmp_path, capture_output=True, text=True).stdout.strip() == ""
+    assert subprocess.run(["git", "log", "-1", "--format=%s"], cwd=tmp_path, capture_output=True, text=True).stdout.strip() == "cleanup: test"
+
+def test_nothing_is_committed_when_nothing_changed(tmp_path, monkeypatch, cleanup_script):
+    with_git_identity(monkeypatch)
+    git(tmp_path, "init", "-q")
+    (tmp_path / "a.txt").write_text("one")
+    git(tmp_path, "add", "-A")
+    git(tmp_path, "commit", "-q", "-m", "first")
+
+    cleanup_script.commit_changes("demo", tmp_path, "cleanup: test")
+
+    assert subprocess.run(["git", "log", "--format=%s"], cwd=tmp_path, capture_output=True, text=True).stdout.split("\n")[:-1] == ["first"]
+
+def test_the_agents_grade_command_starts_in_the_codequality_folder(tmp_path, cleanup_script):
+    command = cleanup_script.agent_grade_command(tmp_path)
+
+    assert f"--directory {cleanup_script.REPO}" in command and command.endswith(f"-m codequality {tmp_path}")
+
+
+def test_the_agent_may_git_rm_but_not_rm(cleanup_script):
+    assert "Bash(git rm:*)" in cleanup_script.AGENT_ALLOWED_TOOLS
+    assert "Bash(rm:*)" in cleanup_script.AGENT_DENIED_TOOLS

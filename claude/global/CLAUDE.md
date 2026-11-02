@@ -10,7 +10,7 @@
 
 # Git and files
 - Never commit or push unless I ask.
-- Ask before deleting files.
+- Ask before deleting files. The exception is `git rm`: use it without asking when it is part of a cleanup, or when I explicitly ask for it.
 - Before deleting a folder, name the exact folders and ask me if it is ok. Don't just say "the folders".
 
 # Running checks

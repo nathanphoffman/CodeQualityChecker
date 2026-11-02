@@ -88,7 +88,7 @@ CHECK_LINES_KEPT = 300  # per command, so one noisy tool cannot bury the rest of
 # What the agent may run without asking. Anything else is refused because the agent runs unattended.
 AGENT_ALLOWED_TOOLS = [
     "Read", "Edit", "Write", "Glob", "Grep",
-    "Bash(git status:*)", "Bash(git diff:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git log:*)",
+    "Bash(git status:*)", "Bash(git diff:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git log:*)", "Bash(git rm:*)",
     "Bash(cargo:*)", "Bash(npm:*)", "Bash(npx:*)", "Bash(pytest:*)", "Bash(ruff:*)", "Bash(go:*)", "Bash(dotnet:*)", "Bash(just:*)",
     f"Bash({sys.executable} -m codequality:*)", "Bash(uv run:*)", f"Bash({BIOME}:*)", f"Bash({TSC}:*)", f"Bash({GOLANGCI}:*)",
 ]
@@ -103,11 +103,16 @@ Score goals: {floor} is a hard floor, so do not stop below it. {target_low} to {
 {ideal} to 100 is ideal, but only chase it when the fixes are cheap. Do at most {passes} rounds of fix-then-grade.
 If you are still below {floor} when you run out of rounds, say exactly which findings are blocking you and why.
 
+The formatter and auto-fix changes are already committed, and the working tree was clean when this started, so any uncommitted
+change you see is yours. Commit your own fixes.
+
 Rules for the work:
 - Do not change behaviour. Tidy-ups only, and never mix a behaviour change in.
 - Build and run the tests after each round. If something breaks, undo that change and leave the rule alone.
 - Make a git commit per rule or group of fixes with a short message. Never push, never switch branches.
 - Do not game the score: no deleting code or tests just to satisfy a check, and no changing the rules or ignore file.
+- You may delete a file or folder with `git rm` when it is clearly dead (nothing uses it). Never use `rm`. Make each deletion its own
+  commit, and list every file you deleted, and why, in your summary.
 - Follow this project's CLAUDE.md.
 - When you finish, say the score before and after, and list anything you could not fix and why. A few lines.
 """
@@ -123,6 +128,20 @@ def run(command: list[str], folder: Path, **options) -> subprocess.CompletedProc
 
 def grade_command(project: Path) -> list[str]:
     return [sys.executable, "-m", "codequality", str(project)]
+
+
+def agent_grade_command(project: Path) -> str:
+    """The grade command for the agent. It runs from inside the project, so it must start in this repo's folder to find the module."""
+    return " ".join(["uv", "run", "--quiet", "--directory", str(REPO), "python", "-m", "codequality", str(project)])
+
+
+def commit_changes(name: str, project: Path, message: str) -> None:
+    """Commit whatever changed. The project was clean when the cleanup started, so every change is ours."""
+    if not run(["git", "status", "--porcelain"], project).stdout.strip():
+        return
+    run(["git", "add", "-A"], project)
+    done = run(["git", "commit", "-q", "-m", message], project)
+    say(name, f"committed: {message}" if done.returncode == 0 else f"could not commit: {(done.stderr or done.stdout).strip()}")
 
 
 def grade_score(project: Path) -> float | None:
@@ -212,10 +231,10 @@ def run_checks(name: str, project: Path) -> str:
     return "\n".join(sections)
 
 
-def start_agent(name: str, project: Path, plan: bool) -> None:
+def start_agent(name: str, project: Path, plan: bool, attempt: int = 1) -> None:
     report = Path(tempfile.gettempdir()) / f"codequality-{name}-report.txt"
-    log = Path(tempfile.gettempdir()) / f"codequality-{name}-agent.log"
-    prompt = PROMPT.format(report=report, grade_command=" ".join(grade_command(project)), floor=SCORE_FLOOR,
+    log = Path(tempfile.gettempdir()) / f"codequality-{name}-agent-{attempt}.log"  # one log per agent run
+    prompt = PROMPT.format(report=report, grade_command=agent_grade_command(project), floor=SCORE_FLOOR,
                            target_low=SCORE_TARGET_LOW, target_high=SCORE_TARGET_HIGH, ideal=SCORE_IDEAL, passes=MAX_PASSES)
     command = ["claude", "-p", "--permission-mode", "acceptEdits",
                "--allowedTools", *AGENT_ALLOWED_TOOLS, "--disallowedTools", *AGENT_DENIED_TOOLS]
@@ -237,12 +256,15 @@ def clean_project(name: str, project: Path, plan: bool) -> None:
         return
     before = None if plan else grade_score(project)
     run_formatters(name, project, plan)
+    if not plan:
+        commit_changes(name, project, "cleanup: apply formatters and auto-fixes")
     score = before
     for attempt in range(1, MAX_AGENT_RUNS + 1):
-        start_agent(name, project, plan)
+        start_agent(name, project, plan, attempt)
         if plan:
             say(name, f"would start up to {MAX_AGENT_RUNS} agents until the score reaches the floor of {SCORE_FLOOR}")
             return
+        commit_changes(name, project, "cleanup: remaining changes from the cleanup agent")
         score = grade_score(project)
         say(name, f"score after agent {attempt}: {score}")
         if score is not None and score >= SCORE_FLOOR:
