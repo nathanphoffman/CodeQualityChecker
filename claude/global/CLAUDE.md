@@ -11,6 +11,7 @@
 # Git and files
 - Never commit or push unless I ask.
 - Ask before deleting files.
+- Before deleting a folder, name the exact folders and ask me if it is ok. Don't just say "the folders".
 
 # Running checks
 - Run tests, linters and builds in the foreground, not in the background. Save the output to a log file and read it before moving on.
