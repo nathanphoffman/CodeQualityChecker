@@ -3,6 +3,7 @@
     uv run python scripts/cleanup.py PATH              clean up one project
     uv run python scripts/cleanup.py --all             every project in claude/projects.toml
     uv run python scripts/cleanup.py --all --parallel 3
+    uv run python scripts/cleanup.py --all --skip GraphData      leave a project out this time
     uv run python scripts/cleanup.py PATH --plan       show what would run, change nothing
 
 For each project:
@@ -10,7 +11,8 @@ For each project:
   2. Run the formatters and auto-fixers for the languages found (tools that are not installed are skipped).
   3. Grade the project with codequality, run the checks (linters, type checks, security scans) and save it all as one report.
   4. Start `claude -p` in the project with instructions to raise the score. It never pushes.
-  5. Grade again and print the score before and after.
+  5. Grade again. Below the floor (80), start another agent, up to 3 in all, then report that it did not reach it.
+  6. Print the score before and after.
 """
 import argparse
 import json
@@ -26,10 +28,12 @@ sys.path.insert(0, str(REPO))
 
 from codequality.detect import detect, tooling_languages  # noqa: E402
 
-SCORE_MINIMUM = 85
-SCORE_PREFERRED = 90
-SCORE_IDEAL = 95
-MAX_PASSES = 5  # stop after this many grade-and-fix rounds so a stubborn score cannot loop forever
+SCORE_FLOOR = 80  # a real floor: another agent is started until the project reaches it, up to MAX_AGENT_RUNS
+SCORE_TARGET_LOW = 85  # a reasonable target is 85 to 90
+SCORE_TARGET_HIGH = 90
+SCORE_IDEAL = 95  # 95 to 100 is ideal, but only worth chasing when it is cheap
+MAX_PASSES = 5  # grade-and-fix rounds one agent may do
+MAX_AGENT_RUNS = 3  # agents started for one project while it is below the floor, so a stuck project cannot loop forever
 
 # Clippy lints switched on for cleanup (the thresholds are in claude/linters/rust/clippy.toml). Turn crash-prone calls like unwrap into
 # codequality rules, not lints here.
@@ -95,8 +99,9 @@ PROMPT = """You are cleaning up this project so it scores higher against the Cod
 The full report is in {report}: the CodeQuality grade, then linter, type-check and security-scan output. Fix the lowest-scoring rules first. To grade again, run:
     {grade_command}
 
-Score targets: {minimum} is the minimum, {preferred} is preferred, {ideal} is ideal. Keep going until you reach {preferred}, and
-stop there unless {ideal} is cheap. Do at most {passes} rounds of fix-then-grade.
+Score goals: {floor} is a hard floor, so do not stop below it. {target_low} to {target_high} is the reasonable target to aim for.
+{ideal} to 100 is ideal, but only chase it when the fixes are cheap. Do at most {passes} rounds of fix-then-grade.
+If you are still below {floor} when you run out of rounds, say exactly which findings are blocking you and why.
 
 Rules for the work:
 - Do not change behaviour. Tidy-ups only, and never mix a behaviour change in.
@@ -210,8 +215,8 @@ def run_checks(name: str, project: Path) -> str:
 def start_agent(name: str, project: Path, plan: bool) -> None:
     report = Path(tempfile.gettempdir()) / f"codequality-{name}-report.txt"
     log = Path(tempfile.gettempdir()) / f"codequality-{name}-agent.log"
-    prompt = PROMPT.format(report=report, grade_command=" ".join(grade_command(project)), minimum=SCORE_MINIMUM,
-                           preferred=SCORE_PREFERRED, ideal=SCORE_IDEAL, passes=MAX_PASSES)
+    prompt = PROMPT.format(report=report, grade_command=" ".join(grade_command(project)), floor=SCORE_FLOOR,
+                           target_low=SCORE_TARGET_LOW, target_high=SCORE_TARGET_HIGH, ideal=SCORE_IDEAL, passes=MAX_PASSES)
     command = ["claude", "-p", "--permission-mode", "acceptEdits",
                "--allowedTools", *AGENT_ALLOWED_TOOLS, "--disallowedTools", *AGENT_DENIED_TOOLS]
     if plan:
@@ -232,15 +237,30 @@ def clean_project(name: str, project: Path, plan: bool) -> None:
         return
     before = None if plan else grade_score(project)
     run_formatters(name, project, plan)
-    start_agent(name, project, plan)
-    if not plan:
-        say(name, f"score: {before} -> {grade_score(project)}")
+    score = before
+    for attempt in range(1, MAX_AGENT_RUNS + 1):
+        start_agent(name, project, plan)
+        if plan:
+            say(name, f"would start up to {MAX_AGENT_RUNS} agents until the score reaches the floor of {SCORE_FLOOR}")
+            return
+        score = grade_score(project)
+        say(name, f"score after agent {attempt}: {score}")
+        if score is not None and score >= SCORE_FLOOR:
+            break
+        if attempt < MAX_AGENT_RUNS:
+            say(name, f"below the floor of {SCORE_FLOOR}, starting another agent")
+    reached = score is not None and score >= SCORE_FLOOR
+    say(name, f"score: {before} -> {score} ({'reached the floor' if reached else f'DID NOT reach the floor of {SCORE_FLOOR}'})")
 
 
 def projects_to_clean(args: argparse.Namespace) -> dict[str, Path]:
+    """With --all: every project in projects.toml except those in its [cleanup] skip list and any --skip names."""
     if args.all:
-        config = tomllib.loads((REPO / "claude" / "projects.toml").read_text())["projects"]
-        return {name: Path(path).expanduser() for name, path in config.items()}
+        config = tomllib.loads((REPO / "claude" / "projects.toml").read_text())
+        skipped = set(config.get("cleanup", {}).get("skip", [])) | set(args.skip)
+        for name in sorted(skipped):
+            print(f"[{name}] skipped: on the skip list")
+        return {name: Path(path).expanduser() for name, path in config["projects"].items() if name not in skipped}
     project = args.path.resolve()
     return {project.name: project}
 
@@ -249,6 +269,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("path", type=Path, nargs="?", help="the project to clean up")
     parser.add_argument("--all", action="store_true", help="every project in claude/projects.toml")
+    parser.add_argument("--skip", action="append", default=[], metavar="NAME", help="with --all: leave this project out (repeatable)")
     parser.add_argument("--parallel", type=int, default=1, help="how many projects at once (default 1)")
     parser.add_argument("--plan", action="store_true", help="show what would happen and change nothing")
     args = parser.parse_args()

@@ -33,3 +33,7 @@ ProtonDriveSync = "~/Code/ProtonDriveSync"
 FamilyHistoryAstro = "~/Code/FamilyHistoryAstro"
 DeorLang = "~/Code/DeorLang"
 NewWeb = "~/Code/NewWeb"
+
+[cleanup]
+# Projects that `--all` leaves out. Naming the project's folder directly still cleans it.
+skip = ["3dSpaceGame"]

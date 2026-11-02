@@ -55,3 +55,61 @@ def test_javascript_and_shell_files_count_as_tooling_languages(tmp_path, cleanup
 def test_the_agent_may_not_push(cleanup_script):
     assert "Bash(git push:*)" in cleanup_script.AGENT_DENIED_TOOLS
     assert not any("git push" in tool for tool in cleanup_script.AGENT_ALLOWED_TOOLS)
+
+
+def clean_all_args(skip=()):
+    import argparse
+
+    return argparse.Namespace(all=True, skip=list(skip), path=None)
+
+def point_at_config(cleanup_script, monkeypatch, tmp_path, text):
+    (tmp_path / "claude").mkdir()
+    (tmp_path / "claude" / "projects.toml").write_text(text)
+    monkeypatch.setattr(cleanup_script, "REPO", tmp_path)
+
+def test_all_leaves_out_the_projects_on_the_skip_list(tmp_path, monkeypatch, cleanup_script, capsys):
+    point_at_config(cleanup_script, monkeypatch, tmp_path, '[projects]\nkeep = "~/a"\nleave = "~/b"\n\n[cleanup]\nskip = ["leave"]\n')
+
+    assert list(cleanup_script.projects_to_clean(clean_all_args())) == ["keep"]
+    assert "[leave] skipped" in capsys.readouterr().out
+
+def test_the_skip_flag_adds_to_the_skip_list(tmp_path, monkeypatch, cleanup_script):
+    point_at_config(cleanup_script, monkeypatch, tmp_path, '[projects]\none = "~/a"\ntwo = "~/b"\nthree = "~/c"\n\n[cleanup]\nskip = ["one"]\n')
+
+    assert list(cleanup_script.projects_to_clean(clean_all_args(skip=["two"]))) == ["three"]
+
+def test_a_config_without_a_cleanup_section_skips_nothing(tmp_path, monkeypatch, cleanup_script):
+    point_at_config(cleanup_script, monkeypatch, tmp_path, '[projects]\none = "~/a"\n')
+
+    assert list(cleanup_script.projects_to_clean(clean_all_args())) == ["one"]
+
+
+def run_with_scores(cleanup_script, monkeypatch, tmp_path, scores):
+    started = []
+    monkeypatch.setattr(cleanup_script, "is_ready", lambda name, project: True)
+    monkeypatch.setattr(cleanup_script, "run_formatters", lambda name, project, plan: None)
+    monkeypatch.setattr(cleanup_script, "start_agent", lambda name, project, plan: started.append(name))
+    remaining = list(scores)
+    monkeypatch.setattr(cleanup_script, "grade_score", lambda project: remaining.pop(0))
+    cleanup_script.clean_project("demo", tmp_path, plan=False)
+
+    return started
+
+def test_another_agent_starts_while_the_score_is_below_the_floor(tmp_path, monkeypatch, cleanup_script, capsys):
+    # before, then after agent 1, after agent 2
+    started = run_with_scores(cleanup_script, monkeypatch, tmp_path, [60.0, 75.0, 82.0])
+
+    assert len(started) == 2
+    assert "reached the floor" in capsys.readouterr().out
+
+def test_it_stops_after_the_cap_and_says_the_floor_was_not_reached(tmp_path, monkeypatch, cleanup_script, capsys):
+    started = run_with_scores(cleanup_script, monkeypatch, tmp_path, [50.0, 55.0, 60.0, 65.0])
+
+    assert len(started) == cleanup_script.MAX_AGENT_RUNS
+    assert "DID NOT reach the floor" in capsys.readouterr().out
+
+def test_no_second_agent_when_the_first_reaches_the_floor(tmp_path, monkeypatch, cleanup_script):
+    assert len(run_with_scores(cleanup_script, monkeypatch, tmp_path, [70.0, 88.0])) == 1
+
+def test_the_score_goals_are_ordered(cleanup_script):
+    assert cleanup_script.SCORE_FLOOR < cleanup_script.SCORE_TARGET_LOW <= cleanup_script.SCORE_TARGET_HIGH < cleanup_script.SCORE_IDEAL
