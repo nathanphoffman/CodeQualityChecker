@@ -62,16 +62,22 @@ BIOME_ONLY = ("typescript", ("tsconfig.strict.json",))  # biome.json without the
 LINTER_FOLDER = {"cpp": ("c", ()), "javascript": BIOME_ONLY, "css": BIOME_ONLY, "html": BIOME_ONLY, "vue": BIOME_ONLY}
 
 
-def linter_pairs(project_root: Path) -> list[tuple[Path, Path]]:
-    """Linter and formatter configs from claude/linters/<language>/ for each language found in the project, copied to its root."""
+def linter_pairs(project_root: Path, name: str) -> list[tuple[Path, Path]]:
+    """Linter and formatter configs for a project, copied to its root.
+    The shared ones come from claude/linters/<language>/ for each language found in the project. A file of the same name in
+    claude/projects/<name>/linters/ replaces the shared one for this project, and any other file there is copied too."""
     pairs: dict[Path, Path] = {}
+    overrides = CLAUDE_DIR / "projects" / name / "linters"
+    if overrides.is_dir():
+        for item in sorted(overrides.iterdir()):
+            pairs[project_root / item.name] = item
     for language in sorted(tooling_languages(detect(project_root))):
         folder_name, skipped = LINTER_FOLDER.get(language, (language, ()))
         folder = CLAUDE_DIR / "linters" / folder_name
         if folder.is_dir():
             for item in sorted(folder.iterdir()):
                 if item.name not in skipped:
-                    pairs.setdefault(project_root / item.name, item)  # two languages can share a file; the first one wins
+                    pairs.setdefault(project_root / item.name, item)  # a project's own override, or another language's file, wins
     return [(source, target) for target, source in pairs.items()]
 
 
@@ -87,7 +93,7 @@ def build_plan() -> list[tuple[Path, Path]]:
             print(f"warning: {path} (project '{name}') does not exist on this machine, skipping")
         else:
             pairs += plan_for(src, path / ".claude", path)
-            pairs += linter_pairs(path)
+            pairs += linter_pairs(path, name)
     for folder in sorted((CLAUDE_DIR / "projects").iterdir()):
         if folder.is_dir() and folder.name not in mapped:
             print(f"warning: claude/projects/{folder.name}/ is not in projects.toml, skipping")

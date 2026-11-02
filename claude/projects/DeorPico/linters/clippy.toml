@@ -1,0 +1,2 @@
+# Clippy runs on build/main.rs, which is transpiled from Deor.
+# Defaults are fine for now; add thresholds here if needed.

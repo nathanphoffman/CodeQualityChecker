@@ -1,0 +1,9 @@
+{
+  "files": {
+    "includes": ["deor-vscode/client/**", "deor-vscode/server/**", "site/server.ts"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": { "recommended": true }
+  }
+}

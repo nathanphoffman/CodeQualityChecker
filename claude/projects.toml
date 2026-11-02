@@ -7,6 +7,7 @@
 # claude/projects/myapp/skills/*      -> ~/Code/myapp/.claude/skills/*
 # claude/projects/myapp/agents/*      -> ~/Code/myapp/.claude/agents/*
 # claude/linters/<language>/*          -> ~/Code/myapp/<same file name>, for each language detected in the project
+# claude/projects/myapp/linters/*     -> ~/Code/myapp/<same file name>, used instead of the shared linter file of that name
 # also: CLAUDE.local.md, .mcp.json (project root), settings.local.json, commands/*; global also takes keybindings.json
 [projects]
 3dSpaceGame = "~/Code/3dSpaceGameWT/3dSpaceGame"

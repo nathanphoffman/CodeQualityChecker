@@ -285,3 +285,40 @@ def test_a_sync_with_nothing_to_write_makes_no_commit(world, tmp_path):
 
     assert world.run() == 0
     assert git(project, "rev-parse", "HEAD").strip() == before
+
+
+def rust_project(project):
+    (project / "src").mkdir()
+    (project / "Cargo.toml").write_text('[package]\nname = "demo"\n')
+    (project / "src" / "main.rs").write_text("fn main() {}\n")
+    commit_everything(project)
+
+def test_a_project_override_replaces_the_shared_linter_file(world, tmp_path):
+    project = project_with_config(world, tmp_path)
+    rust_project(project)
+    (world.claude / "linters" / "rust").mkdir(parents=True)
+    (world.claude / "linters" / "rust" / "rustfmt.toml").write_text("max_width = 120")
+    (world.claude / "linters" / "rust" / "clippy.toml").write_text("shared clippy")
+    (world.claude / "projects" / "demo" / "linters").mkdir()
+    (world.claude / "projects" / "demo" / "linters" / "rustfmt.toml").write_text("max_width = 100")
+
+    assert world.run(["yes"]) == 0
+    assert (project / "rustfmt.toml").read_text() == "max_width = 100"
+    assert (project / "clippy.toml").read_text() == "shared clippy"  # not overridden, so the shared one is used
+
+def test_an_override_for_a_language_the_project_does_not_have_is_still_copied(world, tmp_path):
+    project = project_with_config(world, tmp_path)
+    (world.claude / "projects" / "demo" / "linters").mkdir()
+    (world.claude / "projects" / "demo" / "linters" / "special.toml").write_text("mine")
+
+    assert world.run(["yes"]) == 0
+    assert (project / "special.toml").read_text() == "mine"
+
+def test_other_projects_still_get_the_shared_file(world, tmp_path):
+    project = project_with_config(world, tmp_path)
+    rust_project(project)
+    (world.claude / "linters" / "rust").mkdir(parents=True)
+    (world.claude / "linters" / "rust" / "rustfmt.toml").write_text("max_width = 120")
+
+    assert world.run(["yes"]) == 0
+    assert (project / "rustfmt.toml").read_text() == "max_width = 120"

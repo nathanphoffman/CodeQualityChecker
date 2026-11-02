@@ -1,0 +1,11 @@
+{
+  "files": { "includes": ["engine/src/**/*.ts", "engine/tests/**/*.ts"] },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "style": { "noNonNullAssertion": "off" },
+      "suspicious": { "useIterableCallbackReturn": "off" }
+    }
+  },
+  "formatter": { "enabled": false }
+}
