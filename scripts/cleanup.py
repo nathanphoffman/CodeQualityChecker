@@ -113,6 +113,10 @@ Rules for the work:
 - Do not game the score: no deleting code or tests just to satisfy a check, and no changing the rules or ignore file.
 - You may delete a file or folder with `git rm` when it is clearly dead (nothing uses it). Never use `rm`. Make each deletion its own
   commit, and list every file you deleted, and why, in your summary.
+- Never replace a value inside a string, template, or embedded markup (SVG, HTML, CSS or SQL text, JSON, regex) with a constant or
+  variable. Text inside a string is not code, so the name would be written out literally and break it (this once turned `fill="none"`
+  into `fill=CSS_NONE`). Only swap a repeated value for a constant where it is real code, not text. If you do, search the whole project,
+  including built or generated files, for the old text first.
 - Follow this project's CLAUDE.md.
 - When you finish, say the score before and after, and list anything you could not fix and why. A few lines.
 """
