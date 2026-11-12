@@ -26,8 +26,8 @@ GROUP_NAMES = (
 GROUP_POSITIONS = {key: position for position, (key, _) in enumerate(GROUP_NAMES, 1)}
 GROUP_TITLES = {key: f"Rule {GROUP_POSITIONS[key]}: {name}" for key, name in GROUP_NAMES}
 
-# Each rule's weight in the total is 9 - rule number / 8, so rule 1 counts 8.875 and rule 16 counts 7.
-WEIGHT_BASE, WEIGHT_STEP_DIVISOR = 9, 8
+# Rule 1 counts fully in the total and the last rule counts 1/8 as much, with the rules between falling in a straight line.
+LAST_RULE_WEIGHT = 1 / 8
 
 UNGRADED = (Status.MANUAL, Status.SKIPPED)
 GRADE_CUTOFFS = ((90, "A"), (80, "B"), (70, "C"), (60, "D"))
@@ -46,14 +46,16 @@ def group_key(rule_id):
     return parts[0] if parts[0] == "COMMON" else LANGUAGE_GROUP
 
 def weight_text(group):
-    """The group's multiplier for display, like x8.88."""
+    """The group's multiplier for display, like x0.875."""
 
-    return f"x{group.weight:.2f}"
+    return f"x{group.weight:.3f}"
 
 def group_weight(key):
     """How many times the group counts in the total score: earlier rules count more."""
 
-    return WEIGHT_BASE - GROUP_POSITIONS[key] / WEIGHT_STEP_DIVISOR
+    share_of_the_way_down = (GROUP_POSITIONS[key] - 1) / (len(GROUP_NAMES) - 1)
+
+    return 1 - share_of_the_way_down * (1 - LAST_RULE_WEIGHT)
 
 def group_score(entries):
     """Average of the checks in a group, weighted by severity. None when nothing could be graded."""
