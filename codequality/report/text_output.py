@@ -1,7 +1,7 @@
 import sys
 
 from ..models import Status
-from .grouping import PERCENT, group_results, letter, overall_score, shown_percent
+from .grouping import PERCENT, group_results, letter, overall_score, shown_percent, weight_text
 
 # ANSI styles, left empty when output is piped or redirected so files stay clean.
 USE_COLOR = sys.stdout.isatty()
@@ -40,10 +40,10 @@ def print_check(rule, result):
 
 def print_group(group):
     if group.score is None:
-        print_banner(group.title.upper(), "needs human review", 0)
+        print_banner(f"{group.title.upper()}  ({weight_text(group)})", "needs human review", 0)
     else:
         percent = group.score * PERCENT
-        print_banner(group.title.upper(), f"{shown_percent(percent)}%  {letter(percent)}", percent)
+        print_banner(f"{group.title.upper()}  ({weight_text(group)})", f"{shown_percent(percent)}%  {letter(percent)}", percent)
 
     for rule, result in group.entries:
         print_check(rule, result)

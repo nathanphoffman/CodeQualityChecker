@@ -20,10 +20,9 @@ GROUP_SUMMARIES = {
     "RULE-14": "Blank lines separate ideas like paragraphs: at most 6 lines in a row (close to that is fine), blank lines before control statements, definitions and line comments, and never two in a row.",
 }
 
-# Groups that are not numbered rules: the project basics, then each language's own checks (tools, frameworks).
+# Rules 15 and 16: the project basics, then one summary for every language's own checks (tools, frameworks).
 TOOLING_SUMMARY = "Checks for the formatter and linter a language's community expects, and for the language's popular frameworks. A framework's checks only run when the project depends on it."
-GROUP_SUMMARIES.update({
-    "COMMON": "Basics every project should have: a README, a .gitignore and tests.",
+LANGUAGE_SUMMARIES = {
     "RUST": "Rust-specific checks: Cargo.lock, rustfmt and clippy config, few unwrap/expect calls, and the axum, actix, rocket, tauri, diesel, sqlx and bevy frameworks.",
     "TS": "TypeScript-specific checks: strict mode, few `any` types, an eslint or biome config, and the react, next, express, nest, vue, angular, svelte, nuxt and fastify frameworks.",
     "PYTHON": "Python-specific checks: a formatter or linter config, and the django, flask, fastapi, sqlalchemy and pydantic frameworks.",
@@ -31,6 +30,10 @@ GROUP_SUMMARIES.update({
     "C": "C-specific checks: clang-format and clang-tidy config.",
     "CSHARP": "C#-specific checks: an .editorconfig, and the ASP.NET Core, Entity Framework Core, Blazor and Unity frameworks.",
     "FORTRAN": "Fortran-specific checks: a fprettify or fortitude config.",
+}
+GROUP_SUMMARIES.update({
+    "COMMON": "Basics every project should have: a README, a .gitignore and tests.",
+    "LANGUAGE": " ".join([TOOLING_SUMMARY, *LANGUAGE_SUMMARIES.values()]),
 })
 
 # Group key -> language -> how that rule shows up in that language, shown only for the languages found in the project.

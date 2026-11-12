@@ -1,13 +1,14 @@
 from ..explanations import CHECK_EXPLANATIONS, GROUP_SUMMARIES, LANGUAGE_NOTES, NO_EXPLANATION
 from ..models import Status
-from .grouping import PERCENT, group_results, letter, overall_score, shown_percent
+from .grouping import PERCENT, group_results, letter, overall_score, shown_percent, weight_text
 from .text_output import BOLD, DIM, RESET, print_banner, print_project_header, print_total
 
 INDENT = "    "
 SCALE_HELP = (
     "HOW TO READ THIS REPORT\n"
     "Every check gets a score from 0% to 100%. A check's group (one numbered rule from RULES.md) scores the average of its checks,\n"
-    "weighted by severity, and the total score is the average of the groups. Grades: A 90+, B 80+, C 70+, D 60+, F below.\n"
+    "weighted by severity. Each rule then counts once in the total, times its multiplier (shown by the rule name): 9 minus the rule number / 8,\n"
+    "so earlier rules count a little more. Grades: A 90+, B 80+, C 70+, D 60+, F below.\n"
     "Checks marked 'manual' or 'skipped' are not scored. Only checks below 100% need work, and each one says how to improve it.\n"
     "The limits (like 6 per file) are targets, not exact demands. Going a little over costs a little, and the score only drops fast when\n"
     "you are far over. Aim to be as close as is reasonable, and don't contort the code to hit an exact number. 6 is the ideal, 7 or 8 is fine.\n"
@@ -27,7 +28,7 @@ def print_quick(project, results):
 
     for group in group_results(results):
         score = "needs human review" if group.score is None else f"{shown_percent(group.score * PERCENT, 1):>5}%  {letter(group.score * PERCENT)}"
-        print(f"{group.title:40}{score}")
+        print(f"{group.title:50}{score}  {weight_text(group)}")
 
     print()
     print_total(overall_score(results))
@@ -58,7 +59,7 @@ def print_language_notes(group_key, languages):
 
 def print_full_group(group, languages):
     percent = None if group.score is None else group.score * PERCENT
-    print_banner(group.title.upper(), "needs human review" if percent is None else f"{shown_percent(percent)}%  {letter(percent)}", percent or 0)
+    print_banner(f"{group.title.upper()}  ({weight_text(group)})", "needs human review" if percent is None else f"{shown_percent(percent)}%  {letter(percent)}", percent or 0)
     print(f"{DIM}{GROUP_SUMMARIES.get(group.key, '')}{RESET}\n")
     print_language_notes(group.key, languages)
 

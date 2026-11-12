@@ -15,7 +15,7 @@ def to_json(project, results):
         "grade": letter(score),
 
         "groups": [
-            {"id": group.key, "title": group.title, SCORE_KEY: group.score,
+            {"id": group.key, "title": group.title, SCORE_KEY: group.score, "weight": group.weight,
              "grade": letter(group.score * PERCENT) if group.score is not None else None}
             for group in group_results(results)
         ],

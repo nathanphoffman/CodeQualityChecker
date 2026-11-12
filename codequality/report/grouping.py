@@ -1,33 +1,33 @@
 from ..models import Status
 from .Rule_Group import Rule_Group
 
-GROUP_TITLES = {
-    "RULE-01": "Rule 1: Power of 6s",
-    "RULE-02": "Rule 2: Clear names",
-    "RULE-03": "Rule 3: Simple beats clever",
-    "RULE-04": "Rule 4: One job per function",
-    "RULE-05": "Rule 5: Be secure",
+LANGUAGE_GROUP = "LANGUAGE"
 
-    "RULE-06": "Rule 6: Don't repeat yourself",
-    "RULE-07": "Rule 7: No magic numbers",
-    "RULE-08": "Rule 8: Minimize dependencies",
-    "RULE-09": "Rule 9: Add comments",
-    "RULE-10": "Rule 10: Test what matters",
-    "RULE-11": "Rule 11: Fail loudly",
+# The numbered rules in RULES.md order. A group's position here is its rule number, and it sets the group's weight.
+# The keys still use the older ids, so RULE-04 (one job) now sits in position 8.
+GROUP_NAMES = (
+    ("RULE-01", "Power of 6s"),
+    ("RULE-02", "Clear names"),
+    ("RULE-03", "Simple beats clever"),
+    ("RULE-05", "Be secure"),
+    ("RULE-06", "Don't repeat yourself"),
+    ("RULE-07", "No magic numbers"),
+    ("RULE-08", "Minimize dependencies"),
+    ("RULE-04", "One job per function"),
+    ("RULE-09", "Add comments"),
+    ("RULE-10", "Test what matters"),
+    ("RULE-11", "Fail loudly"),
+    ("RULE-12", "Clean up"),
+    ("RULE-13", "Keep the project small"),
+    ("RULE-14", "Space it out"),
+    ("COMMON", "Project basics"),
+    (LANGUAGE_GROUP, "Language/Framework best practices"),
+)
+GROUP_POSITIONS = {key: position for position, (key, _) in enumerate(GROUP_NAMES, 1)}
+GROUP_TITLES = {key: f"Rule {GROUP_POSITIONS[key]}: {name}" for key, name in GROUP_NAMES}
 
-    "RULE-12": "Rule 12: Clean up",
-    "RULE-13": "Rule 13: Keep the project small",
-    "RULE-14": "Rule 14: Space it out",
-    "COMMON": "Project basics",
-    "RUST": "Rust",
-
-    "TS": "TypeScript",
-    "PYTHON": "Python",
-    "GO": "Go",
-    "C": "C",
-    "CSHARP": "C#",
-    "FORTRAN": "Fortran",
-}
+# Each rule's weight in the total is 9 - rule number / 8, so rule 1 counts 8.875 and rule 16 counts 7.
+WEIGHT_BASE, WEIGHT_STEP_DIVISOR = 9, 8
 
 UNGRADED = (Status.MANUAL, Status.SKIPPED)
 GRADE_CUTOFFS = ((90, "A"), (80, "B"), (70, "C"), (60, "D"))
@@ -37,10 +37,23 @@ PERCENT = 100.0
 MINUS_BELOW_POINT, PLUS_FROM_POINT = 3, 8
 
 def group_key(rule_id):
-    """RULE-03-LITTLE-CLEVERNESS -> RULE-03, COMMON-001 -> COMMON, TS-REACT-001 -> TS."""
+    """RULE-03-LITTLE-CLEVERNESS -> RULE-03, COMMON-001 -> COMMON, and every language or framework check (TS-REACT-001) -> LANGUAGE."""
     parts = rule_id.split("-")
 
-    return "-".join(parts[:2]) if parts[0] == "RULE" else parts[0]
+    if parts[0] == "RULE":
+        return "-".join(parts[:2])
+
+    return parts[0] if parts[0] == "COMMON" else LANGUAGE_GROUP
+
+def weight_text(group):
+    """The group's multiplier for display, like x8.88."""
+
+    return f"x{group.weight:.2f}"
+
+def group_weight(key):
+    """How many times the group counts in the total score: earlier rules count more."""
+
+    return WEIGHT_BASE - GROUP_POSITIONS[key] / WEIGHT_STEP_DIVISOR
 
 def group_score(entries):
     """Average of the checks in a group, weighted by severity. None when nothing could be graded."""
@@ -53,21 +66,24 @@ def group_score(entries):
     return sum(rule.weight * result.score for rule, result in graded) / total_weight
 
 def group_results(results):
-    """Rule_Groups with numbered rules first, then the rest."""
+    """Rule_Groups in RULES.md order."""
     entries_by_key = {}
 
     for rule, result in results:
         entries_by_key.setdefault(group_key(rule.id), []).append((rule, result))
 
-    keys = sorted(entries_by_key, key=lambda key: (not key.startswith("RULE"), key))
+    keys = sorted(entries_by_key, key=GROUP_POSITIONS.get)
 
-    return [Rule_Group(key, GROUP_TITLES.get(key, key), group_score(entries_by_key[key]), entries_by_key[key]) for key in keys]
+    return [Rule_Group(key, GROUP_TITLES[key], group_score(entries_by_key[key]), entries_by_key[key], group_weight(key)) for key in keys]
 
 def overall_score(results):
-    """Each group counts once, however many checks it has."""
-    scores = [group.score for group in group_results(results) if group.score is not None]
+    """Each group counts once, however many checks it has, times its weight. Groups nobody could grade are left out."""
+    graded = [group for group in group_results(results) if group.score is not None]
 
-    return PERCENT * sum(scores) / len(scores) if scores else PERCENT
+    if not graded:
+        return PERCENT
+
+    return PERCENT * sum(group.weight * group.score for group in graded) / sum(group.weight for group in graded)
 
 def rounded_score(percent, decimals=0):
     """A 0-100 score rounded to `decimals` places, but never up to 100 unless it is exactly 100, so one leftover problem can't read as perfect."""
